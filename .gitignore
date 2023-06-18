@@ -1,0 +1,8 @@
+# .app files
+*.app
+
+# directories
+.alpackages/
+.snapshots/
+trashed/
+testing/

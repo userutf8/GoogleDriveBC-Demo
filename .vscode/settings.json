@@ -1,0 +1,5 @@
+{
+    "al.browser": "Chrome",
+    "al.enableCodeAnalysis": true,
+    "al.showExplorerAtStartup": "Once"
+}
