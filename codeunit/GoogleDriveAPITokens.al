@@ -143,28 +143,4 @@ codeunit 50109 "Google Drive API Tokens"
         exit('uploadType');
     end;
 
-    procedure AuthorizeLbl(): Text
-    begin
-        exit('Authorize');
-    end;
-
-    procedure DeleteFileLbl(): Text
-    begin
-        exit('DeleteFile');
-    end;
-
-    procedure PatchMetadataLbl(): Text
-    begin
-        exit('PatchMetadata');
-    end;
-
-    procedure PatchFileLbl(): Text
-    begin
-        exit('PatchFile');
-    end;
-
-    procedure PostFileLbl(): Text
-    begin
-        exit('PostFile');
-    end;
 }

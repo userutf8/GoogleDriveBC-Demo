@@ -50,6 +50,7 @@ codeunit 50110 "Google Drive Setup Mgt."
         GoogleDriveJsonHelper: Codeunit "Google Drive Json Helper";
         GoogleDriveErrorHandler: Codeunit "Google Drive Error Handler";
         Tokens: Codeunit "Google Drive API Tokens";
+        Method: enum GDMethod;
         ResponseJson: JsonObject;
         RequestParams: Text;
         ResponseText: Text;
@@ -70,7 +71,7 @@ codeunit 50110 "Google Drive Setup Mgt."
             RequestParams := GoogleDriveRequestHandler.CreateRequestParamsAuthCode();
         end;
         ResponseText := GoogleDriveRequestHandler.RequestAccessToken(RequestParams);
-        GoogleDriveErrorHandler.HandleErrors(Tokens.AuthorizeLbl, ResponseText);
+        GoogleDriveErrorHandler.HandleErrors(Method::Authorize, ResponseText);
 
         ResponseJson.ReadFrom(ResponseText);
         Clear(GoogleDriveSetup.AuthCode);

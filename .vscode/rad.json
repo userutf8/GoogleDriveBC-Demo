@@ -1,1 +1,1 @@
-﻿{"Added":[],"Modified":[],"Removed":[]}
+﻿{"Added":[{"Id":50102,"Kind":22,"Name":"GDQueueStatus","PackagePath":"/src/enum/GDQueueStatus.al"}],"Modified":[{"Id":50122,"Kind":10,"Name":"Google Drive Queue","PackagePath":"/src/record/GoogleDriveQueue.al"},{"Id":50111,"Kind":11,"Name":"Google Drive Mgt.","PackagePath":"/src/codeunit/GoogleDriveMgt.al"}],"Removed":[]}

@@ -21,6 +21,7 @@ codeunit 50111 "Google Drive Mgt."
         GoogleDriveErrorHandler: Codeunit "Google Drive Error Handler";
         GoogleDriveJsonHelper: Codeunit "Google Drive Json Helper";
         Tokens: Codeunit "Google Drive API Tokens";
+        Method: enum GDMethod;
         ResponseJson: JsonObject;
         ResponseText: Text;
         FileID: Text;
@@ -37,14 +38,14 @@ codeunit 50111 "Google Drive Mgt."
 
         GoogleDriveSetupMgt.Authorize();
         ResponseText := GoogleDriveRequestHandler.PostFile(IStream);
-        GoogleDriveErrorHandler.HandleErrors(Tokens.PostFileLbl, ResponseText);
+        GoogleDriveErrorHandler.HandleErrors(Method::PostFile, ResponseText);
         ResponseJson.ReadFrom(ResponseText);
         FileID := GoogleDriveJsonHelper.GetTextValueFromJson(ResponseJson, Tokens.IdTok);
         UpdateGoogleDriveMediaFileID(MediaID, FileID);
         Commit();
 
         ResponseText := PatchMetadata(StrSubstNo('{"name": "%1"}', FileName), FileID);
-        GoogleDriveErrorHandler.HandleErrors(Tokens.PatchMetadataLbl, ResponseText);
+        GoogleDriveErrorHandler.HandleErrors(Method::PatchMetadata, ResponseText);
     end;
 
     procedure Delete(FileID: Text)
@@ -52,7 +53,7 @@ codeunit 50111 "Google Drive Mgt."
         GoogleDriveSetupMgt: Codeunit "Google Drive Setup Mgt.";
         GoogleDriveRequestHandler: Codeunit "Google Drive Request Handler";
         GoogleDriveErrorHandler: Codeunit "Google Drive Error Handler";
-        Tokens: Codeunit "Google Drive API Tokens";
+        Method: enum GDMethod;
         ResponseJson: JsonObject;
         ResponseText: Text;
         ErrorText: Text;
@@ -65,7 +66,7 @@ codeunit 50111 "Google Drive Mgt."
 
         GoogleDriveSetupMgt.Authorize();
         ResponseText := GoogleDriveRequestHandler.DeleteFile(FileID);
-        GoogleDriveErrorHandler.HandleErrors(Tokens.DeleteFileLbl, ResponseText);
+        GoogleDriveErrorHandler.HandleErrors(Method::DeleteFile, ResponseText);
     end;
 
     procedure Get(var IStream: InStream; var ErrorText: Text; FileID: Text)
@@ -116,7 +117,7 @@ codeunit 50111 "Google Drive Mgt."
         GoogleDriveRequestHandler: Codeunit "Google Drive Request Handler";
         GoogleDriveJsonHelper: Codeunit "Google Drive Json Helper";
         GoogleDriveErrorHandler: Codeunit "Google Drive Error Handler";
-        Tokens: Codeunit "Google Drive API Tokens";
+        Method: enum GDMethod;
         ResponseJson: JsonObject;
         ResponseText: Text;
     begin
@@ -131,10 +132,10 @@ codeunit 50111 "Google Drive Mgt."
 
         GoogleDriveSetupMgt.Authorize();
         ResponseText := GoogleDriveRequestHandler.PatchFile(IStream, FileID);
-        GoogleDriveErrorHandler.HandleErrors(Tokens.PatchFileLbl, ResponseText);
+        GoogleDriveErrorHandler.HandleErrors(Method::PatchFile, ResponseText);
 
         ResponseText := PatchMetadata(StrSubstNo('{"name": "%1"}', FileName), FileID);
-        GoogleDriveErrorHandler.HandleErrors(Tokens.PatchMetadataLbl, ResponseText);
+        GoogleDriveErrorHandler.HandleErrors(Method::PatchMetadata, ResponseText);
     end;
 
     procedure PatchMetadata(NewMetadata: Text; FileID: Text): Text
