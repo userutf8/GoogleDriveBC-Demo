@@ -28,12 +28,8 @@ codeunit 50116 "Google Drive Error Handler"
         end;
         if (ErrorValue <> '') or (ErrorText <> '') then begin
             // TODO
-            // log error
-            // parse error
-            // make decision to throw error or to proceed
-            // for example if create returns error, then cannot proceed and have to check garbage in case of timeouts
-            // if delete cannot find file, then can safely proceed
-            // if get returns not found then it's also okay for get
+            // parse and log error
+            // make decision: to throw or to proceed
             Error('%1 %2', Format(Method), ResponseText);
         end;
         if Method = Method::PostFile then

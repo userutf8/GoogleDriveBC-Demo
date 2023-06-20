@@ -20,9 +20,11 @@ page 50125 "Google Drive Links Part"
                 ShowCaption = false;
                 field(EntityTypeID; Rec.EntityTypeID)
                 {
+                    ApplicationArea = All;
                 }
                 field(EntityID; Rec.EntityID)
                 {
+                    ApplicationArea = All;
                 }
             }
         }

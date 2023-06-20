@@ -20,19 +20,19 @@ page 50122 "Google Drive Link Card"
                 ShowCaption = false;
                 field(EntityTypeID; Rec.EntityTypeID)
                 {
-
+                    ApplicationArea = All;
                 }
                 field(EntityID; Rec.EntityID)
                 {
-
+                    ApplicationArea = All;
                 }
                 field(EntryNo; Rec.EntryNo)
                 {
-
+                    ApplicationArea = All;
                 }
                 field(MediaID; Rec.MediaID)
                 {
-
+                    ApplicationArea = All;
                 }
             }
         }
@@ -40,6 +40,7 @@ page 50122 "Google Drive Link Card"
         {
             part(Picture; "Google Drive Media Card Part")
             {
+                ApplicationArea = All;
                 Caption = 'Picture';
                 SubPageLink = ID = field(MediaID);
             }

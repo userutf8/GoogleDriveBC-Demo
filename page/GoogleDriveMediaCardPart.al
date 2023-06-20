@@ -20,6 +20,7 @@ page 50123 "Google Drive Media Card Part"
                 ShowCaption = false;
                 field("Media"; Rec.FileContent)
                 {
+                    ApplicationArea = All;
                     ShowCaption = false;
                     DrillDownPageId = "Google Drive Media Card";
                 }
@@ -32,6 +33,8 @@ page 50123 "Google Drive Media Card Part"
         {
             action(Download)
             {
+                ApplicationArea = All;
+
                 trigger OnAction()
                 begin
                     Message('Download');
@@ -39,6 +42,8 @@ page 50123 "Google Drive Media Card Part"
             }
             action(Replace)
             {
+                ApplicationArea = All;
+
                 trigger OnAction()
                 begin
                     Message('Replace');
@@ -46,6 +51,8 @@ page 50123 "Google Drive Media Card Part"
             }
             action(Delete)
             {
+                ApplicationArea = All;
+
                 trigger OnAction()
                 begin
                     Message('Delete');

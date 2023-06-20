@@ -13,15 +13,15 @@ table 50122 "Google Drive Queue"
         }
         field(3; Method; enum GDMethod)
         {
-            InitValue = 0;
+            InitValue = Undefined;
         }
         field(4; Problem; enum GDProblem)
         {
-            InitValue = 0;
+            InitValue = Undefined;
         }
         field(5; Status; enum GDQueueStatus)
         {
-            InitValue = 0;
+            InitValue = New;
         }
         field(6; Iteration; Integer)
         {

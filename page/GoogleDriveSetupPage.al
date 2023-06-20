@@ -10,7 +10,7 @@ page 50110 "Google Drive Setup"
     InsertAllowed = false;
     ModifyAllowed = true;
     PageType = Card;
-    RefreshOnActivate = true;
+    RefreshOnActivate = true; // TODO: check, it has issues
     SourceTable = "Google Drive Setup";
     UsageCategory = Administration;
 
@@ -20,6 +20,7 @@ page 50110 "Google Drive Setup"
         {
             field(Active; Rec.Active)
             {
+                ApplicationArea = All;
                 Editable = true;
             }
             group(Client)
@@ -27,64 +28,78 @@ page 50110 "Google Drive Setup"
 
                 field("Client ID"; Rec.ClientID)
                 {
-
+                    ApplicationArea = All;
+                    Editable = true;
                 }
                 field("Client Secret"; Rec.ClientSecret)
                 {
-
+                    ApplicationArea = All;
+                    Editable = true;
                 }
                 field("Redirect URI"; Rec.RedirectURI)
                 {
-
+                    ApplicationArea = All;
+                    Editable = true;
                 }
             }
             group(Defaults)
             {
                 field("Auth URI"; Rec.AuthUri)
                 {
-
+                    ApplicationArea = All;
+                    Editable = true;
                 }
                 field("Token URI"; Rec.TokenURI)
                 {
-
+                    ApplicationArea = All;
+                    Editable = true;
                 }
                 field("Auth Scope"; Rec.AuthScope)
                 {
-
+                    ApplicationArea = All;
+                    Editable = true;
                 }
                 field("API Scope"; Rec.APIScope)
                 {
-
+                    ApplicationArea = All;
+                    Editable = true;
                 }
 
                 field("API Upload Scope"; Rec.APIUploadScope)
                 {
-
+                    ApplicationArea = All;
+                    Editable = true;
                 }
-            }
-            group(Authentication)
-            {
-                Visible = false;
-                field("Access Token"; Rec.AccessToken)
+                group(Authentication)
                 {
+                    Visible = false;
+                    field("Access Token"; Rec.AccessToken)
+                    {
+                        ApplicationArea = All;
+                        Editable = false;
+                    }
+                    field("Refresh Token"; Rec.RefreshToken)
+                    {
+                        ApplicationArea = All;
+                        Editable = false;
+                    }
+                    field("Expires in"; Rec.ExpriresIn)
+                    {
+                        ApplicationArea = All;
+                        Editable = false;
+                    }
+                    field("Token Type"; Rec.TokenType)
+                    {
+                        ApplicationArea = All;
+                        Editable = false;
+                    }
 
-                }
-                field("Refresh Token"; Rec.RefreshToken)
-                {
-
-                }
-                field("Expires in"; Rec.ExpriresIn)
-                {
-
-                }
-                field("Token Type"; Rec.TokenType)
-                {
-
-                }
-
-                field("Authentication Code"; Rec.AuthCode)
-                {
-
+                    field("Authentication Code"; Rec.AuthCode)
+                    {
+                        ApplicationArea = All;
+                        ToolTip = 'This field is expected to be empty most of the time.';
+                        Editable = false;
+                    }
                 }
             }
         }
@@ -97,9 +112,11 @@ page 50110 "Google Drive Setup"
 
             action("Init Setup")
             {
+                ApplicationArea = All;
                 Caption = 'Init';
                 Image = New;
-                ToolTip = 'Upload the client secret file (Google Drive API) and populate the setup with its values.';
+                ToolTip = 'Upload the client secret file received from Google Drive API and populate the setup.';
+
                 trigger OnAction()
                 var
                     GoogleDriveSetupMgt: Codeunit "Google Drive Setup Mgt.";
@@ -109,9 +126,11 @@ page 50110 "Google Drive Setup"
             }
             action("Activate Setup")
             {
+                ApplicationArea = All;
                 Caption = 'Activate';
                 Image = Apply;
-                ToolTip = 'Open Google authorization screen and authorize Business Central to work with Google Drive.';
+                ToolTip = 'Open Google Drive authorization screen and authorize Business Central to work with Google Drive.';
+                // TODO: move it to Active.OnValidate?
                 trigger OnAction()
                 var
                     GoogleDriveSetup: Record "Google Drive Setup";
@@ -132,7 +151,9 @@ page 50110 "Google Drive Setup"
 
             action("Clear Auth Code")
             {
+                ApplicationArea = All;
                 ToolTip = 'Clear authorization code manually.';
+
                 trigger OnAction()
                 begin
                     Clear(Rec.AuthCode);

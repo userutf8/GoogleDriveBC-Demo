@@ -19,15 +19,19 @@ page 50124 "Google Drive Media Card"
             {
                 field(FileName; Rec.FileName)
                 {
+                    ApplicationArea = All;
                 }
                 field(ID; Rec.ID)
                 {
+                    ApplicationArea = All;
                 }
                 field(FileID; Rec.FileID)
                 {
+                    ApplicationArea = All;
                 }
                 field("Media"; Rec.FileContent)
                 {
+                    ApplicationArea = All;
                     ShowCaption = false;
                 }
             }
@@ -36,6 +40,7 @@ page 50124 "Google Drive Media Card"
         {
             part(Image; "Google Drive Media Card Part")
             {
+                ApplicationArea = All;
                 Caption = 'Image';
                 SubPageLink = ID = field(ID);
             }
@@ -47,6 +52,7 @@ page 50124 "Google Drive Media Card"
         {
             action("Download")
             {
+                ApplicationArea = All;
                 Image = Download;
 
                 trigger OnAction()
@@ -56,6 +62,7 @@ page 50124 "Google Drive Media Card"
             }
             action("Replace")
             {
+                ApplicationArea = All;
                 Image = Change;
 
                 trigger OnAction()
@@ -67,6 +74,7 @@ page 50124 "Google Drive Media Card"
             }
             action("Delete")
             {
+                ApplicationArea = All;
                 Image = Delete;
 
                 trigger OnAction()
@@ -81,6 +89,7 @@ page 50124 "Google Drive Media Card"
         {
             action("Links")
             {
+                ApplicationArea = All;
                 Caption = 'Links...';
                 Image = Links;
                 RunObject = page "Google Drive Links";

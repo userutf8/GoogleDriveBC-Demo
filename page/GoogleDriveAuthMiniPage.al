@@ -12,15 +12,18 @@ page 50111 "Google Drive Auth Mini Page"
         {
             field(Status; Status)
             {
+                ApplicationArea = All;
                 ShowCaption = false;
                 Style = Strong;
             }
             field(Hint; Hint)
             {
+                ApplicationArea = All;
                 ShowCaption = false;
             }
             usercontrol(GetAuthCode; "Google Drive Auth Add-In")
             {
+                ApplicationArea = All;
                 trigger GetAuthCode(AuthCode: Text)
                 var
                     GoogleDriveSetup: Record "Google Drive Setup";

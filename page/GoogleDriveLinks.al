@@ -26,17 +26,22 @@ page 50121 "Google Drive Links"
                 ShowCaption = false;
                 field(EntityTypeID; Rec.EntityTypeID)
                 {
+                    ApplicationArea = All;
                     Width = 10;
                 }
                 field(EntityID; Rec.EntityID)
                 {
+                    ApplicationArea = All;
                     Width = 40;
                 }
                 field(EntryNo; Rec.EntryNo)
                 {
+                    ApplicationArea = All;
                 }
                 field(MediaID; Rec.MediaID)
                 {
+                    ApplicationArea = All;
+
                     trigger OnLookup(var Text: Text): Boolean
                     var
                         GoogleDriveMedia: Record "Google Drive Media";
@@ -55,6 +60,7 @@ page 50121 "Google Drive Links"
         {
             part(Picture; "Google Drive Media Card Part")
             {
+                ApplicationArea = All;
                 Caption = 'Image';
                 Visible = true;
                 SubPageLink = ID = field(MediaID);

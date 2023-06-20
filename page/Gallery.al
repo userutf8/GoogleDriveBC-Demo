@@ -23,6 +23,7 @@ page 50120 Gallery
             {
                 field(FileName; Rec.FileName)
                 {
+                    ApplicationArea = All;
                     ShowCaption = false;
                 }
             }
@@ -31,11 +32,13 @@ page 50120 Gallery
         {
             part("Selected"; "Google Drive Media Card Part")
             {
+                ApplicationArea = All;
                 Caption = 'Image';
                 SubPageLink = ID = field(ID);
             }
             part("Selected Links"; "Google Drive Links Part")
             {
+                ApplicationArea = All;
                 Caption = 'Links';
                 SubPageLink = MediaID = field(ID);
             }
@@ -47,6 +50,7 @@ page 50120 Gallery
         {
             action("Add")
             {
+                ApplicationArea = All;
                 Image = Add;
 
                 trigger OnAction()
@@ -60,6 +64,7 @@ page 50120 Gallery
 
             action("Replace")
             {
+                ApplicationArea = All;
                 Image = Change;
 
                 trigger OnAction()
@@ -71,6 +76,7 @@ page 50120 Gallery
             }
             action("Delete")
             {
+                ApplicationArea = All;
                 Image = Delete;
 
                 trigger OnAction()
@@ -83,6 +89,7 @@ page 50120 Gallery
 
             action("Download")
             {
+                ApplicationArea = All;
                 Image = Download;
 
                 trigger OnAction()
@@ -95,6 +102,7 @@ page 50120 Gallery
         {
             action("Links")
             {
+                ApplicationArea = All;
                 Caption = 'Links...';
                 Image = Links;
                 RunObject = page "Google Drive Links";
@@ -102,6 +110,7 @@ page 50120 Gallery
             }
             action("All Links")
             {
+                ApplicationArea = All;
                 Caption = 'All Links';
                 Image = Links;
                 RunObject = page "Google Drive Links";
