@@ -83,7 +83,7 @@ page 50110 Gallery
                 var
                     GoogleDriveMgt: Codeunit "Google Drive Mgt.";
                 begin
-                    GoogleDriveMgt.Delete(Rec.FileID, Rec.ID);
+                    GoogleDriveMgt.Delete(Rec.ID);
                 end;
             }
 

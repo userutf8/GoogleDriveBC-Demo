@@ -45,12 +45,18 @@ codeunit 50100 "Google Drive Setup Mgt."
 
     procedure Authorize()
     var
+        Method: enum GDMethod;
+    begin
+        Authorize(Method::Authorize);
+    end;
+
+    procedure Authorize(Method: enum GDMethod)
+    var
         GoogleDriveSetup: Record "Google Drive Setup";
         GoogleDriveRequestHandler: Codeunit "Google Drive Request Handler";
         GoogleDriveJsonHelper: Codeunit "Google Drive Json Helper";
         GoogleDriveErrorHandler: Codeunit "Google Drive Error Handler";
         Tokens: Codeunit "Google Drive API Tokens";
-        Method: enum GDMethod;
         ResponseJson: JsonObject;
         RequestParams: Text;
         ResponseText: Text;
@@ -75,9 +81,6 @@ codeunit 50100 "Google Drive Setup Mgt."
         RequestSentAtUTC := System.CurrentDateTime();
         ResponseText := GoogleDriveRequestHandler.RequestAccessToken(RequestParams);
 
-        Method := ParentMethod;
-        if Method = Method::Undefined then
-            Method := Method::Authorize;
         if not GoogleDriveErrorHandler.HandleErrors(Method, ResponseText) then
             exit;
 
@@ -94,11 +97,6 @@ codeunit 50100 "Google Drive Setup Mgt."
             GoogleDriveSetup.Validate(Active, true);
         end;
         GoogleDriveSetup.Modify(true);
-    end;
-
-    procedure SetParentMethod(NewParentMethod: Enum GDMethod)
-    begin
-        ParentMethod := NewParentMethod;
     end;
 
     local procedure CalcLifeTime(ExpiresIn: Text; OldLifeTime: Integer): Integer
@@ -128,6 +126,4 @@ codeunit 50100 "Google Drive Setup Mgt."
         APIUploadScopeTxt: Label 'https://www.googleapis.com/upload/drive/v3/files';
         AuthScopeTxt: Label 'https://www.googleapis.com/auth/drive';
         DialogTitleUploadTxt: Label 'File Upload';
-        ParentMethod: Enum GDMethod;
-
 }

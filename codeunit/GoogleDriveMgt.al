@@ -35,8 +35,7 @@ codeunit 50101 "Google Drive Mgt."
         MediaID := CreateGoogleDriveMedia(IStream, FileName, '');
         Commit();
 
-        GoogleDriveSetupMgt.SetParentMethod(Method::PostFile);
-        GoogleDriveSetupMgt.Authorize();
+        GoogleDriveSetupMgt.Authorize(Method::PostFile);
         if not GoogleDriveErrorHandler.FinalizeHandleErrors(Method::PostFile, MediaID, '') then
             exit;
 
@@ -75,8 +74,7 @@ codeunit 50101 "Google Drive Mgt."
             exit;
         end;
 
-        GoogleDriveSetupMgt.SetParentMethod(Method::DeleteFile);
-        GoogleDriveSetupMgt.Authorize();
+        GoogleDriveSetupMgt.Authorize(Method::DeleteFile);
         if not GoogleDriveErrorHandler.FinalizeHandleErrors(Method::DeleteFile, MediaID, FileID) then
             exit;
         ResponseText := GoogleDriveRequestHandler.DeleteFile(FileID);
@@ -93,8 +91,7 @@ codeunit 50101 "Google Drive Mgt."
         if FileID = '' then
             GoogleDriveErrorHandler.ThrowFileIDMissingErr;
 
-        GoogleDriveSetupMgt.SetParentMethod(Method::GetFile);
-        GoogleDriveSetupMgt.Authorize();
+        GoogleDriveSetupMgt.Authorize(Method::GetFile);
         GoogleDriveRequestHandler.GetMedia(IStream, FileID);
         ErrorText := GoogleDriveRequestHandler.GetErrorText();
     end;
@@ -110,8 +107,7 @@ codeunit 50101 "Google Drive Mgt."
         if FileID = '' then
             GoogleDriveErrorHandler.ThrowFileIDMissingErr;
 
-        GoogleDriveSetupMgt.SetParentMethod(Method::GetMetadata);
-        GoogleDriveSetupMgt.Authorize();
+        GoogleDriveSetupMgt.Authorize(Method::GetMetadata);
         ResponseText := GoogleDriveRequestHandler.GetMetadata(FileID);
         exit(ResponseText);
         // TODO check ResponseText?
@@ -157,8 +153,7 @@ codeunit 50101 "Google Drive Mgt."
             exit;
         end;
 
-        GoogleDriveSetupMgt.SetParentMethod(Method::PatchFile);
-        GoogleDriveSetupMgt.Authorize();
+        GoogleDriveSetupMgt.Authorize(Method::PatchFile);
         if not GoogleDriveErrorHandler.FinalizeHandleErrors(Method::PatchFile, MediaID, FileID) then
             exit;
 
@@ -181,8 +176,7 @@ codeunit 50101 "Google Drive Mgt."
             GoogleDriveErrorHandler.ThrowFileIDMissingErr();
 
         // TODO check NewMetadata
-        GoogleDriveSetupMgt.SetParentMethod(Method::PatchMetadata);
-        GoogleDriveSetupMgt.Authorize();
+        GoogleDriveSetupMgt.Authorize(Method::PatchMetadata);
         ResponseText := GoogleDriveRequestHandler.PatchMetadata(NewMetadata, FileID);
         exit(ResponseText);
         // TODO check ResponseText?
