@@ -42,8 +42,14 @@ page 50110 "Google Drive Setup"
                     Editable = true;
                 }
             }
-            group(Defaults)
+            group(API)
             {
+                field("Life Time"; Rec.LifeTime)
+                {
+                    ApplicationArea = All;
+                    Editable = true;
+                }
+
                 field("Auth URI"; Rec.AuthUri)
                 {
                     ApplicationArea = All;
@@ -70,36 +76,36 @@ page 50110 "Google Drive Setup"
                     ApplicationArea = All;
                     Editable = true;
                 }
-                group(Authentication)
+            }
+            group(Authentication)
+            {
+                Visible = false;
+                field("Access Token"; Rec.AccessToken)
                 {
-                    Visible = false;
-                    field("Access Token"; Rec.AccessToken)
-                    {
-                        ApplicationArea = All;
-                        Editable = false;
-                    }
-                    field("Refresh Token"; Rec.RefreshToken)
-                    {
-                        ApplicationArea = All;
-                        Editable = false;
-                    }
-                    field("Expires in"; Rec.ExpriresIn)
-                    {
-                        ApplicationArea = All;
-                        Editable = false;
-                    }
-                    field("Token Type"; Rec.TokenType)
-                    {
-                        ApplicationArea = All;
-                        Editable = false;
-                    }
+                    ApplicationArea = All;
+                    Editable = false;
+                }
+                field("Refresh Token"; Rec.RefreshToken)
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                }
+                field("Expires in"; Rec.ExpiresIn)
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                }
+                field("Token Type"; Rec.TokenType)
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                }
 
-                    field("Authentication Code"; Rec.AuthCode)
-                    {
-                        ApplicationArea = All;
-                        ToolTip = 'This field is expected to be empty most of the time.';
-                        Editable = false;
-                    }
+                field("Authentication Code"; Rec.AuthCode)
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'This field is expected to be empty most of the time.';
+                    Editable = false;
                 }
             }
         }
@@ -143,9 +149,12 @@ page 50110 "Google Drive Setup"
                     GoogleDriveSetupMgt.Authorize();
                     CurrPage.Update(false);
                     GoogleDriveSetup.Get();
-                    if OldStatus and GoogleDriveSetup.Active then
-                        if OldToken <> GoogleDriveSetup.AccessToken then
+                    if OldStatus and GoogleDriveSetup.Active then begin
+                        if OldToken = GoogleDriveSetup.AccessToken then
+                            Message(OldTokenAliveTxt)
+                        else
                             Message(TokenRefreshedTxt); // TODO replace by notification?
+                    end;
                 end;
             }
 
@@ -175,5 +184,6 @@ page 50110 "Google Drive Setup"
 
     }
     var
-        TokenRefreshedTxt: Label 'Access token was successfully refereshed!';
+        OldTokenAliveTxt: Label 'The existing access token is still valid. No need to refresh.';
+        TokenRefreshedTxt: Label 'Access token was successfully refreshed!';
 }

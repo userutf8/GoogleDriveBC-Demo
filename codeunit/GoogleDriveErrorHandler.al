@@ -54,6 +54,11 @@ codeunit 50116 "Google Drive Error Handler"
         Error(JsonStructureErr, FileName);
     end;
 
+    procedure ThrowEvaluateError(StringName: Text; StringValue: Text; ToTypeName: Text)
+    begin
+        Error(EvaluateFailErr, StringName, StringValue, ToTypeName);
+    end;
+
     procedure ThrowFileNameMissingErr()
     begin
         Error(FileNameMissingErr);
@@ -74,13 +79,20 @@ codeunit 50116 "Google Drive Error Handler"
         Error(NotImplementedErr);
     end;
 
+    procedure ThrowValueOutOfRange(Name: Text; Val: Text; LowMargin: Text; HighMargin: Text)
+    begin
+        Error(ValueOutOfRangeErr, Name, Val, LowMargin, HighMargin);
+    end;
+
 
     var
         APICreateErr: Label 'Unexpected error: response JSON does not contain a field "id". Please check recent Google Drive API updates.';
         JsonReadErr: Label 'Cannot read file %1 as json.';
         JsonStructureErr: Label 'Wrong json structure in %1. Please, check recent Google Drive API updates.';
+        EvaluateFailErr: Label 'Failed to evaluate %1=%2 into %3 type.';
         FileNameMissingErr: Label 'File name was not specified.';
         FileIDMissingErr: Label 'File ID was not specified.';
         FileUploadErr: Label 'Cannot upload file %1 into stream.';
         NotImplementedErr: Label 'Not implemented.';
+        ValueOutOfRangeErr: Label '%1 %2 is out of range [%3 .. %4]';
 }

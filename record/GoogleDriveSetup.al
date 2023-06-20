@@ -7,6 +7,7 @@ table 50110 "Google Drive Setup"
             Caption = 'ID';
             Description = 'Unique identifier of the setup. Must be 0.';
             InitValue = 0;
+
             trigger OnValidate()
             begin
                 TestField(ID, 0);
@@ -76,10 +77,10 @@ table 50110 "Google Drive Setup"
             Caption = 'Token Type';
             Description = 'Specifies the token_type received from Google OAuth2.0 API. Defaults to "Bearer".';
         }
-        field(12; ExpriresIn; Text[1024])
+        field(12; ExpiresIn; Text[1024])
         {
             Caption = 'Expires in (seconds)';
-            Description = 'Specifies expires_in value received from Google OAuth2.0 API. The lifetime in seconds of the access token.';
+            Description = 'Specifies expires_in value received from Google OAuth2.0 API. The default lifetime in seconds of the access token.';
         }
         field(13; RefreshToken; Text[2048])
         {
@@ -102,15 +103,29 @@ table 50110 "Google Drive Setup"
                     ClearTokens();
             end;
         }
-        field(15; Issued; Text[1024])
+        field(15; LifeTime; Integer)
         {
-            Caption = 'Issued DateTime';
-            Description = 'Specifies the issued time of the access token.';
+            Caption = 'Token Life Time';
+            Description = 'Specifies the Access Token life time in seconds.';
+            InitValue = 3600;
+
+            trigger OnValidate()
+            var
+                GoogleDriveErrorHandler: Codeunit "Google Drive Error Handler";
+                ExpiresInInt: Integer;
+            begin
+                if not Evaluate(ExpiresInInt, ExpiresIn) then
+                    GoogleDriveErrorHandler.ThrowEvaluateError(FieldCaption(ExpiresIn), ExpiresIn, 'Integer');
+
+                if (LifeTime < 0) or (LifeTime > ExpiresInInt) then
+                    GoogleDriveErrorHandler.ThrowValueOutOfRange(FieldCaption(LifeTime), Format(LifeTime), '0', ExpiresIn);
+            end;
+
         }
-        field(16; IssuedUtc; Text[1024])
+        field(16; IssuedUtc; DateTime)
         {
             Caption = 'Issued DateTime (UTC)';
-            Description = 'Specifies the issued time (UTC) of the access token.';
+            Description = 'Specifies the UTC timestamp for the last Access Token request.';
         }
         field(17; AuthCode; Text[2048])
         {
@@ -173,8 +188,7 @@ table 50110 "Google Drive Setup"
     begin
         Clear(AccessToken);
         Clear(RefreshToken);
-        Clear(ExpriresIn);
-        Clear(Issued);
+        Clear(ExpiresIn);
         Clear(IssuedUtc);
         Clear(AuthCode);
         Active := false;
@@ -190,10 +204,15 @@ table 50110 "Google Drive Setup"
         TestField(TokenURI);
     end;
 
-    procedure TokenExpired(): Boolean
+    procedure AccessTokenIsAlive(): Boolean
+    var
+        RemainingTime: Duration;
     begin
-        // TODO: implement
-        exit(true);
+        if IssuedUtc <> 0DT then begin
+            RemainingTime := (LifeTime * 1000) - (System.CurrentDateTime() - Rec.IssuedUtc);
+            if RemainingTime > 0 then
+                exit(true);
+        end;
+        exit(false);
     end;
-
 }

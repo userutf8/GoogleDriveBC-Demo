@@ -54,9 +54,10 @@ codeunit 50110 "Google Drive Setup Mgt."
         ResponseJson: JsonObject;
         RequestParams: Text;
         ResponseText: Text;
+        RequestSentAtUTC: DateTime;
     begin
         GoogleDriveSetup.Get;
-        if not GoogleDriveSetup.TokenExpired() then
+        if GoogleDriveSetup.AccessTokenIsAlive() then
             exit;
 
         GoogleDriveSetup.TestMandatoryAuthFields();
@@ -70,21 +71,38 @@ codeunit 50110 "Google Drive Setup Mgt."
             end;
             RequestParams := GoogleDriveRequestHandler.CreateRequestParamsAuthCode();
         end;
+
+        RequestSentAtUTC := System.CurrentDateTime();
         ResponseText := GoogleDriveRequestHandler.RequestAccessToken(RequestParams);
         GoogleDriveErrorHandler.HandleErrors(Method::Authorize, ResponseText);
 
         ResponseJson.ReadFrom(ResponseText);
         Clear(GoogleDriveSetup.AuthCode);
         GoogleDriveSetup.Validate(AccessToken, GoogleDriveJsonHelper.GetTextValueFromJson(ResponseJson, Tokens.AccessToken));
-        GoogleDriveSetup.Validate(ExpriresIn, GoogleDriveJsonHelper.GetTextValueFromJson(ResponseJson, Tokens.ExpiresIn));
         GoogleDriveSetup.Validate(TokenType, GoogleDriveJsonHelper.GetTextValueFromJson(ResponseJson, Tokens.TokenType));
-        GoogleDriveSetup.Validate(Issued, Format(CurrentDateTime, 9));
+        GoogleDriveSetup.Validate(IssuedUtc, RequestSentAtUTC);
+        GoogleDriveSetup.Validate(ExpiresIn, GoogleDriveJsonHelper.GetTextValueFromJson(ResponseJson, Tokens.ExpiresIn));
+        GoogleDriveSetup.Validate(LifeTime, CalcLifetime(GoogleDriveSetup.ExpiresIn, GoogleDriveSetup.LifeTime));
         if not GoogleDriveSetup.Active then begin
             GoogleDriveSetup.Validate(RefreshToken,
                 GoogleDriveJsonHelper.GetTextValueFromJson(ResponseJson, Tokens.RefreshToken));
             GoogleDriveSetup.Validate(Active, true);
         end;
         GoogleDriveSetup.Modify(true);
+    end;
+
+    local procedure CalcLifeTime(ExpiresIn: Text; OldLifeTime: Integer): Integer
+    var
+        ExpiresInInt: Integer;
+        LifeTime: Integer;
+    begin
+        // if evaluate fails just return 0, as we don't need errors
+        if Evaluate(ExpiresInInt, ExpiresIn) then begin
+            if OldLifeTime < ExpiresInInt then
+                exit(OldLifeTime);
+            exit(ExpiresInInt div 2);
+        end;
+        exit(0);
     end;
 
     local procedure GetRedirectUri(): Text
