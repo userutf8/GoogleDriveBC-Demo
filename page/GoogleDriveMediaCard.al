@@ -81,7 +81,7 @@ page 50111 "Google Drive Media Card"
                 var
                     GoogleDriveMgt: Codeunit "Google Drive Mgt.";
                 begin
-                    GoogleDriveMgt.Delete(Rec.FileID, Rec.ID);
+                    GoogleDriveMgt.Delete(Rec.ID);
                 end;
             }
         }

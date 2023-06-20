@@ -31,6 +31,10 @@ table 50120 "Google Drive Queue"
         {
             Description = 'Temporary field till log is implemented';
         }
+        field(8; FileID; Text[128])
+        {
+            Description = 'File ID copied from Google Drive Media';
+        }
     }
 
     keys

@@ -32,13 +32,12 @@ codeunit 50101 "Google Drive Mgt."
 
         // TODO check Istream (Length is available in runtime 11.0)
 
-        // Create record with empty File ID
         MediaID := CreateGoogleDriveMedia(IStream, FileName, '');
         Commit();
 
         GoogleDriveSetupMgt.SetParentMethod(Method::PostFile);
         GoogleDriveSetupMgt.Authorize();
-        if not GoogleDriveErrorHandler.FinalizeHandleErrors(Method::PostFile, MediaID) then
+        if not GoogleDriveErrorHandler.FinalizeHandleErrors(Method::PostFile, MediaID, '') then
             exit;
 
         ResponseText := GoogleDriveRequestHandler.PostFile(IStream);
@@ -52,27 +51,36 @@ codeunit 50101 "Google Drive Mgt."
         GoogleDriveErrorHandler.HandleErrors(Method::PatchMetadata, ResponseText);
     end;
 
-    procedure Delete(FileID: Text; MediaID: Integer)
+    procedure Delete(MediaID: Integer)
     var
         GoogleDriveMedia: Record "Google Drive Media";
         GoogleDriveSetupMgt: Codeunit "Google Drive Setup Mgt.";
         GoogleDriveRequestHandler: Codeunit "Google Drive Request Handler";
         GoogleDriveErrorHandler: Codeunit "Google Drive Error Handler";
+        Tokens: Codeunit "Google Drive API Tokens";
         Method: enum GDMethod;
         ResponseJson: JsonObject;
         ResponseText: Text;
         ErrorText: Text;
+        FileID: Text;
     begin
         GoogleDriveMedia.Get(MediaID);
+        FileID := GoogleDriveMedia.FileID;
         GoogleDriveMedia.Delete(true); // delete record and all links
         Commit();
 
-        if FileID <> '' then begin // TODO add queue
-            GoogleDriveSetupMgt.SetParentMethod(Method::DeleteFile);
-            GoogleDriveSetupMgt.Authorize();
-            ResponseText := GoogleDriveRequestHandler.DeleteFile(FileID);
-            GoogleDriveErrorHandler.HandleErrors(Method::DeleteFile, ResponseText);
+        if FileID = '' then begin // TODO add queue
+            GoogleDriveErrorHandler.HandleErrors(Method::DeleteFile, StrSubstNo('{"%1": {"%1": "%2"}}', Tokens.ErrorTok, 'MissingFileID'));
+            GoogleDriveErrorHandler.FinalizeHandleErrors(Method::DeleteFile, MediaID, '');
+            exit;
         end;
+
+        GoogleDriveSetupMgt.SetParentMethod(Method::DeleteFile);
+        GoogleDriveSetupMgt.Authorize();
+        if not GoogleDriveErrorHandler.FinalizeHandleErrors(Method::DeleteFile, MediaID, FileID) then
+            exit;
+        ResponseText := GoogleDriveRequestHandler.DeleteFile(FileID);
+        GoogleDriveErrorHandler.HandleErrors(Method::DeleteFile, ResponseText);
     end;
 
     procedure Get(var IStream: InStream; var ErrorText: Text; FileID: Text)
@@ -145,13 +153,13 @@ codeunit 50101 "Google Drive Mgt."
         FileID := GetGoogleDriveMediaFileID(MediaID);
         if FileID = '' then begin
             GoogleDriveErrorHandler.HandleErrors(Method::PatchFile, StrSubstNo('{"%1": {"%1": "%2"}}', Tokens.ErrorTok, 'MissingFileID'));
-            GoogleDriveErrorHandler.FinalizeHandleErrors(Method::PatchFile, MediaID);
-            exit; // TODO Handle this issue, there can be a ton of interesting cases here.
+            GoogleDriveErrorHandler.FinalizeHandleErrors(Method::PatchFile, MediaID, '');
+            exit;
         end;
 
         GoogleDriveSetupMgt.SetParentMethod(Method::PatchFile);
         GoogleDriveSetupMgt.Authorize();
-        if not GoogleDriveErrorHandler.FinalizeHandleErrors(Method::PatchFile, MediaID) then
+        if not GoogleDriveErrorHandler.FinalizeHandleErrors(Method::PatchFile, MediaID, FileID) then
             exit;
 
         ResponseText := GoogleDriveRequestHandler.PatchFile(IStream, FileID);
