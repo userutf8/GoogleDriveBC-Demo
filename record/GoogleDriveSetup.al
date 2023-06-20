@@ -111,11 +111,12 @@ table 50100 "Google Drive Setup"
 
             trigger OnValidate()
             var
+                Fld: Record Field;
                 GoogleDriveErrorHandler: Codeunit "Google Drive Error Handler";
                 ExpiresInInt: Integer;
             begin
                 if not Evaluate(ExpiresInInt, ExpiresIn) then
-                    GoogleDriveErrorHandler.ThrowEvaluateError(FieldCaption(ExpiresIn), ExpiresIn, 'Integer');
+                    GoogleDriveErrorHandler.ThrowEvaluateError(FieldCaption(ExpiresIn), ExpiresIn, Format(Fld.Type::Integer));
 
                 if (LifeTime < 0) or (LifeTime > ExpiresInInt) then
                     GoogleDriveErrorHandler.ThrowValueOutOfRange(FieldCaption(LifeTime), Format(LifeTime), '0', ExpiresIn);
