@@ -1,4 +1,4 @@
-page 50124 "Google Drive Media Card"
+page 50111 "Google Drive Media Card"
 {
     ApplicationArea = All;
     DeleteAllowed = false;
@@ -69,7 +69,7 @@ page 50124 "Google Drive Media Card"
                 var
                     GoogleDriveMgt: Codeunit "Google Drive Mgt.";
                 begin
-                    GoogleDriveMgt.Update(Rec.FileID);
+                    GoogleDriveMgt.Update(Rec.ID);
                 end;
             }
             action("Delete")
@@ -81,7 +81,7 @@ page 50124 "Google Drive Media Card"
                 var
                     GoogleDriveMgt: Codeunit "Google Drive Mgt.";
                 begin
-                    GoogleDriveMgt.Delete(Rec.FileID);
+                    GoogleDriveMgt.Delete(Rec.FileID, Rec.ID);
                 end;
             }
         }

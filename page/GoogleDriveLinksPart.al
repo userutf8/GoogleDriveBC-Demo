@@ -1,4 +1,4 @@
-page 50125 "Google Drive Links Part"
+page 50117 "Google Drive Links Part"
 {
     ApplicationArea = All;
     CardPageId = "Google Drive Link Card";

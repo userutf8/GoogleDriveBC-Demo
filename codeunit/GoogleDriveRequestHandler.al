@@ -1,4 +1,4 @@
-codeunit 50115 "Google Drive Request Handler"
+codeunit 50110 "Google Drive Request Handler"
 {
     Description = 'Handles calls to Google Drive API.';
 
@@ -225,9 +225,11 @@ codeunit 50115 "Google Drive Request Handler"
         Content.GetHeaders(ContentHeaders);
         ContentHeaders.Clear();
         ContentHeaders.Add(Tokens.ContentType, Tokens.MimeTypeFormUrlEncoded);
-        Client.Post(GoogleDriveSetup.TokenURI, Content, Response);
-        Response.Content().ReadAs(ResponseText);
-        exit(ResponseText);
+        if Client.Post(GoogleDriveSetup.TokenURI, Content, Response) then begin
+            Response.Content().ReadAs(ResponseText);
+            exit(ResponseText);
+        end else
+            exit(StrSubstNo('{"%1": "%2"}', Tokens.ErrorTok, Response.HttpStatusCode));
     end;
 
     local procedure CreateUrlParamsTemplate(QtyParams: Integer): Text

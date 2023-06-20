@@ -1,4 +1,4 @@
-page 50122 "Google Drive Link Card"
+page 50116 "Google Drive Link Card"
 {
     ApplicationArea = All;
     Caption = 'Google Drive Media Link';

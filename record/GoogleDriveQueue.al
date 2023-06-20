@@ -1,4 +1,4 @@
-table 50122 "Google Drive Queue"
+table 50120 "Google Drive Queue"
 {
     Description = 'Entries for the job queue.';
     fields
@@ -27,6 +27,10 @@ table 50122 "Google Drive Queue"
         {
             InitValue = 0;
         }
+        field(7; TempErrorValue; Text[2048])
+        {
+            Description = 'Temporary field till log is implemented';
+        }
     }
 
     keys
@@ -38,8 +42,15 @@ table 50122 "Google Drive Queue"
     }
 
     trigger OnInsert()
+    var
+        GoogleDriveQueue: Record "Google Drive Queue";
     begin
-
+        if ID = 0 then begin
+            if GoogleDriveQueue.FindLast() then
+                ID := GoogleDriveQueue.ID + 1
+            else
+                ID := 1;
+        end;
     end;
 
     trigger OnModify()

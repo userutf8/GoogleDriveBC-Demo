@@ -1,4 +1,4 @@
-page 50111 "Google Drive Auth Mini Page"
+page 50101 "Google Drive Auth Mini Page"
 {
     ApplicationArea = All;
     Caption = 'Google Drive Authorization';

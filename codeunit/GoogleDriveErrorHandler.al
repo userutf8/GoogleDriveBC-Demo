@@ -1,15 +1,17 @@
-codeunit 50116 "Google Drive Error Handler"
+codeunit 50111 "Google Drive Error Handler"
 {
-    Description = 'Handles runtime errors. ';
+    Description = 'Handles runtime errors and queue. ';
 
     procedure HandleErrors(Method: enum GDMethod; ResponseText: Text): Boolean
     var
+        GoogleDriveQueue: Record "Google Drive Queue";
         GoogleDriveJsonHelper: Codeunit "Google Drive Json Helper";
         Tokens: Codeunit "Google Drive API Tokens";
         ResponseJson: JsonObject;
         ErrorValue: Text;
         ErrorText: Text;
     begin
+        // TODO bad function name (bad design)
         if not ResponseJson.ReadFrom(ResponseText) then begin
             // TODO log JSON parsing warning
             if StrPos(ResponseText, Tokens.ErrorTok) > 0 then begin
@@ -27,21 +29,62 @@ codeunit 50116 "Google Drive Error Handler"
                 ThrowNotImplementedErr();
         end;
         if (ErrorValue <> '') or (ErrorText <> '') then begin
-            // TODO
-            // parse and log error
-            // make decision: to throw or to proceed
-            Error('%1 %2', Format(Method), ResponseText);
-        end;
-        if Method = Method::PostFile then
-            if GoogleDriveJsonHelper.GetTextValueFromJson(ResponseJson, Tokens.IdTok) = '' then
-                Error('%1 %2', Format(Method), APICreateErr);
+            if Method = Method::Authorize then
+                Error('%1 Error: %2', Format(Method), ErrorValue);
 
+            GoogleDriveQueue.Init();
+            GoogleDriveQueue.Validate(Method, Method);
+            GoogleDriveQueue.Validate(Problem, CalcProblem(Method, ErrorValue, ErrorText));
+            GoogleDriveQueue.Validate(Status, GoogleDriveQueue.Status::New);
+            GoogleDriveQueue.Validate(MediaID, 0); // for Authorize and Delete not needed
+            GoogleDriveQueue.Validate(Iteration, 0);
+            GoogleDriveQueue.Validate(TempErrorValue, CalcErrorValue(ErrorValue, ErrorText));
+            GoogleDriveQueue.Insert(true);
+            Commit();
+
+            exit(false);
+        end;
         exit(true);
     end;
 
-    procedure ThrowAPICreateErr()
+    procedure FinalizeHandleErrors(Method: enum GDMethod; MediaID: Integer): Boolean
+    var
+        GoogleDriveQueue: Record "Google Drive Queue";
     begin
-        Error(APICreateErr);
+        // TODO bad function name (bad design)
+        If MediaID = 0 then
+            Error(ParameterMissingErr, GoogleDriveQueue.FieldName(MediaID));
+
+        GoogleDriveQueue.SetRange(Status, GoogleDriveQueue.Status::New);
+        GoogleDriveQueue.SetRange(Method, Method);
+        if GoogleDriveQueue.IsEmpty then
+            exit(true); // no tracked problems
+
+        GoogleDriveQueue.FindFirst();
+        GoogleDriveQueue.Validate(MediaID, MediaID);
+        GoogleDriveQueue.Validate(Status, GoogleDriveQueue.Status::"To Handle");
+        GoogleDriveQueue.Modify(true);
+        Commit();
+
+        exit(false); // problem is tracked
+    end;
+
+    local procedure CalcErrorValue(ErrorValue: Text; ErrorText: Text): Text
+    begin
+        if ErrorValue = '' then
+            exit(ErrorText);
+        exit(ErrorValue);
+    end;
+
+    local procedure CalcProblem(Method: enum GDMethod; ErrorValue: Text; ErrorText: Text): enum GDProblem
+    var
+        Problem: enum GDProblem;
+    begin
+        case (ErrorValue) of
+            '0':
+                exit(Problem::Timeout);
+        end;
+        exit(Problem::Undefined);
     end;
 
     procedure ThrowJsonReadErr(FileName: Text)
@@ -84,9 +127,7 @@ codeunit 50116 "Google Drive Error Handler"
         Error(ValueOutOfRangeErr, Name, Val, LowMargin, HighMargin);
     end;
 
-
     var
-        APICreateErr: Label 'Unexpected error: response JSON does not contain a field "id". Please check recent Google Drive API updates.';
         JsonReadErr: Label 'Cannot read file %1 as json.';
         JsonStructureErr: Label 'Wrong json structure in %1. Please, check recent Google Drive API updates.';
         EvaluateFailErr: Label 'Failed to evaluate %1=%2 into %3 type.';
@@ -94,5 +135,6 @@ codeunit 50116 "Google Drive Error Handler"
         FileIDMissingErr: Label 'File ID was not specified.';
         FileUploadErr: Label 'Cannot upload file %1 into stream.';
         NotImplementedErr: Label 'Not implemented.';
+        ParameterMissingErr: Label '%1 must be specified.';
         ValueOutOfRangeErr: Label '%1 %2 is out of range [%3 .. %4]';
 }

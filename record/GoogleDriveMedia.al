@@ -1,4 +1,4 @@
-table 50120 "Google Drive Media"
+table 50110 "Google Drive Media"
 {
     fields
     {
@@ -52,8 +52,11 @@ table 50120 "Google Drive Media"
     end;
 
     trigger OnDelete()
+    var
+        Link: Record "Google Drive Link";
     begin
-
+        Link.SetRange(MediaID, ID);
+        Link.DeleteAll(true);
     end;
 
     trigger OnRename()

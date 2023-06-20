@@ -1,4 +1,4 @@
-table 50110 "Google Drive Setup"
+table 50100 "Google Drive Setup"
 {
     fields
     {

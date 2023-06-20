@@ -1,4 +1,4 @@
-page 50120 Gallery
+page 50110 Gallery
 {
     AboutText = 'You can view and edit images.';
     AboutTitle = 'Gallery';
@@ -71,7 +71,7 @@ page 50120 Gallery
                 var
                     GoogleDriveMgt: Codeunit "Google Drive Mgt.";
                 begin
-                    GoogleDriveMgt.Update(Rec.FileID);
+                    GoogleDriveMgt.Update(Rec.ID);
                 end;
             }
             action("Delete")
@@ -83,7 +83,7 @@ page 50120 Gallery
                 var
                     GoogleDriveMgt: Codeunit "Google Drive Mgt.";
                 begin
-                    GoogleDriveMgt.Delete(Rec.FileID);
+                    GoogleDriveMgt.Delete(Rec.FileID, Rec.ID);
                 end;
             }
 
@@ -115,6 +115,13 @@ page 50120 Gallery
                 Image = Links;
                 RunObject = page "Google Drive Links";
             }
+            action("Problems")
+            {
+                ApplicationArea = All;
+                Caption = 'Problems';
+                Image = ErrorLog;
+                RunObject = page "Google Drive Queue";
+            }
         }
         area(Promoted)
         {
@@ -141,6 +148,10 @@ page 50120 Gallery
 
                 }
                 actionref(AllLinks_Promoted; "All Links")
+                {
+
+                }
+                actionref(Problems_Promoted; Problems)
                 {
 
                 }

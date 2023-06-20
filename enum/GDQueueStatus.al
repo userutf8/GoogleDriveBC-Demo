@@ -5,7 +5,15 @@ enum 50102 GDQueueStatus
     value(0; New)
     {
     }
-    value(1; Handled)
+    value(1; "To Handle")
+    {
+
+    }
+    value(2; "In Progress")
+    {
+
+    }
+    value(3; Handled)
     {
 
     }

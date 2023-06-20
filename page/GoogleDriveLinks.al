@@ -1,4 +1,4 @@
-page 50121 "Google Drive Links"
+page 50115 "Google Drive Links"
 {
     AboutText = 'You can add, modify and delete links between Business Central entities and Google Drive files.';
     AboutTitle = 'Google Drive Media Links';

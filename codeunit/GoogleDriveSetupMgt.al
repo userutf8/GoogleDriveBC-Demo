@@ -1,4 +1,4 @@
-codeunit 50110 "Google Drive Setup Mgt."
+codeunit 50100 "Google Drive Setup Mgt."
 {
     Description = 'Manages Google Drive Setup.';
     procedure InitSetup()
@@ -74,7 +74,12 @@ codeunit 50110 "Google Drive Setup Mgt."
 
         RequestSentAtUTC := System.CurrentDateTime();
         ResponseText := GoogleDriveRequestHandler.RequestAccessToken(RequestParams);
-        GoogleDriveErrorHandler.HandleErrors(Method::Authorize, ResponseText);
+
+        Method := ParentMethod;
+        if Method = Method::Undefined then
+            Method := Method::Authorize;
+        if not GoogleDriveErrorHandler.HandleErrors(Method, ResponseText) then
+            exit;
 
         ResponseJson.ReadFrom(ResponseText);
         Clear(GoogleDriveSetup.AuthCode);
@@ -89,6 +94,11 @@ codeunit 50110 "Google Drive Setup Mgt."
             GoogleDriveSetup.Validate(Active, true);
         end;
         GoogleDriveSetup.Modify(true);
+    end;
+
+    procedure SetParentMethod(NewParentMethod: Enum GDMethod)
+    begin
+        ParentMethod := NewParentMethod;
     end;
 
     local procedure CalcLifeTime(ExpiresIn: Text; OldLifeTime: Integer): Integer
@@ -118,5 +128,6 @@ codeunit 50110 "Google Drive Setup Mgt."
         APIUploadScopeTxt: Label 'https://www.googleapis.com/upload/drive/v3/files';
         AuthScopeTxt: Label 'https://www.googleapis.com/auth/drive';
         DialogTitleUploadTxt: Label 'File Upload';
+        ParentMethod: Enum GDMethod;
 
 }

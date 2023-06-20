@@ -1,4 +1,4 @@
-page 50110 "Google Drive Setup"
+page 50100 "Google Drive Setup"
 {
     AboutText = 'You can configure Google Drive integration settings.';
     AboutTitle = 'Google Drive Setup';

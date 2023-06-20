@@ -14,4 +14,8 @@ enum 50101 GDProblem
     value(3; NotFound)
     {
     }
+    value(4; MissingFileID)
+    {
+
+    }
 }
