@@ -43,7 +43,11 @@ codeunit 50111 "Google Drive Error Handler"
                     Problem := Problem::JsonRead;
                 Format(Problem::MissingFileID):
                     Problem := Problem::MissingFileID;
+                else
+                    Problem := Problem::Undefined;
             end;
+            if Problem = Problem::Undefined then
+                ErrorValue := ResponseText;
             LogError(Problem, Method, ErrorValue);
             exit(true);
         end;

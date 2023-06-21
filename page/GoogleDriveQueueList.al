@@ -24,6 +24,12 @@ Page 50120 "Google Drive Queue"
                     ApplicationArea = all;
                     Editable = false;
                 }
+                field(FileID; Rec.FileID)
+                {
+                    ApplicationArea = all;
+                    Editable = false;
+                }
+
                 field(Method; Rec.Method)
                 {
                     ApplicationArea = all;

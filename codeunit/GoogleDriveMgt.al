@@ -16,96 +16,68 @@ codeunit 50101 "Google Drive Mgt."
 
     procedure Create(var IStream: InStream; FileName: Text)
     var
-        GoogleDriveSetupMgt: Codeunit "Google Drive Setup Mgt.";
-        GoogleDriveRequestHandler: Codeunit "Google Drive Request Handler";
-        GoogleDriveErrorHandler: Codeunit "Google Drive Error Handler";
-        GoogleDriveJsonHelper: Codeunit "Google Drive Json Helper";
+        SetupMgt: Codeunit "Google Drive Setup Mgt.";
+        RequestHandler: Codeunit "Google Drive Request Handler";
+        ErrorHandler: Codeunit "Google Drive Error Handler";
+        QueueHandler: Codeunit "Google Drive Queue Handler";
+        JsonHelper: Codeunit "Google Drive Json Helper";
         Tokens: Codeunit "Google Drive API Tokens";
         ResponseJson: JsonObject;
         Method: enum GDMethod;
         Problem: enum GDProblem;
         Status: enum GDQueueStatus;
-        ErrorValue: Text;
         ResponseText: Text;
+        ErrorValue: Text;
         FileID: Text;
         MediaID: Integer;
         QueueID: Integer;
     begin
-        // TODO check Istream also (Length is available in runtime 11.0)
         if FileName = '' then
-            GoogleDriveErrorHandler.ThrowFileNameMissingErr();
+            ErrorHandler.ThrowFileNameMissingErr();
 
         MediaID := CreateGoogleDriveMedia(IStream, FileName, '');
-        QueueID := CreateGoogleDriveQueue(Method::PostFile, Problem::Undefined, MediaID, '');
+        QueueID := QueueHandler.CreateGoogleDriveQueue(Method::PostFile, Problem::Undefined, MediaID, '');
         Commit();
 
-        GoogleDriveSetupMgt.Authorize(Method);
-        GoogleDriveSetupMgt.GetError(Method, Problem, ErrorValue);
+        SetupMgt.Authorize(Method::PostFile);
+        SetupMgt.GetError(Method, Problem, ErrorValue);
         if ErrorValue <> '' then begin
-            UpdateGoogleDriveQueue(QueueID, Status::"To Handle", Method, Problem, MediaID, '', ErrorValue);
+            QueueHandler.UpdateGoogleDriveQueue(QueueID, Status::"To Handle", Method, Problem, MediaID, '', ErrorValue);
             Commit();
             exit;
         end;
 
-        ResponseText := GoogleDriveRequestHandler.PostFile(IStream);
-        if GoogleDriveErrorHandler.ResponseHasError(Method::PostFile, ResponseText) then begin
-            GoogleDriveErrorHandler.GetError(Method, Problem, ErrorValue);
-            UpdateGoogleDriveQueue(QueueID, Status::"To Handle", Method, Problem, MediaID, '', ErrorValue);
+        ResponseText := RequestHandler.PostFile(IStream);
+        if ErrorHandler.ResponseHasError(Method::PostFile, ResponseText) then begin
+            ErrorHandler.GetError(Method, Problem, ErrorValue);
+            QueueHandler.UpdateGoogleDriveQueue(QueueID, Status::"To Handle", Method, Problem, MediaID, '', ErrorValue);
             Commit();
             exit;
         end;
 
         ResponseJson.ReadFrom(ResponseText);
-        GoogleDriveJsonHelper.TryGetTextValueFromJson(FileID, ResponseJson, Tokens.IdTok);
+        JsonHelper.TryGetTextValueFromJson(FileID, ResponseJson, Tokens.IdTok);
         if FileID = '' then begin
-            UpdateGoogleDriveQueue(QueueID, Status::"To Handle", Method::PostFile, Problem::MissingFileID, MediaID, '', ResponseText);
+            QueueHandler.UpdateGoogleDriveQueue(
+                QueueID, Status::"To Handle", Method::PostFile, Problem::MissingFileID, MediaID, '', ResponseText);
             Commit();
             exit;
         end;
+
         UpdateGoogleDriveMediaFileID(MediaID, FileID);
-        UpdateGoogleDriveQueue(QueueID, Status::New, Method::PostFile, Problem::Undefined, MediaID, FileID, '');
+        QueueHandler.UpdateGoogleDriveQueue(QueueID, Status::New, Method::PostFile, Problem::Undefined, MediaID, FileID, '');
         Commit();
 
         ResponseText := PatchMetadata(StrSubstNo('{"name": "%1"}', FileName), FileID);
-        if GoogleDriveErrorHandler.ResponseHasError(Method::PatchMetadata, ResponseText) then begin
-            GoogleDriveErrorHandler.GetError(Method, Problem, ErrorValue);
-            UpdateGoogleDriveQueue(QueueID, Status::"To Handle", Method, Problem, MediaID, FileID, ErrorValue);
+        if ErrorHandler.ResponseHasError(Method::PatchMetadata, ResponseText) then begin
+            ErrorHandler.GetError(Method, Problem, ErrorValue);
+            QueueHandler.UpdateGoogleDriveQueue(QueueID, Status::"To Handle", Method, Problem, MediaID, FileID, ErrorValue);
             Commit();
             exit;
         end;
-        UpdateGoogleDriveQueue(QueueID, Status::Handled, Method::PostFile, Problem::Undefined, MediaID, FileID, '');
+
+        QueueHandler.UpdateGoogleDriveQueue(QueueID, Status::Handled, Method::PostFile, Problem::Undefined, MediaID, FileID, '');
         Commit();
-    end;
-
-    local procedure CreateGoogleDriveQueue(Method: enum GDMethod; Problem: enum GDProblem; MediaID: Integer; FileID: Text): Integer
-    var
-        GoogleDriveQueue: Record "Google Drive Queue";
-    begin
-        GoogleDriveQueue.Init();
-        GoogleDriveQueue.Validate(Method, Method);
-        GoogleDriveQueue.Validate(Problem, Problem);
-        GoogleDriveQueue.Validate(Status, GoogleDriveQueue.Status::New);
-        GoogleDriveQueue.Validate(MediaID, MediaID);
-        GoogleDriveQueue.Validate(FileID, FileID);
-        GoogleDriveQueue.Validate(Iteration, 0);
-        GoogleDriveQueue.Validate(TempErrorValue, '');
-        GoogleDriveQueue.Insert(true);
-        exit(GoogleDriveQueue.ID);
-    end;
-
-    local procedure UpdateGoogleDriveQueue(QueueID: Integer; Status: enum GDQueueStatus; Method: enum GDMethod; Problem: enum GDProblem; MediaID: Integer; FileID: Text; ErrorValue: Text)
-    var
-        GoogleDriveQueue: Record "Google Drive Queue";
-    begin
-        GoogleDriveQueue.Get(QueueID);
-        GoogleDriveQueue.Validate(Method, Method);
-        GoogleDriveQueue.Validate(Problem, Problem);
-        GoogleDriveQueue.Validate(Status, Status);
-        GoogleDriveQueue.Validate(MediaID, MediaID);
-        GoogleDriveQueue.Validate(FileID, FileID);
-        GoogleDriveQueue.Validate(Iteration, 0);
-        GoogleDriveQueue.Validate(TempErrorValue, ErrorValue);
-        GoogleDriveQueue.Modify(true);
     end;
 
     procedure Delete(MediaID: Integer)
@@ -185,41 +157,64 @@ codeunit 50101 "Google Drive Mgt."
 
     procedure Update(var IStream: InStream; FileName: Text; MediaID: Integer)
     var
-        GoogleDriveSetupMgt: Codeunit "Google Drive Setup Mgt.";
-        GoogleDriveRequestHandler: Codeunit "Google Drive Request Handler";
-        GoogleDriveJsonHelper: Codeunit "Google Drive Json Helper";
-        GoogleDriveErrorHandler: Codeunit "Google Drive Error Handler";
+        SetupMgt: Codeunit "Google Drive Setup Mgt.";
+        RequestHandler: Codeunit "Google Drive Request Handler";
+        ErrorHandler: Codeunit "Google Drive Error Handler";
+        QueueHandler: Codeunit "Google Drive Queue Handler";
+        JsonHelper: Codeunit "Google Drive Json Helper";
         Tokens: Codeunit "Google Drive API Tokens";
-        Method: enum GDMethod;
         ResponseJson: JsonObject;
+        Method: enum GDMethod;
+        Problem: enum GDProblem;
+        Status: enum GDQueueStatus;
         ResponseText: Text;
+        ErrorValue: Text;
         FileID: Text;
+        QueueID: Integer;
     begin
-        if MediaID = 0 then
-            GoogleDriveErrorHandler.ThrowFileIDMissingErr();
-
         if FileName = '' then
-            GoogleDriveErrorHandler.ThrowFileNameMissingErr();
+            ErrorHandler.ThrowFileNameMissingErr();
+
+        if MediaID = 0 then
+            ErrorHandler.ThrowFileIDMissingErr();
 
         UpdateGoogleDriveMedia(IStream, FileName, MediaID);
-        Commit();
-
         FileID := GetGoogleDriveMediaFileID(MediaID);
         if FileID = '' then begin
-            // GoogleDriveErrorHandler.HandleErrors(Method::PatchFile, StrSubstNo('{"%1": {"%1": "%2"}}', Tokens.ErrorTok, 'MissingFileID'));
-            GoogleDriveErrorHandler.FinalizeHandleErrors(Method::PatchFile, MediaID, '');
+            QueueHandler.CreateGoogleDriveQueue(Status::"To Handle", Method::PatchFile, Problem::MissingFileID, MediaID, '');
+            Commit();
+            exit;
+        end;
+        QueueID := QueueHandler.CreateGoogleDriveQueue(Method::PatchFile, Problem::Undefined, MediaID, FileID);
+        Commit();
+
+        SetupMgt.Authorize(Method::PatchFile);
+        SetupMgt.GetError(Method, Problem, ErrorValue);
+        if ErrorValue <> '' then begin
+            QueueHandler.UpdateGoogleDriveQueue(QueueID, Status::"To Handle", Method, Problem, MediaID, FileID, ErrorValue);
+            Commit();
             exit;
         end;
 
-        GoogleDriveSetupMgt.Authorize(Method::PatchFile);
-        if not GoogleDriveErrorHandler.FinalizeHandleErrors(Method::PatchFile, MediaID, FileID) then
+        ResponseText := RequestHandler.PatchFile(IStream, FileID);
+        if ErrorHandler.ResponseHasError(Method::PatchFile, ResponseText) then begin
+            ErrorHandler.GetError(Method, Problem, ErrorValue);
+            QueueHandler.UpdateGoogleDriveQueue(QueueID, Status::"To Handle", Method, Problem, MediaID, FileID, ErrorValue);
+            Commit();
             exit;
+        end;
 
-        ResponseText := GoogleDriveRequestHandler.PatchFile(IStream, FileID);
-        // GoogleDriveErrorHandler.HandleErrors(Method::PatchFile, ResponseText);
-
+        // TODO Create has same code block, try to remove duplicate
         ResponseText := PatchMetadata(StrSubstNo('{"name": "%1"}', FileName), FileID);
-        // GoogleDriveErrorHandler.HandleErrors(Method::PatchMetadata, ResponseText);
+        if ErrorHandler.ResponseHasError(Method::PatchMetadata, ResponseText) then begin
+            ErrorHandler.GetError(Method, Problem, ErrorValue);
+            QueueHandler.UpdateGoogleDriveQueue(QueueID, Status::"To Handle", Method, Problem, MediaID, FileID, ErrorValue);
+            Commit();
+            exit;
+        end;
+
+        QueueHandler.UpdateGoogleDriveQueue(QueueID, Status::Handled, Method::PatchFile, Problem::Undefined, MediaID, FileID, '');
+        Commit();
     end;
 
     procedure PatchMetadata(NewMetadata: Text; FileID: Text): Text
