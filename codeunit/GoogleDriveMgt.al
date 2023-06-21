@@ -21,7 +21,7 @@ codeunit 50101 "Google Drive Mgt."
         ErrorHandler: Codeunit "Google Drive Error Handler";
         QueueHandler: Codeunit "Google Drive Queue Handler";
         JsonHelper: Codeunit "Google Drive Json Helper";
-        Tokens: Codeunit "Google Drive API Tokens";
+        GDITokens: Codeunit "GDI Tokens";
         ResponseJson: JsonObject;
         Method: enum GDMethod;
         Problem: enum GDProblem;
@@ -56,7 +56,7 @@ codeunit 50101 "Google Drive Mgt."
         end;
 
         ResponseJson.ReadFrom(ResponseText);
-        JsonHelper.TryGetTextValueFromJson(FileID, ResponseJson, Tokens.IdTok());
+        JsonHelper.TryGetTextValueFromJson(FileID, ResponseJson, GDITokens.IdTok());
         if FileID = '' then begin
             QueueHandler.UpdateGoogleDriveQueue(
                 QueueID, Status::"To Handle", Method::PostFile, Problem::MissingFileID, MediaID, '', ResponseText);
@@ -232,12 +232,12 @@ codeunit 50101 "Google Drive Mgt."
     local procedure CreateGoogleDriveMedia(IStream: InStream; FileName: Text; FileID: Text): Integer
     var
         GoogleDriveMedia: Record "Google Drive Media";
-        Tokens: Codeunit "Google Drive API Tokens";
+        GDITokens: Codeunit "GDI Tokens";
     begin
         GoogleDriveMedia.Init();
         GoogleDriveMedia.Validate(FileID, FileID);
         GoogleDriveMedia.Validate(FileName, FileName);
-        GoogleDriveMedia.FileContent.ImportStream(IStream, 'default', Tokens.MimeTypeJpeg()); // TODO remove hardcode
+        GoogleDriveMedia.FileContent.ImportStream(IStream, 'default', GDITokens.MimeTypeJpeg()); // TODO remove hardcode
         GoogleDriveMedia.Insert(true);
         exit(GoogleDriveMedia.ID);
     end;
@@ -263,11 +263,11 @@ codeunit 50101 "Google Drive Mgt."
     local procedure UpdateGoogleDriveMedia(IStream: InStream; FileName: Text; ID: Integer)
     var
         GoogleDriveMedia: Record "Google Drive Media";
-        Tokens: Codeunit "Google Drive API Tokens";
+        GDITokens: Codeunit "GDI Tokens";
     begin
         GoogleDriveMedia.Get(ID);
         GoogleDriveMedia.Validate(FileName, FileName);
-        GoogleDriveMedia.FileContent.ImportStream(IStream, 'default', Tokens.MimeTypeJpeg()); // TODO remove hardcode
+        GoogleDriveMedia.FileContent.ImportStream(IStream, 'default', GDITokens.MimeTypeJpeg()); // TODO remove hardcode
         GoogleDriveMedia.Modify(true);
     end;
 

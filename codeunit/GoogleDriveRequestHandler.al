@@ -5,47 +5,47 @@ codeunit 50110 "Google Drive Request Handler"
     procedure CreateRequestParamsAuthCode(): Text
     var
         GoogleDriveSetup: Record "Google Drive Setup";
-        Tokens: Codeunit "Google Drive API Tokens";
+        GDITokens: Codeunit "GDI Tokens";
     begin
         GoogleDriveSetup.Get();
         exit(StrSubstNo(CreateUrlParamsTemplate(5),
-                    Tokens.CodeTok(), GoogleDriveSetup.AuthCode,
-                    Tokens.ClientID(), GoogleDriveSetup.ClientID,
-                    Tokens.ClientSecret(), GoogleDriveSetup.ClientSecret,
-                    Tokens.RedirectUri(), GoogleDriveSetup.RedirectURI,
-                    Tokens.GrantType(), Tokens.AuthorizationCode()));
+                    GDITokens.CodeTok(), GoogleDriveSetup.AuthCode,
+                    GDITokens.ClientID(), GoogleDriveSetup.ClientID,
+                    GDITokens.ClientSecret(), GoogleDriveSetup.ClientSecret,
+                    GDITokens.RedirectUri(), GoogleDriveSetup.RedirectURI,
+                    GDITokens.GrantType(), GDITokens.AuthorizationCode()));
     end;
 
     procedure CreateRequestParamsRefreshToken(): Text
     var
         GoogleDriveSetup: Record "Google Drive Setup";
-        Tokens: Codeunit "Google Drive API Tokens";
+        GDITokens: Codeunit "GDI Tokens";
     begin
         GoogleDriveSetup.Get();
         exit(StrSubstNo(CreateUrlParamsTemplate(4),
-                    Tokens.ClientID(), GoogleDriveSetup.ClientID,
-                    Tokens.ClientSecret(), GoogleDriveSetup.ClientSecret,
-                    Tokens.RefreshToken(), GoogleDriveSetup.RefreshToken,
-                    Tokens.GrantType(), Tokens.RefreshToken()));
+                    GDITokens.ClientID(), GoogleDriveSetup.ClientID,
+                    GDITokens.ClientSecret(), GoogleDriveSetup.ClientSecret,
+                    GDITokens.RefreshToken(), GoogleDriveSetup.RefreshToken,
+                    GDITokens.GrantType(), GDITokens.RefreshToken()));
     end;
 
     procedure CreateRequestParamsRedirect(): Text
     var
         GoogleDriveSetup: Record "Google Drive Setup";
-        Tokens: Codeunit "Google Drive API Tokens";
+        GDITokens: Codeunit "GDI Tokens";
     begin
         GoogleDriveSetup.Get();
         exit(StrSubstNo(CreateUrlParamsTemplate(4),
-                        Tokens.ClientID(), GoogleDriveSetup.ClientID,
-                        Tokens.RedirectUri(), GoogleDriveSetup.RedirectURI,
-                        Tokens.ResponseType(), Tokens.CodeTok(),
-                        Tokens.Scope(), GoogleDriveSetup.AuthScope));
+                        GDITokens.ClientID(), GoogleDriveSetup.ClientID,
+                        GDITokens.RedirectUri(), GoogleDriveSetup.RedirectURI,
+                        GDITokens.ResponseType(), GDITokens.CodeTok(),
+                        GDITokens.Scope(), GoogleDriveSetup.AuthScope));
     end;
 
     procedure DeleteFile(FileID: Text): Text
     var
         GoogleDriveSetup: Record "Google Drive Setup";
-        Tokens: Codeunit "Google Drive API Tokens";
+        GDITokens: Codeunit "GDI Tokens";
         Client: HttpClient;
         Request: HttpRequestMessage;
         Response: HttpResponseMessage;
@@ -54,11 +54,11 @@ codeunit 50110 "Google Drive Request Handler"
     begin
         GoogleDriveSetup.Get();
         Url := StrSubstNo('%1/%2?%3', GoogleDriveSetup.APIScope, FileID, StrSubstNo(CreateUrlParamsTemplate(1),
-                    Tokens.KeyTok(), GoogleDriveSetup.ClientID));
+                    GDITokens.KeyTok(), GoogleDriveSetup.ClientID));
         Request.SetRequestUri(Url);
         Request.Method := 'DELETE';
         Client.DefaultRequestHeaders.Add(
-            Tokens.Authorization(), StrSubstNo('%1 %2', GoogleDriveSetup.TokenType, GoogleDriveSetup.AccessToken));
+            GDITokens.Authorization(), StrSubstNo('%1 %2', GoogleDriveSetup.TokenType, GoogleDriveSetup.AccessToken));
         Client.Send(Request, Response);
         Response.Content.ReadAs(ResponseText);
         exit(ResponseText);
@@ -74,7 +74,7 @@ codeunit 50110 "Google Drive Request Handler"
     var
         GoogleDriveSetup: Record "Google Drive Setup";
         GoogleDriveErrorHandler: Codeunit "Google Drive Error Handler";
-        Tokens: Codeunit "Google Drive API Tokens";
+        GDITokens: Codeunit "GDI Tokens";
         Client: HttpClient;
         Response: HttpResponseMessage;
         Url: Text;
@@ -86,10 +86,10 @@ codeunit 50110 "Google Drive Request Handler"
         Clear(ErrorText);
         GoogleDriveSetup.Get();
         Url := StrSubstNo('%1/%2?%3', GoogleDriveSetup.APIScope, FileID, StrSubstNo(CreateUrlParamsTemplate(2),
-                    Tokens.KeyTok(), GoogleDriveSetup.ClientID,
-                    Tokens.AltTok(), Tokens.MediaTok()));
+                    GDITokens.KeyTok(), GoogleDriveSetup.ClientID,
+                    GDITokens.AltTok(), GDITokens.MediaTok()));
         Client.DefaultRequestHeaders.Add(
-            Tokens.Authorization(), StrSubstNo('%1 %2', GoogleDriveSetup.TokenType, GoogleDriveSetup.AccessToken));
+            GDITokens.Authorization(), StrSubstNo('%1 %2', GoogleDriveSetup.TokenType, GoogleDriveSetup.AccessToken));
         Client.Get(Url, Response);
         if Response.IsSuccessStatusCode then
             Response.Content.ReadAs(IStream)
@@ -103,7 +103,7 @@ codeunit 50110 "Google Drive Request Handler"
     var
         GoogleDriveSetup: Record "Google Drive Setup";
         GoogleDriveErrorHandler: Codeunit "Google Drive Error Handler";
-        Tokens: Codeunit "Google Drive API Tokens";
+        GDITokens: Codeunit "GDI Tokens";
         Client: HttpClient;
         Response: HttpResponseMessage;
         Url: Text;
@@ -115,9 +115,9 @@ codeunit 50110 "Google Drive Request Handler"
 
         GoogleDriveSetup.Get;
         Url := StrSubstNo('%1/%2?%3', GoogleDriveSetup.APIScope, FileID, StrSubstNo(CreateUrlParamsTemplate(1),
-                    Tokens.KeyTok(), GoogleDriveSetup.ClientID));
+                    GDITokens.KeyTok(), GoogleDriveSetup.ClientID));
         Client.DefaultRequestHeaders.Add(
-            Tokens.Authorization(), StrSubstNo('%1 %2', GoogleDriveSetup.TokenType, GoogleDriveSetup.AccessToken));
+            GDITokens.Authorization(), StrSubstNo('%1 %2', GoogleDriveSetup.TokenType, GoogleDriveSetup.AccessToken));
         Client.Get(Url, Response);
         Response.Content.ReadAs(ResponseText);
         exit(ResponseText);
@@ -126,7 +126,7 @@ codeunit 50110 "Google Drive Request Handler"
     procedure PatchFile(IStream: InStream; FileID: Text): Text
     var
         GoogleDriveSetup: Record "Google Drive Setup";
-        Tokens: Codeunit "Google Drive API Tokens";
+        GDITokens: Codeunit "GDI Tokens";
         Content: HttpContent;
         ContentHeaders: HttpHeaders;
         Request: HttpRequestMessage;
@@ -139,26 +139,26 @@ codeunit 50110 "Google Drive Request Handler"
         Content.WriteFrom(IStream); // TODO Check IStream
         Content.GetHeaders(ContentHeaders);
         ContentHeaders.Clear();
-        ContentHeaders.Add(Tokens.ContentType(), Tokens.MimeTypeJpeg());
+        ContentHeaders.Add(GDITokens.ContentType(), GDITokens.MimeTypeJpeg());
         Request.Content := Content;
         Url := StrSubstNo('%1/%2?%3', GoogleDriveSetup.APIUploadScope, FileID, StrSubstNo(CreateUrlParamsTemplate(2),
-                    Tokens.KeyTok(), GoogleDriveSetup.ClientID,
-                    Tokens.UploadType(), Tokens.MediaTok()));
+                    GDITokens.KeyTok(), GoogleDriveSetup.ClientID,
+                    GDITokens.UploadType(), GDITokens.MediaTok()));
         Request.SetRequestUri(Url);
         Request.Method := 'PATCH';
         Client.DefaultRequestHeaders.Add(
-            Tokens.Authorization(), StrSubstNo('%1 %2', GoogleDriveSetup.TokenType, GoogleDriveSetup.AccessToken));
+            GDITokens.Authorization(), StrSubstNo('%1 %2', GoogleDriveSetup.TokenType, GoogleDriveSetup.AccessToken));
         if Client.Send(Request, Response) then begin
             Response.Content.ReadAs(ResponseText);
             exit(ResponseText);
         end;
-        exit(StrSubstNo('{"%1": "%2"}', Tokens.ErrorTok(), Response.HttpStatusCode));
+        exit(StrSubstNo('{"%1": "%2"}', GDITokens.ErrorTok(), Response.HttpStatusCode));
     end;
 
     procedure PatchMetadata(NewMetadata: Text; FileID: Text): Text
     var
         GoogleDriveSetup: Record "Google Drive Setup";
-        Tokens: Codeunit "Google Drive API Tokens";
+        GDITokens: Codeunit "GDI Tokens";
         Content: HttpContent;
         ContentHeaders: HttpHeaders;
         Request: HttpRequestMessage;
@@ -171,25 +171,25 @@ codeunit 50110 "Google Drive Request Handler"
         Content.WriteFrom(NewMetadata);
         Content.GetHeaders(ContentHeaders);
         ContentHeaders.Clear();
-        ContentHeaders.Add(Tokens.ContentType(), Tokens.MimeTypeJson());
+        ContentHeaders.Add(GDITokens.ContentType(), GDITokens.MimeTypeJson());
         Request.Content := Content;
         Url := StrSubstNo('%1/%2?%3', GoogleDriveSetup.APIScope, FileID, StrSubstNo(CreateUrlParamsTemplate(1),
-                    Tokens.KeyTok(), GoogleDriveSetup.ClientID));
+                    GDITokens.KeyTok(), GoogleDriveSetup.ClientID));
         Request.SetRequestUri(Url);
         Request.Method := 'PATCH';
         Client.DefaultRequestHeaders.Add(
-            Tokens.Authorization(), StrSubstNo('%1 %2', GoogleDriveSetup.TokenType, GoogleDriveSetup.AccessToken));
+            GDITokens.Authorization(), StrSubstNo('%1 %2', GoogleDriveSetup.TokenType, GoogleDriveSetup.AccessToken));
         if Client.Send(Request, Response) then begin
             Response.Content.ReadAs(ResponseText);
             exit(ResponseText);
         end;
-        exit(StrSubstNo('{"%1": "%2"}', Tokens.ErrorTok(), Response.HttpStatusCode));
+        exit(StrSubstNo('{"%1": "%2"}', GDITokens.ErrorTok(), Response.HttpStatusCode));
     end;
 
     procedure PostFile(var IStream: InStream): Text;
     var
         GoogleDriveSetup: Record "Google Drive Setup";
-        Tokens: Codeunit "Google Drive API Tokens";
+        GDITokens: Codeunit "GDI Tokens";
         Content: HttpContent;
         ContentHeaders: HttpHeaders;
         Client: HttpClient;
@@ -201,23 +201,23 @@ codeunit 50110 "Google Drive Request Handler"
         Content.WriteFrom(IStream); // TODO Check IStream
         Content.GetHeaders(ContentHeaders);
         ContentHeaders.Clear();
-        ContentHeaders.Add(Tokens.ContentType(), Tokens.MimeTypeJpeg());
+        ContentHeaders.Add(GDITokens.ContentType(), GDITokens.MimeTypeJpeg());
         Url := StrSubstNo('%1?%2', GoogleDriveSetup.APIUploadScope, StrSubstNo(CreateUrlParamsTemplate(2),
-                    Tokens.KeyTok(), GoogleDriveSetup.ClientID,
-                    Tokens.UploadType(), Tokens.MediaTok()));
+                    GDITokens.KeyTok(), GoogleDriveSetup.ClientID,
+                    GDITokens.UploadType(), GDITokens.MediaTok()));
         Client.DefaultRequestHeaders.Add(
-            Tokens.Authorization(), StrSubstNo('%1 %2', GoogleDriveSetup.TokenType, GoogleDriveSetup.AccessToken));
+            GDITokens.Authorization(), StrSubstNo('%1 %2', GoogleDriveSetup.TokenType, GoogleDriveSetup.AccessToken));
         if Client.Post(Url, Content, Response) then begin
             Response.Content().ReadAs(ResponseText);
             exit(ResponseText);
         end;
-        exit(StrSubstNo('{"%1": "%2"}', Tokens.ErrorTok(), Response.HttpStatusCode));
+        exit(StrSubstNo('{"%1": "%2"}', GDITokens.ErrorTok(), Response.HttpStatusCode));
     end;
 
     procedure RequestAccessToken(RequestBody: Text): Text
     var
         GoogleDriveSetup: Record "Google Drive Setup";
-        Tokens: Codeunit "Google Drive API Tokens";
+        GDITokens: Codeunit "GDI Tokens";
         Content: HttpContent;
         ContentHeaders: HttpHeaders;
         Client: HttpClient;
@@ -228,12 +228,12 @@ codeunit 50110 "Google Drive Request Handler"
         Content.WriteFrom(RequestBody);
         Content.GetHeaders(ContentHeaders);
         ContentHeaders.Clear();
-        ContentHeaders.Add(Tokens.ContentType(), Tokens.MimeTypeFormUrlEncoded());
+        ContentHeaders.Add(GDITokens.ContentType(), GDITokens.MimeTypeFormUrlEncoded());
         if Client.Post(GoogleDriveSetup.TokenURI, Content, Response) then begin
             Response.Content().ReadAs(ResponseText);
             exit(ResponseText);
         end;
-        exit(StrSubstNo('{"%1": "%2"}', Tokens.ErrorTok(), Response.HttpStatusCode));
+        exit(StrSubstNo('{"%1": "%2"}', GDITokens.ErrorTok(), Response.HttpStatusCode));
     end;
 
     local procedure CreateUrlParamsTemplate(QtyParams: Integer): Text
@@ -252,7 +252,7 @@ codeunit 50110 "Google Drive Request Handler"
 
     // local procedure PostSimpleHttpRequest(RequestBody: Text; MimeType: Text; Uri: Text): Text
     // var
-    //     Tokens: Codeunit "Google Drive API Tokens";
+    //     Tokens: Codeunit "GDI Tokens";
     //     Content: HttpContent;
     //     ContentHeaders: HttpHeaders;
     //     Client: HttpClient;

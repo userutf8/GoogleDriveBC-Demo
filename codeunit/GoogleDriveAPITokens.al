@@ -1,6 +1,6 @@
-codeunit 50121 "Google Drive API Tokens"
+codeunit 50121 "GDI Tokens"
 {
-    Description = 'Google Drive API tokens and labels.';
+    Description = 'Google Drive Integration tokens and labels.';
 
     procedure AccessToken(): Text
     begin
