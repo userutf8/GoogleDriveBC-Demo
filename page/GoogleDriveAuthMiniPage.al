@@ -33,15 +33,15 @@ page 50101 "Google Drive Auth Mini Page"
                     Status := UnknownErr;
 
                     if AuthCode = '' then begin
-                        GoogleDriveSetup.Get;
+                        GoogleDriveSetup.Get();
                         If GoogleDriveSetup.Active then
                             Status := AlreadyActiveTxt;
                     end else begin
-                        GoogleDriveSetup.Get;
+                        GoogleDriveSetup.Get();
                         GoogleDriveSetup.Validate(AuthCode, AuthCode);
                         GoogleDriveSetup.Modify(true);
                         GoogleDriveSetupMgt.Authorize();
-                        GoogleDriveSetup.Get;
+                        GoogleDriveSetup.Get();
                         If GoogleDriveSetup.Active then
                             Status := SuccessTxt
                         else

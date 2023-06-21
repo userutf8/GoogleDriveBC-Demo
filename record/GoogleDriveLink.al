@@ -46,12 +46,11 @@ table 50115 "Google Drive Link"
     var
         Link: Record "Google Drive Link";
     begin
-        if ID = 0 then begin
+        if ID = 0 then
             if Link.FindLast() then
                 ID := Link.ID + 1
             else
                 ID := 1;
-        end;
     end;
 
     trigger OnModify()

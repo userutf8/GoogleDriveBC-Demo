@@ -37,12 +37,11 @@ table 50110 "Google Drive Media"
     var
         GoogleDriveMedia: Record "Google Drive Media";
     begin
-        if ID = 0 then begin
+        if ID = 0 then
             if GoogleDriveMedia.FindLast() then
                 ID := GoogleDriveMedia.ID + 1
             else
                 ID := 1;
-        end;
     end;
 
     trigger OnModify()

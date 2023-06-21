@@ -23,7 +23,7 @@ codeunit 50100 "Google Drive Setup Mgt."
         ErrorValue: Text;
         RequestSentAtUTC: DateTime;
     begin
-        GoogleDriveSetup.Get;
+        GoogleDriveSetup.Get();
         if GoogleDriveSetup.AccessTokenIsAlive() then
             exit;
 
@@ -50,14 +50,14 @@ codeunit 50100 "Google Drive Setup Mgt."
 
         ResponseJson.ReadFrom(ResponseText);
         Clear(GoogleDriveSetup.AuthCode);
-        GoogleDriveSetup.Validate(AccessToken, GoogleDriveJsonHelper.GetTextValueFromJson(ResponseJson, Tokens.AccessToken));
-        GoogleDriveSetup.Validate(TokenType, GoogleDriveJsonHelper.GetTextValueFromJson(ResponseJson, Tokens.TokenType));
+        GoogleDriveSetup.Validate(AccessToken, GoogleDriveJsonHelper.GetTextValueFromJson(ResponseJson, Tokens.AccessToken()));
+        GoogleDriveSetup.Validate(TokenType, GoogleDriveJsonHelper.GetTextValueFromJson(ResponseJson, Tokens.TokenType()));
         GoogleDriveSetup.Validate(IssuedUtc, RequestSentAtUTC);
-        GoogleDriveSetup.Validate(ExpiresIn, GoogleDriveJsonHelper.GetTextValueFromJson(ResponseJson, Tokens.ExpiresIn));
+        GoogleDriveSetup.Validate(ExpiresIn, GoogleDriveJsonHelper.GetTextValueFromJson(ResponseJson, Tokens.ExpiresIn()));
         GoogleDriveSetup.Validate(LifeTime, CalcLifetime(GoogleDriveSetup.ExpiresIn, GoogleDriveSetup.LifeTime));
         if not GoogleDriveSetup.Active then begin
             GoogleDriveSetup.Validate(RefreshToken,
-                GoogleDriveJsonHelper.GetTextValueFromJson(ResponseJson, Tokens.RefreshToken));
+                GoogleDriveJsonHelper.GetTextValueFromJson(ResponseJson, Tokens.RefreshToken()));
             GoogleDriveSetup.Validate(Active, true);
         end;
         GoogleDriveSetup.Modify(true);
@@ -87,24 +87,24 @@ codeunit 50100 "Google Drive Setup Mgt."
         if not JsonObj.ReadFrom(IStream) then
             GoogleDriveErrorHandler.ThrowJsonReadErr(ClientFileName);
 
-        if not JsonObj.Contains(Tokens.Installed) then
+        if not JsonObj.Contains(Tokens.Installed()) then
             GoogleDriveErrorHandler.ThrowJsonStructureErr(ClientFileName);
 
-        JsonText := GoogleDriveJsonHelper.GetObjectValueFromJson(JsonObj, Tokens.Installed);
+        JsonText := GoogleDriveJsonHelper.GetObjectValueFromJson(JsonObj, Tokens.Installed());
         if not JsonObj.ReadFrom(JsonText) then
             GoogleDriveErrorHandler.ThrowJsonStructureErr(ClientFileName);
 
         GoogleDriveSetup.Reset();
         GoogleDriveSetup.DeleteAll();
         GoogleDriveSetup.Init();
-        GoogleDriveSetup.Validate(ClientID, GoogleDriveJsonHelper.GetTextValueFromJson(JsonObj, Tokens.ClientID));
-        GoogleDriveSetup.Validate(ClientSecret, GoogleDriveJsonHelper.GetTextValueFromJson(JsonObj, Tokens.ClientSecret));
-        GoogleDriveSetup.Validate(AuthURI, GoogleDriveJsonHelper.GetTextValueFromJson(JsonObj, Tokens.AuthUri));
-        GoogleDriveSetup.Validate(TokenURI, GoogleDriveJsonHelper.GetTextValueFromJson(JsonObj, Tokens.TokenUri));
-        GoogleDriveSetup.Validate(ProjectID, GoogleDriveJsonHelper.GetTextValueFromJson(JsonObj, Tokens.ProjectID));
+        GoogleDriveSetup.Validate(ClientID, GoogleDriveJsonHelper.GetTextValueFromJson(JsonObj, Tokens.ClientID()));
+        GoogleDriveSetup.Validate(ClientSecret, GoogleDriveJsonHelper.GetTextValueFromJson(JsonObj, Tokens.ClientSecret()));
+        GoogleDriveSetup.Validate(AuthURI, GoogleDriveJsonHelper.GetTextValueFromJson(JsonObj, Tokens.AuthUri()));
+        GoogleDriveSetup.Validate(TokenURI, GoogleDriveJsonHelper.GetTextValueFromJson(JsonObj, Tokens.TokenUri()));
+        GoogleDriveSetup.Validate(ProjectID, GoogleDriveJsonHelper.GetTextValueFromJson(JsonObj, Tokens.ProjectID()));
         GoogleDriveSetup.Validate(AuthProvider,
-            GoogleDriveJsonHelper.GetTextValueFromJson(JsonObj, Tokens.AuthProviderX509CertUrl));
-        GoogleDriveSetup.Validate(RedirectURI, GetRedirectUri);
+            GoogleDriveJsonHelper.GetTextValueFromJson(JsonObj, Tokens.AuthProviderX509CertUrl()));
+        GoogleDriveSetup.Validate(RedirectURI, GetRedirectUri());
         GoogleDriveSetup.Validate(AuthScope, AuthScopeTxt);
         GoogleDriveSetup.Validate(APIScope, APIScopeTxt);
         GoogleDriveSetup.Validate(APIUploadScope, APIUploadScopeTxt);
@@ -115,7 +115,6 @@ codeunit 50100 "Google Drive Setup Mgt."
     local procedure CalcLifeTime(ExpiresIn: Text; OldLifeTime: Integer): Integer
     var
         ExpiresInInt: Integer;
-        LifeTime: Integer;
     begin
         // if evaluate fails just return 0, as we don't need errors
         if Evaluate(ExpiresInInt, ExpiresIn) then begin

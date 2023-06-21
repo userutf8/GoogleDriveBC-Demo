@@ -49,12 +49,11 @@ table 50120 "Google Drive Queue"
     var
         GoogleDriveQueue: Record "Google Drive Queue";
     begin
-        if ID = 0 then begin
+        if ID = 0 then
             if GoogleDriveQueue.FindLast() then
                 ID := GoogleDriveQueue.ID + 1
             else
                 ID := 1;
-        end;
     end;
 
     trigger OnModify()

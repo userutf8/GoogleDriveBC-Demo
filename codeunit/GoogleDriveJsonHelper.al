@@ -7,14 +7,14 @@ codeunit 50120 "Google Drive Json Helper"
     begin
         // returns true, if the error presents in Json or if Json failed to parse
         ClearLastError();
-        TryGetTextValueFromJson(ErrorValue, jsonObj, Tokens.ErrorTok);
+        TryGetTextValueFromJson(ErrorValue, jsonObj, Tokens.ErrorTok());
         if GetLastErrorText = '' then
             exit(ErrorValue <> '');
 
         ClearLastError();
-        TryGetObjectValueFromJson(ErrorValue, jsonObj, Tokens.ErrorTok);
+        TryGetObjectValueFromJson(ErrorValue, jsonObj, Tokens.ErrorTok());
         if GetLastErrorText() = '' then begin
-            TryGetTextValueFromJson(ErrorValue, jsonObj, Tokens.ErrorTok);
+            TryGetTextValueFromJson(ErrorValue, jsonObj, Tokens.ErrorTok());
             if GetLastErrorText() = '' then
                 exit(ErrorValue <> '');
         end;

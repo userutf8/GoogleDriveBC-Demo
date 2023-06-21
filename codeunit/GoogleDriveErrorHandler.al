@@ -9,13 +9,10 @@ codeunit 50111 "Google Drive Error Handler"
 
     procedure ResponseHasError(Method: enum GDMethod; ResponseText: Text): Boolean
     var
-        GoogleDriveQueue: Record "Google Drive Queue";
         GoogleDriveJsonHelper: Codeunit "Google Drive Json Helper";
-        Tokens: Codeunit "Google Drive API Tokens";
         ResponseJson: JsonObject;
         Problem: Enum GDProblem;
         ErrorValue: Text;
-        ErrorText: Text;
     begin
         ClearError();
         ClearLastError();
@@ -59,7 +56,7 @@ codeunit 50111 "Google Drive Error Handler"
         // TODO: to remove
         // TODO bad function name (bad design)
         If MediaID = 0 then
-            Error(ParameterMissingErr, GoogleDriveQueue.FieldName(MediaID));
+            Error(ParameterMissingErr, GoogleDriveQueue.FieldCaption(MediaID));
 
         // TODO: redo all, as there can be several records like that
         GoogleDriveQueue.SetRange(Status, GoogleDriveQueue.Status::New);

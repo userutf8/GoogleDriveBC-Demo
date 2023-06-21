@@ -56,7 +56,7 @@ codeunit 50101 "Google Drive Mgt."
         end;
 
         ResponseJson.ReadFrom(ResponseText);
-        JsonHelper.TryGetTextValueFromJson(FileID, ResponseJson, Tokens.IdTok);
+        JsonHelper.TryGetTextValueFromJson(FileID, ResponseJson, Tokens.IdTok());
         if FileID = '' then begin
             QueueHandler.UpdateGoogleDriveQueue(
                 QueueID, Status::"To Handle", Method::PostFile, Problem::MissingFileID, MediaID, '', ResponseText);
@@ -86,11 +86,8 @@ codeunit 50101 "Google Drive Mgt."
         GoogleDriveSetupMgt: Codeunit "Google Drive Setup Mgt.";
         GoogleDriveRequestHandler: Codeunit "Google Drive Request Handler";
         GoogleDriveErrorHandler: Codeunit "Google Drive Error Handler";
-        Tokens: Codeunit "Google Drive API Tokens";
         Method: enum GDMethod;
-        ResponseJson: JsonObject;
         ResponseText: Text;
-        ErrorText: Text;
         FileID: Text;
     begin
         GoogleDriveMedia.Get(MediaID);
@@ -119,7 +116,7 @@ codeunit 50101 "Google Drive Mgt."
         Method: enum GDMethod;
     begin
         if FileID = '' then
-            GoogleDriveErrorHandler.ThrowFileIDMissingErr;
+            GoogleDriveErrorHandler.ThrowFileIDMissingErr();
 
         GoogleDriveSetupMgt.Authorize(Method::GetFile);
         GoogleDriveRequestHandler.GetMedia(IStream, FileID);
@@ -135,7 +132,7 @@ codeunit 50101 "Google Drive Mgt."
         ResponseText: Text;
     begin
         if FileID = '' then
-            GoogleDriveErrorHandler.ThrowFileIDMissingErr;
+            GoogleDriveErrorHandler.ThrowFileIDMissingErr();
 
         GoogleDriveSetupMgt.Authorize(Method::GetMetadata);
         ResponseText := GoogleDriveRequestHandler.GetMetadata(FileID);
@@ -161,9 +158,6 @@ codeunit 50101 "Google Drive Mgt."
         RequestHandler: Codeunit "Google Drive Request Handler";
         ErrorHandler: Codeunit "Google Drive Error Handler";
         QueueHandler: Codeunit "Google Drive Queue Handler";
-        JsonHelper: Codeunit "Google Drive Json Helper";
-        Tokens: Codeunit "Google Drive API Tokens";
-        ResponseJson: JsonObject;
         Method: enum GDMethod;
         Problem: enum GDProblem;
         Status: enum GDQueueStatus;
@@ -243,7 +237,7 @@ codeunit 50101 "Google Drive Mgt."
         GoogleDriveMedia.Init();
         GoogleDriveMedia.Validate(FileID, FileID);
         GoogleDriveMedia.Validate(FileName, FileName);
-        GoogleDriveMedia.FileContent.ImportStream(IStream, 'default', Tokens.MimeTypeJpeg); // TODO remove hardcode
+        GoogleDriveMedia.FileContent.ImportStream(IStream, 'default', Tokens.MimeTypeJpeg()); // TODO remove hardcode
         GoogleDriveMedia.Insert(true);
         exit(GoogleDriveMedia.ID);
     end;
@@ -273,7 +267,7 @@ codeunit 50101 "Google Drive Mgt."
     begin
         GoogleDriveMedia.Get(ID);
         GoogleDriveMedia.Validate(FileName, FileName);
-        GoogleDriveMedia.FileContent.ImportStream(IStream, 'default', Tokens.MimeTypeJpeg); // TODO remove hardcode
+        GoogleDriveMedia.FileContent.ImportStream(IStream, 'default', Tokens.MimeTypeJpeg()); // TODO remove hardcode
         GoogleDriveMedia.Modify(true);
     end;
 

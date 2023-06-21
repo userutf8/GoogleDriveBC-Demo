@@ -149,12 +149,11 @@ page 50100 "Google Drive Setup"
                     GoogleDriveSetupMgt.Authorize();
                     CurrPage.Update(false);
                     GoogleDriveSetup.Get();
-                    if OldStatus and GoogleDriveSetup.Active then begin
+                    if OldStatus and GoogleDriveSetup.Active then
                         if OldToken = GoogleDriveSetup.AccessToken then
                             Message(OldTokenAliveTxt)
                         else
                             Message(TokenRefreshedTxt); // TODO replace by notification?
-                    end;
                 end;
             }
 
