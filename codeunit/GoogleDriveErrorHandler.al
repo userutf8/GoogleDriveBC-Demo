@@ -2,53 +2,76 @@ codeunit 50111 "Google Drive Error Handler"
 {
     Description = 'Handles runtime errors and queue. ';
 
-    procedure HandleErrors(Method: enum GDMethod; ResponseText: Text): Boolean
+    procedure GetError(var Method: enum GDMethod; var Problem: enum GDProblem; var ErrorValue: Text)
+    begin
+        Method := CurrentMethod;
+        Problem := CurrentProblem;
+        ErrorValue := CurrentErrorValue;
+    end;
+
+    procedure ResponseHasError(Method: enum GDMethod; ResponseText: Text): Boolean
     var
         GoogleDriveQueue: Record "Google Drive Queue";
         GoogleDriveJsonHelper: Codeunit "Google Drive Json Helper";
         Tokens: Codeunit "Google Drive API Tokens";
         ResponseJson: JsonObject;
+        Problem: Enum GDProblem;
         ErrorValue: Text;
         ErrorText: Text;
     begin
-        // TODO bad function name (bad design)
+        ClearError();
+        ClearLastError();
+        If ResponseText = '' then
+            exit(false); // no errors
+
         if not ResponseJson.ReadFrom(ResponseText) then begin
-            if StrPos(ResponseText, Tokens.ErrorTok) > 0 then // TODO add warning
-                Error('%1 %2', Format(Method), ResponseText);
-            exit(true); // TODO questionable: we got weird input, should we procced?
+            LogError(Problem::JsonRead, Method, ResponseText);
+            ClearLastError();
+            exit(true); // json parsing is an error
         end;
-        case (Method) of
-            Method::Authorize, Method::PostFile, Method::PatchMetadata:
-                ErrorValue := GoogleDriveJsonHelper.GetTextValueFromJson(responseJson, Tokens.ErrorTok); // can also fail
-            Method::DeleteFile, Method::PatchFile: // TODO: authorize can be called from patch and delete, so this approach is meh
-                ErrorText := GoogleDriveJsonHelper.GetObjectValueFromJson(responseJson, Tokens.ErrorTok); // can also fail
-            else
-                ThrowNotImplementedErr();
-        end;
-        ErrorValue := CalcErrorValue(ErrorValue, ErrorText);
-        if ErrorValue = '' then
+
+
+        if GoogleDriveJsonHelper.GetErrorValueFromJson(ErrorValue, ResponseJson) then begin
+            ClearLastError();
+            if Method = Method::Authorize then
+                Error('%1 Error: %2', Format(Method), ErrorValue);
+
+            case (ErrorValue) of
+                '0':
+                    Problem := Problem::Timeout;
+                Format(Problem::JsonRead):
+                    Problem := Problem::JsonRead;
+                Format(Problem::MissingFileID):
+                    Problem := Problem::MissingFileID;
+            end;
+            LogError(Problem, Method, ErrorValue);
             exit(true);
-
-        if Method = Method::Authorize then
-            Error('%1 Error: %2', Format(Method), ErrorValue);
-
-        GoogleDriveQueue.Init();
-        GoogleDriveQueue.Validate(Method, Method);
-        GoogleDriveQueue.Validate(Problem, CalcProblem(Method, ErrorValue));
-        GoogleDriveQueue.Validate(Status, GoogleDriveQueue.Status::New);
-        GoogleDriveQueue.Validate(MediaID, 0);
-        GoogleDriveQueue.Validate(Iteration, 0);
-        GoogleDriveQueue.Validate(TempErrorValue, ErrorValue);
-        GoogleDriveQueue.Insert(true);
-        Commit();
-
+        end;
         exit(false);
+    end;
+
+    local procedure ClearError()
+    begin
+        CurrentProblem := CurrentProblem::Undefined;
+        CurrentMethod := CurrentMethod::Undefined;
+        Clear(CurrentErrorValue);
+    end;
+
+    local procedure LogError(Problem: enum GDProblem; Method: Enum GDMethod; ErrorValue: Text)
+    begin
+        ClearError();
+        CurrentProblem := Problem;
+        CurrentMethod := Method;
+        CurrentErrorValue := ErrorValue;
     end;
 
     procedure FinalizeHandleErrors(Method: enum GDMethod; MediaID: Integer; FileID: Text): Boolean
     var
         GoogleDriveQueue: Record "Google Drive Queue";
     begin
+
+
+
         // TODO bad function name (bad design)
         If MediaID = 0 then
             Error(ParameterMissingErr, GoogleDriveQueue.FieldName(MediaID));
@@ -72,27 +95,6 @@ codeunit 50111 "Google Drive Error Handler"
         Commit();
 
         exit(false); // problem is tracked
-    end;
-
-    local procedure CalcErrorValue(ErrorValue: Text; ErrorText: Text): Text
-    begin
-        // TODO process error text, extract error value >
-        if ErrorValue = '' then
-            exit(ErrorText);
-        exit(ErrorValue);
-    end;
-
-    local procedure CalcProblem(Method: enum GDMethod; ErrorValue: Text): enum GDProblem
-    var
-        Problem: enum GDProblem;
-    begin
-        case (ErrorValue) of
-            '0':
-                exit(Problem::Timeout);
-            Format(Problem::MissingFileID):
-                exit(Problem::MissingFileID);
-        end;
-        exit(Problem::Undefined);
     end;
 
     procedure ThrowJsonReadErr(FileName: Text)
@@ -145,4 +147,7 @@ codeunit 50111 "Google Drive Error Handler"
         NotImplementedErr: Label 'Not implemented.';
         ParameterMissingErr: Label '%1 must be specified.';
         ValueOutOfRangeErr: Label '%1 %2 is out of range [%3 .. %4]';
+        CurrentProblem: enum GDProblem;
+        CurrentMethod: enum GDMethod;
+        CurrentErrorValue: text;
 }

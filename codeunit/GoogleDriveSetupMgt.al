@@ -57,9 +57,11 @@ codeunit 50100 "Google Drive Setup Mgt."
         GoogleDriveJsonHelper: Codeunit "Google Drive Json Helper";
         GoogleDriveErrorHandler: Codeunit "Google Drive Error Handler";
         Tokens: Codeunit "Google Drive API Tokens";
+        Problem: Enum GDProblem;
         ResponseJson: JsonObject;
         RequestParams: Text;
         ResponseText: Text;
+        ErrorValue: Text;
         RequestSentAtUTC: DateTime;
     begin
         GoogleDriveSetup.Get;
@@ -81,8 +83,12 @@ codeunit 50100 "Google Drive Setup Mgt."
         RequestSentAtUTC := System.CurrentDateTime();
         ResponseText := GoogleDriveRequestHandler.RequestAccessToken(RequestParams);
 
-        if not GoogleDriveErrorHandler.HandleErrors(Method, ResponseText) then
+        if GoogleDriveErrorHandler.ResponseHasError(Method, ResponseText) then begin
+            // copy error
+            GoogleDriveErrorHandler.GetError(Method, Problem, ErrorValue);
+            SetError(Problem, Method, ErrorValue);
             exit;
+        end;
 
         ResponseJson.ReadFrom(ResponseText);
         Clear(GoogleDriveSetup.AuthCode);
@@ -97,6 +103,13 @@ codeunit 50100 "Google Drive Setup Mgt."
             GoogleDriveSetup.Validate(Active, true);
         end;
         GoogleDriveSetup.Modify(true);
+    end;
+
+    procedure GetError(var Method: enum GDMethod; var Problem: enum GDProblem; var ErrorValue: Text)
+    begin
+        Method := CurrentMethod;
+        Problem := CurrentProblem;
+        ErrorValue := CurrentErrorValue;
     end;
 
     local procedure CalcLifeTime(ExpiresIn: Text; OldLifeTime: Integer): Integer
@@ -121,9 +134,28 @@ codeunit 50100 "Google Drive Setup Mgt."
         exit(System.GetUrl(CurrentClientType, '', ObjectType::Page, Page::"Google Drive Auth Mini Page"));
     end;
 
+    local procedure ClearError()
+    begin
+        CurrentProblem := CurrentProblem::Undefined;
+        CurrentMethod := CurrentMethod::Undefined;
+        Clear(CurrentErrorValue);
+    end;
+
+    local procedure SetError(Problem: enum GDProblem; Method: Enum GDMethod; ErrorValue: Text)
+    begin
+        ClearError();
+        CurrentProblem := Problem;
+        CurrentMethod := Method;
+        CurrentErrorValue := ErrorValue;
+    end;
+
     var
         APIScopeTxt: Label 'https://www.googleapis.com/drive/v3/files';
         APIUploadScopeTxt: Label 'https://www.googleapis.com/upload/drive/v3/files';
         AuthScopeTxt: Label 'https://www.googleapis.com/auth/drive';
         DialogTitleUploadTxt: Label 'File Upload';
+
+        CurrentProblem: enum GDProblem;
+        CurrentMethod: enum GDMethod;
+        CurrentErrorValue: text;
 }

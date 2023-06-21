@@ -18,4 +18,8 @@ enum 50101 GDProblem
     {
 
     }
+    value(5; JsonRead)
+    {
+
+    }
 }

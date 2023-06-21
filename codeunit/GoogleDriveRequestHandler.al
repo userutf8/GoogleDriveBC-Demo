@@ -148,9 +148,11 @@ codeunit 50110 "Google Drive Request Handler"
         Request.Method := 'PATCH';
         Client.DefaultRequestHeaders.Add(
             Tokens.Authorization, StrSubstNo('%1 %2', GoogleDriveSetup.TokenType, GoogleDriveSetup.AccessToken));
-        Client.Send(Request, Response);
-        Response.Content.ReadAs(ResponseText);
-        exit(ResponseText);
+        if Client.Send(Request, Response) then begin
+            Response.Content.ReadAs(ResponseText);
+            exit(ResponseText);
+        end;
+        exit(StrSubstNo('{"%1": "%2"}', Tokens.ErrorTok, Response.HttpStatusCode));
     end;
 
 
@@ -179,9 +181,11 @@ codeunit 50110 "Google Drive Request Handler"
         Request.Method := 'PATCH';
         Client.DefaultRequestHeaders.Add(
             Tokens.Authorization, StrSubstNo('%1 %2', GoogleDriveSetup.TokenType, GoogleDriveSetup.AccessToken));
-        Client.Send(Request, Response);
-        Response.Content.ReadAs(ResponseText);
-        exit(ResponseText);
+        if Client.Send(Request, Response) then begin
+            Response.Content.ReadAs(ResponseText);
+            exit(ResponseText);
+        end;
+        exit(StrSubstNo('{"%1": "%2"}', Tokens.ErrorTok, Response.HttpStatusCode));
     end;
 
     procedure PostFile(var IStream: InStream): Text;
@@ -205,9 +209,11 @@ codeunit 50110 "Google Drive Request Handler"
                     Tokens.UploadType, Tokens.MediaTok));
         Client.DefaultRequestHeaders.Add(
             Tokens.Authorization, StrSubstNo('%1 %2', GoogleDriveSetup.TokenType, GoogleDriveSetup.AccessToken));
-        Client.Post(Url, Content, Response);
-        Response.Content().ReadAs(ResponseText);
-        exit(ResponseText);
+        if Client.Post(Url, Content, Response) then begin
+            Response.Content().ReadAs(ResponseText);
+            exit(ResponseText);
+        end;
+        exit(StrSubstNo('{"%1": "%2"}', Tokens.ErrorTok, Response.HttpStatusCode));
     end;
 
     procedure RequestAccessToken(RequestBody: Text): Text
@@ -228,8 +234,8 @@ codeunit 50110 "Google Drive Request Handler"
         if Client.Post(GoogleDriveSetup.TokenURI, Content, Response) then begin
             Response.Content().ReadAs(ResponseText);
             exit(ResponseText);
-        end else
-            exit(StrSubstNo('{"%1": "%2"}', Tokens.ErrorTok, Response.HttpStatusCode));
+        end;
+        exit(StrSubstNo('{"%1": "%2"}', Tokens.ErrorTok, Response.HttpStatusCode));
     end;
 
     local procedure CreateUrlParamsTemplate(QtyParams: Integer): Text
