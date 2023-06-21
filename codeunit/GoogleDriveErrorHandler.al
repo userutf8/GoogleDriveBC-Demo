@@ -1,7 +1,5 @@
 codeunit 50111 "Google Drive Error Handler"
 {
-    Description = 'Handles runtime errors and queue. ';
-
     procedure GetError(var Method: enum GDMethod; var Problem: enum GDProblem; var ErrorValue: Text)
     begin
         Method := CurrentMethod;
@@ -54,28 +52,11 @@ codeunit 50111 "Google Drive Error Handler"
         exit(false);
     end;
 
-    local procedure ClearError()
-    begin
-        CurrentProblem := CurrentProblem::Undefined;
-        CurrentMethod := CurrentMethod::Undefined;
-        Clear(CurrentErrorValue);
-    end;
-
-    local procedure LogError(Problem: enum GDProblem; Method: Enum GDMethod; ErrorValue: Text)
-    begin
-        ClearError();
-        CurrentProblem := Problem;
-        CurrentMethod := Method;
-        CurrentErrorValue := ErrorValue;
-    end;
-
     procedure FinalizeHandleErrors(Method: enum GDMethod; MediaID: Integer; FileID: Text): Boolean
     var
         GoogleDriveQueue: Record "Google Drive Queue";
     begin
-
-
-
+        // TODO: to remove
         // TODO bad function name (bad design)
         If MediaID = 0 then
             Error(ParameterMissingErr, GoogleDriveQueue.FieldName(MediaID));
@@ -139,6 +120,21 @@ codeunit 50111 "Google Drive Error Handler"
     procedure ThrowValueOutOfRange(Name: Text; Val: Text; LowMargin: Text; HighMargin: Text)
     begin
         Error(ValueOutOfRangeErr, Name, Val, LowMargin, HighMargin);
+    end;
+
+    local procedure ClearError()
+    begin
+        CurrentProblem := CurrentProblem::Undefined;
+        CurrentMethod := CurrentMethod::Undefined;
+        Clear(CurrentErrorValue);
+    end;
+
+    local procedure LogError(Problem: enum GDProblem; Method: Enum GDMethod; ErrorValue: Text)
+    begin
+        ClearError();
+        CurrentProblem := Problem;
+        CurrentMethod := Method;
+        CurrentErrorValue := ErrorValue;
     end;
 
     var

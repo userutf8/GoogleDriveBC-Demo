@@ -1,6 +1,6 @@
 codeunit 50101 "Google Drive Mgt."
 {
-    Description = 'Manages operations with Google Drive and related records.';
+    Description = 'Manages Google Drive API calls and handles Google Drive Media.';
 
     procedure Create()
     var

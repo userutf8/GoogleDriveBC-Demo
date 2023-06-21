@@ -1,6 +1,6 @@
 codeunit 50110 "Google Drive Request Handler"
 {
-    Description = 'Handles calls to Google Drive API.';
+    Description = 'Handles Google Drive API calls.';
 
     procedure CreateRequestParamsAuthCode(): Text
     var
@@ -66,6 +66,7 @@ codeunit 50110 "Google Drive Request Handler"
 
     procedure GetErrorText(): Text
     begin
+        // TODO: to remove
         exit(ErrorText);
     end;
 
@@ -154,7 +155,6 @@ codeunit 50110 "Google Drive Request Handler"
         end;
         exit(StrSubstNo('{"%1": "%2"}', Tokens.ErrorTok, Response.HttpStatusCode));
     end;
-
 
     procedure PatchMetadata(NewMetadata: Text; FileID: Text): Text
     var

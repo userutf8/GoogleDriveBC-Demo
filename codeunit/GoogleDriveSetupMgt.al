@@ -1,47 +1,6 @@
 codeunit 50100 "Google Drive Setup Mgt."
 {
     Description = 'Manages Google Drive Setup.';
-    procedure InitSetup()
-    var
-        GoogleDriveSetup: Record "Google Drive Setup";
-        GoogleDriveJsonHelper: Codeunit "Google Drive Json Helper";
-        GoogleDriveErrorHandler: Codeunit "Google Drive Error Handler";
-        Tokens: Codeunit "Google Drive API Tokens";
-        IStream: InStream;
-        ClientFileName: Text;
-        JsonText: Text;
-        JsonObj: JsonObject;
-    begin
-        if not File.UploadIntoStream(DialogTitleUploadTxt, '', '', ClientFileName, IStream) then
-            GoogleDriveErrorHandler.ThrowFileUploadErr(ClientFileName);
-
-        if not JsonObj.ReadFrom(IStream) then
-            GoogleDriveErrorHandler.ThrowJsonReadErr(ClientFileName);
-
-        if not JsonObj.Contains(Tokens.Installed) then
-            GoogleDriveErrorHandler.ThrowJsonStructureErr(ClientFileName);
-
-        JsonText := GoogleDriveJsonHelper.GetObjectValueFromJson(JsonObj, Tokens.Installed);
-        if not JsonObj.ReadFrom(JsonText) then
-            GoogleDriveErrorHandler.ThrowJsonStructureErr(ClientFileName);
-
-        GoogleDriveSetup.Reset();
-        GoogleDriveSetup.DeleteAll();
-        GoogleDriveSetup.Init();
-        GoogleDriveSetup.Validate(ClientID, GoogleDriveJsonHelper.GetTextValueFromJson(JsonObj, Tokens.ClientID));
-        GoogleDriveSetup.Validate(ClientSecret, GoogleDriveJsonHelper.GetTextValueFromJson(JsonObj, Tokens.ClientSecret));
-        GoogleDriveSetup.Validate(AuthURI, GoogleDriveJsonHelper.GetTextValueFromJson(JsonObj, Tokens.AuthUri));
-        GoogleDriveSetup.Validate(TokenURI, GoogleDriveJsonHelper.GetTextValueFromJson(JsonObj, Tokens.TokenUri));
-        GoogleDriveSetup.Validate(ProjectID, GoogleDriveJsonHelper.GetTextValueFromJson(JsonObj, Tokens.ProjectID));
-        GoogleDriveSetup.Validate(AuthProvider,
-            GoogleDriveJsonHelper.GetTextValueFromJson(JsonObj, Tokens.AuthProviderX509CertUrl));
-        GoogleDriveSetup.Validate(RedirectURI, GetRedirectUri);
-        GoogleDriveSetup.Validate(AuthScope, AuthScopeTxt);
-        GoogleDriveSetup.Validate(APIScope, APIScopeTxt);
-        GoogleDriveSetup.Validate(APIUploadScope, APIUploadScopeTxt);
-        GoogleDriveSetup.TestMandatoryAuthFields();
-        GoogleDriveSetup.Insert();
-    end;
 
     procedure Authorize()
     var
@@ -84,7 +43,6 @@ codeunit 50100 "Google Drive Setup Mgt."
         ResponseText := GoogleDriveRequestHandler.RequestAccessToken(RequestParams);
 
         if GoogleDriveErrorHandler.ResponseHasError(Method, ResponseText) then begin
-            // copy error
             GoogleDriveErrorHandler.GetError(Method, Problem, ErrorValue);
             SetError(Problem, Method, ErrorValue);
             exit;
@@ -112,6 +70,48 @@ codeunit 50100 "Google Drive Setup Mgt."
         ErrorValue := CurrentErrorValue;
     end;
 
+    procedure InitSetup()
+    var
+        GoogleDriveSetup: Record "Google Drive Setup";
+        GoogleDriveJsonHelper: Codeunit "Google Drive Json Helper";
+        GoogleDriveErrorHandler: Codeunit "Google Drive Error Handler";
+        Tokens: Codeunit "Google Drive API Tokens";
+        IStream: InStream;
+        ClientFileName: Text;
+        JsonText: Text;
+        JsonObj: JsonObject;
+    begin
+        if not File.UploadIntoStream(DialogTitleUploadTxt, '', '', ClientFileName, IStream) then
+            GoogleDriveErrorHandler.ThrowFileUploadErr(ClientFileName);
+
+        if not JsonObj.ReadFrom(IStream) then
+            GoogleDriveErrorHandler.ThrowJsonReadErr(ClientFileName);
+
+        if not JsonObj.Contains(Tokens.Installed) then
+            GoogleDriveErrorHandler.ThrowJsonStructureErr(ClientFileName);
+
+        JsonText := GoogleDriveJsonHelper.GetObjectValueFromJson(JsonObj, Tokens.Installed);
+        if not JsonObj.ReadFrom(JsonText) then
+            GoogleDriveErrorHandler.ThrowJsonStructureErr(ClientFileName);
+
+        GoogleDriveSetup.Reset();
+        GoogleDriveSetup.DeleteAll();
+        GoogleDriveSetup.Init();
+        GoogleDriveSetup.Validate(ClientID, GoogleDriveJsonHelper.GetTextValueFromJson(JsonObj, Tokens.ClientID));
+        GoogleDriveSetup.Validate(ClientSecret, GoogleDriveJsonHelper.GetTextValueFromJson(JsonObj, Tokens.ClientSecret));
+        GoogleDriveSetup.Validate(AuthURI, GoogleDriveJsonHelper.GetTextValueFromJson(JsonObj, Tokens.AuthUri));
+        GoogleDriveSetup.Validate(TokenURI, GoogleDriveJsonHelper.GetTextValueFromJson(JsonObj, Tokens.TokenUri));
+        GoogleDriveSetup.Validate(ProjectID, GoogleDriveJsonHelper.GetTextValueFromJson(JsonObj, Tokens.ProjectID));
+        GoogleDriveSetup.Validate(AuthProvider,
+            GoogleDriveJsonHelper.GetTextValueFromJson(JsonObj, Tokens.AuthProviderX509CertUrl));
+        GoogleDriveSetup.Validate(RedirectURI, GetRedirectUri);
+        GoogleDriveSetup.Validate(AuthScope, AuthScopeTxt);
+        GoogleDriveSetup.Validate(APIScope, APIScopeTxt);
+        GoogleDriveSetup.Validate(APIUploadScope, APIUploadScopeTxt);
+        GoogleDriveSetup.TestMandatoryAuthFields();
+        GoogleDriveSetup.Insert();
+    end;
+
     local procedure CalcLifeTime(ExpiresIn: Text; OldLifeTime: Integer): Integer
     var
         ExpiresInInt: Integer;
@@ -126,19 +126,19 @@ codeunit 50100 "Google Drive Setup Mgt."
         exit(0);
     end;
 
+    local procedure ClearError()
+    begin
+        CurrentProblem := CurrentProblem::Undefined;
+        CurrentMethod := CurrentMethod::Undefined;
+        Clear(CurrentErrorValue);
+    end;
+
     local procedure GetRedirectUri(): Text
     begin
         // Endpoint for OAuth 2.0 redirect
         // Company Name must be empty on prem, or Google will refuse to redirect to this URI (weird).
         // TODO: check in Azure.
         exit(System.GetUrl(CurrentClientType, '', ObjectType::Page, Page::"Google Drive Auth Mini Page"));
-    end;
-
-    local procedure ClearError()
-    begin
-        CurrentProblem := CurrentProblem::Undefined;
-        CurrentMethod := CurrentMethod::Undefined;
-        Clear(CurrentErrorValue);
     end;
 
     local procedure SetError(Problem: enum GDProblem; Method: Enum GDMethod; ErrorValue: Text)
@@ -154,7 +154,6 @@ codeunit 50100 "Google Drive Setup Mgt."
         APIUploadScopeTxt: Label 'https://www.googleapis.com/upload/drive/v3/files';
         AuthScopeTxt: Label 'https://www.googleapis.com/auth/drive';
         DialogTitleUploadTxt: Label 'File Upload';
-
         CurrentProblem: enum GDProblem;
         CurrentMethod: enum GDMethod;
         CurrentErrorValue: text;

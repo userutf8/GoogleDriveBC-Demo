@@ -1,10 +1,5 @@
 codeunit 50120 "Google Drive Json Helper"
 {
-    trigger OnRun()
-    begin
-
-    end;
-
     procedure GetErrorValueFromJson(var ErrorValue: Text; jsonObj: JsonObject): Boolean
     var
         Tokens: Codeunit "Google Drive API Tokens";
