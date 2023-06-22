@@ -51,36 +51,6 @@ codeunit 50111 "Google Drive Error Handler"
         exit(false);
     end;
 
-    procedure FinalizeHandleErrors(Method: enum GDMethod; MediaID: Integer; FileID: Text): Boolean
-    var
-        GoogleDriveQueue: Record "Google Drive Queue";
-    begin
-        // TODO: to remove
-        // TODO bad function name (bad design)
-        If MediaID = 0 then
-            Error(ParameterMissingErr, GoogleDriveQueue.FieldCaption(MediaID));
-
-        // TODO: redo all, as there can be several records like that
-        GoogleDriveQueue.SetRange(Status, GoogleDriveQueue.Status::New);
-        GoogleDriveQueue.SetRange(Method, Method);
-        if GoogleDriveQueue.IsEmpty then
-            exit(true); // no tracked problems
-
-        GoogleDriveQueue.FindFirst();
-        // TODO: here the top problem will be that with new approach we can lose info about FileID.
-        // so we need to store FileID in Queue
-        if Method = Method::DeleteFile then
-            GoogleDriveQueue.MediaID := MediaID
-        else
-            GoogleDriveQueue.Validate(MediaID, MediaID);
-        GoogleDriveQueue.Validate(FileID, FileID);
-        GoogleDriveQueue.Validate(Status, GoogleDriveQueue.Status::"To Handle");
-        GoogleDriveQueue.Modify(true);
-        Commit();
-
-        exit(false); // problem is tracked
-    end;
-
     procedure ThrowJsonReadErr(FileName: Text)
     begin
         Error(JsonReadErr, FileName);
