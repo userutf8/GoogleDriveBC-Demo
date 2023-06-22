@@ -85,27 +85,45 @@ codeunit 50101 "Google Drive Mgt."
         GoogleDriveMedia: Record "Google Drive Media";
         GoogleDriveSetupMgt: Codeunit "Google Drive Setup Mgt.";
         GoogleDriveRequestHandler: Codeunit "Google Drive Request Handler";
-        GoogleDriveErrorHandler: Codeunit "Google Drive Error Handler";
+        ErrorHandler: Codeunit "Google Drive Error Handler";
+        QueueHandler: Codeunit "Google Drive Queue Handler";
         Method: enum GDMethod;
+        Problem: enum GDProblem;
+        Status: enum GDQueueStatus;
         ResponseText: Text;
+        ErrorValue: Text;
         FileID: Text;
+        QueueID: Integer;
     begin
         GoogleDriveMedia.Get(MediaID);
         FileID := GoogleDriveMedia.FileID;
-        GoogleDriveMedia.Delete(true); // delete record and all links
+        GoogleDriveMedia.Delete(true);
+        if FileID = '' then begin
+            QueueHandler.CreateGoogleDriveQueue(Status::"To Handle", Method::DeleteFile, Problem::MissingFileID, MediaID, '');
+            Commit();
+            exit;
+        end;
+        QueueID := QueueHandler.CreateGoogleDriveQueue(Method::DeleteFile, Problem::Undefined, MediaID, FileID);
         Commit();
 
-        if FileID = '' then begin // TODO add queue
-            // GoogleDriveErrorHandler.HandleErrors(Method::DeleteFile, StrSubstNo('{"%1": {"%1": "%2"}}', Tokens.ErrorTok, 'MissingFileID'));
-            GoogleDriveErrorHandler.FinalizeHandleErrors(Method::DeleteFile, MediaID, '');
+        GoogleDriveSetupMgt.Authorize(Method::DeleteFile);
+        GoogleDriveSetupMgt.GetError(Method, Problem, ErrorValue);
+        if ErrorValue <> '' then begin
+            QueueHandler.UpdateGoogleDriveQueue(QueueID, Status::"To Handle", Method, Problem, MediaID, FileID, ErrorValue);
+            Commit();
             exit;
         end;
 
-        GoogleDriveSetupMgt.Authorize(Method::DeleteFile);
-        if not GoogleDriveErrorHandler.FinalizeHandleErrors(Method::DeleteFile, MediaID, FileID) then
-            exit;
         ResponseText := GoogleDriveRequestHandler.DeleteFile(FileID);
-        // GoogleDriveErrorHandler.HandleErrors(Method::DeleteFile, ResponseText);
+        if ErrorHandler.ResponseHasError(Method::DeleteFile, ResponseText) then begin
+            ErrorHandler.GetError(Method, Problem, ErrorValue);
+            QueueHandler.UpdateGoogleDriveQueue(QueueID, Status::"To Handle", Method, Problem, MediaID, FileID, ErrorValue);
+            Commit();
+            exit;
+        end;
+
+        QueueHandler.UpdateGoogleDriveQueue(QueueID, Status::Handled, Method::DeleteFile, Problem::Undefined, MediaID, FileID, '');
+        Commit();
     end;
 
     procedure Get(var IStream: InStream; var ErrorText: Text; FileID: Text)

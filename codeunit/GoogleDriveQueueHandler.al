@@ -18,7 +18,7 @@ codeunit 50112 "Google Drive Queue Handler"
         GoogleDriveQueue.Validate(Method, Method);
         GoogleDriveQueue.Validate(Problem, Problem);
         GoogleDriveQueue.Validate(Status, GoogleDriveQueue.Status::New);
-        GoogleDriveQueue.Validate(MediaID, MediaID);
+        GoogleDriveQueue.MediaID := MediaID; // validation will fail when DeleteFile is called
         GoogleDriveQueue.Validate(FileID, FileID);
         GoogleDriveQueue.Validate(Iteration, 0);
         GoogleDriveQueue.Validate(TempErrorValue, '');
@@ -34,7 +34,7 @@ codeunit 50112 "Google Drive Queue Handler"
         GoogleDriveQueue.Validate(Method, Method);
         GoogleDriveQueue.Validate(Problem, Problem);
         GoogleDriveQueue.Validate(Status, Status);
-        GoogleDriveQueue.Validate(MediaID, MediaID);
+        GoogleDriveQueue.MediaID := MediaID; // validation will fail when DeleteFile is called
         GoogleDriveQueue.Validate(FileID, FileID);
         GoogleDriveQueue.Validate(Iteration, 0);
         GoogleDriveQueue.Validate(TempErrorValue, ErrorValue);
