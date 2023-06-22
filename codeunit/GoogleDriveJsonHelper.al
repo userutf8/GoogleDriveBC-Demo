@@ -1,23 +1,22 @@
 codeunit 50120 "Google Drive Json Helper"
 {
-    procedure GetErrorValueFromJson(var ErrorValue: Text; jsonObj: JsonObject): Boolean
+    procedure GetErrorValueFromJson(var ErrorValue: Text; JsonObj: JsonObject): Boolean
     var
+        InnerJsonObj: JsonObject;
         GDITokens: Codeunit "GDI Tokens";
         Problem: Enum GDProblem;
     begin
         // returns true, if the error presents in Json or if Json failed to parse
-        ClearLastError();
-        TryGetTextValueFromJson(ErrorValue, jsonObj, GDITokens.ErrorTok());
-        if GetLastErrorText = '' then
+        if TryGetTextValueFromJson(ErrorValue, JsonObj, GDITokens.ErrorTok()) then
             exit(ErrorValue <> '');
 
         ClearLastError();
-        TryGetObjectValueFromJson(ErrorValue, jsonObj, GDITokens.ErrorTok());
-        if GetLastErrorText() = '' then begin
-            TryGetTextValueFromJson(ErrorValue, jsonObj, GDITokens.ErrorTok());
-            if GetLastErrorText() = '' then
+        if TryGetObjectValueFromJson(ErrorValue, JsonObj, GDITokens.ErrorTok()) then begin
+            InnerJsonObj.ReadFrom(ErrorValue);
+            if TryGetTextValueFromJson(ErrorValue, InnerJsonObj, GDITokens.CodeTok()) then
                 exit(ErrorValue <> '');
         end;
+
         ErrorValue := Format(Problem::JsonRead);
         exit(true);
     end;

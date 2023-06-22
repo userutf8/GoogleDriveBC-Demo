@@ -34,6 +34,8 @@ codeunit 50111 "Google Drive Error Handler"
             case (ErrorValue) of
                 '0':
                     Problem := Problem::Timeout;
+                '404':
+                    Problem := Problem::NotFound;
                 Format(Problem::JsonRead):
                     Problem := Problem::JsonRead;
                 Format(Problem::MissingFileID):
@@ -41,7 +43,7 @@ codeunit 50111 "Google Drive Error Handler"
                 else
                     Problem := Problem::Undefined;
             end;
-            if Problem = Problem::Undefined then
+            if Problem in [Problem::JsonRead, Problem::Undefined] then
                 ErrorValue := ResponseText;
             LogError(Problem, Method, ErrorValue);
             exit(true);

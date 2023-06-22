@@ -216,7 +216,6 @@ codeunit 50101 "Google Drive Mgt."
             exit;
         end;
 
-        // TODO Create has same code block, try to remove duplicate
         ResponseText := PatchMetadata(StrSubstNo('{"name": "%1"}', FileName), FileID);
         if ErrorHandler.ResponseHasError(Method::PatchMetadata, ResponseText) then begin
             ErrorHandler.GetError(Method, Problem, ErrorValue);
