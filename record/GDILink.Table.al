@@ -1,4 +1,4 @@
-table 50115 "Google Drive Link"
+table 50115 "GDI Link"
 {
     fields
     {
@@ -15,18 +15,18 @@ table 50115 "Google Drive Link"
         field(3; EntityID; Text[100])
         {
             Caption = 'Entity ID';
-            Description = 'Identifier of the entity. Table entry code by default.';
+            Description = 'Identifier of the entity. Record code by default.';
         }
         field(4; MediaID; Integer)
         {
             Caption = 'Media ID';
-            TableRelation = "Google Drive Media";
+            TableRelation = "GDI Media";
             ValidateTableRelation = true;
         }
         field(5; EntryNo; Integer)
         {
             Caption = 'No.';
-            Description = 'Number of current media in collection for the current entity.';
+            Description = 'Number of the current media in the collection for the current entity.';
         }
     }
 
@@ -44,11 +44,11 @@ table 50115 "Google Drive Link"
 
     trigger OnInsert()
     var
-        Link: Record "Google Drive Link";
+        GDILink: Record "GDI Link";
     begin
         if ID = 0 then
-            if Link.FindLast() then
-                ID := Link.ID + 1
+            if GDILink.FindLast() then
+                ID := GDILink.ID + 1
             else
                 ID := 1;
     end;

@@ -1,4 +1,4 @@
-page 50100 "Google Drive Setup"
+page 50100 "GDI Setup"
 {
     AboutText = 'You can configure Google Drive integration settings.';
     AboutTitle = 'Google Drive Setup';
@@ -11,7 +11,7 @@ page 50100 "Google Drive Setup"
     ModifyAllowed = true;
     PageType = Card;
     RefreshOnActivate = true; // TODO: check, it has issues
-    SourceTable = "Google Drive Setup";
+    SourceTable = "GDI Setup";
     UsageCategory = Administration;
 
     layout
@@ -22,6 +22,7 @@ page 50100 "Google Drive Setup"
             {
                 ApplicationArea = All;
                 Editable = true;
+                ToolTip = 'Specifies that record is active.';
             }
             group(Client)
             {
@@ -30,16 +31,19 @@ page 50100 "Google Drive Setup"
                 {
                     ApplicationArea = All;
                     Editable = true;
+                    ToolTip = 'Client ID received from the client secret file.';
                 }
                 field("Client Secret"; Rec.ClientSecret)
                 {
                     ApplicationArea = All;
                     Editable = true;
+                    ToolTip = 'Client secret received from the client secret file.';
                 }
                 field("Redirect URI"; Rec.RedirectURI)
                 {
                     ApplicationArea = All;
                     Editable = true;
+                    ToolTip = 'Specifies the redirect URI for OAuth 2.0 consent screen.';
                 }
             }
             group(API)
@@ -48,64 +52,67 @@ page 50100 "Google Drive Setup"
                 {
                     ApplicationArea = All;
                     Editable = true;
+                    ToolTip = 'Specifies the refresh time of the Access Token in seconds.';
                 }
 
                 field("Auth URI"; Rec.AuthUri)
                 {
                     ApplicationArea = All;
                     Editable = true;
+                    ToolTip = 'Google OAuth 2.0 consent screen URI.';
                 }
                 field("Token URI"; Rec.TokenURI)
                 {
                     ApplicationArea = All;
                     Editable = true;
+                    ToolTip = 'Google OAuth 2.0 endpoint required to exchange the authorization code for token.';
                 }
                 field("Auth Scope"; Rec.AuthScope)
                 {
                     ApplicationArea = All;
                     Editable = true;
+                    ToolTip = 'Google OAuth 2.0 endpoint required to refresh the access token.';
                 }
                 field("API Scope"; Rec.APIScope)
                 {
                     ApplicationArea = All;
                     Editable = true;
+                    ToolTip = 'Google Drive API endpoint for metadata and download.';
                 }
 
                 field("API Upload Scope"; Rec.APIUploadScope)
                 {
                     ApplicationArea = All;
                     Editable = true;
+                    ToolTip = 'Google Drive API endpoint for upload.';
                 }
             }
-            group(Authentication)
+            group(Authorization)
             {
                 Visible = false;
                 field("Access Token"; Rec.AccessToken)
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Access Token required for all Google Drive API requests.';
                 }
                 field("Refresh Token"; Rec.RefreshToken)
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Refresh Token required to request a fresh Access Token.';
                 }
                 field("Expires in"; Rec.ExpiresIn)
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ToolTip = 'Default access token expiration time.';
                 }
                 field("Token Type"; Rec.TokenType)
                 {
                     ApplicationArea = All;
                     Editable = false;
-                }
-
-                field("Authentication Code"; Rec.AuthCode)
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'This field is expected to be empty most of the time.';
-                    Editable = false;
+                    ToolTip = 'Default token type.';
                 }
             }
         }
@@ -125,9 +132,9 @@ page 50100 "Google Drive Setup"
 
                 trigger OnAction()
                 var
-                    GoogleDriveSetupMgt: Codeunit "Google Drive Setup Mgt.";
+                    GDISetupMgt: Codeunit "GDI Setup Mgt.";
                 begin
-                    GoogleDriveSetupMgt.InitSetup();
+                    GDISetupMgt.InitSetup();
                 end;
             }
             action("Activate Setup")
@@ -136,21 +143,22 @@ page 50100 "Google Drive Setup"
                 Caption = 'Activate';
                 Image = Apply;
                 ToolTip = 'Open Google Drive authorization screen and authorize Business Central to work with Google Drive.';
+                // TODO: bad design, shan't be here
                 // TODO: move it to Active.OnValidate?
                 trigger OnAction()
                 var
-                    GoogleDriveSetup: Record "Google Drive Setup";
-                    GoogleDriveSetupMgt: Codeunit "Google Drive Setup Mgt.";
+                    GDISetup: Record "GDI Setup";
+                    GDISetupMgt: Codeunit "GDI Setup Mgt.";
                     OldToken: Text;
                     OldStatus: Boolean;
                 begin
                     OldToken := Rec.AccessToken;
                     OldStatus := Rec.Active;
-                    GoogleDriveSetupMgt.Authorize();
+                    GDISetupMgt.Authorize();
                     CurrPage.Update(false);
-                    GoogleDriveSetup.Get();
-                    if OldStatus and GoogleDriveSetup.Active then
-                        if OldToken = GoogleDriveSetup.AccessToken then
+                    GDISetup.Get();
+                    if OldStatus and GDISetup.Active then
+                        if OldToken = GDISetup.AccessToken then
                             Message(OldTokenAliveTxt)
                         else
                             Message(TokenRefreshedTxt); // TODO replace by notification?

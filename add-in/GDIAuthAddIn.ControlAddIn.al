@@ -1,4 +1,4 @@
-controladdin "Google Drive Auth Add-In"
+controladdin "GDI Auth Add-In"
 {
     RequestedHeight = 1;
     MinimumHeight = 1;

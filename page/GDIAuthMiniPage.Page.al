@@ -1,4 +1,4 @@
-page 50101 "Google Drive Auth Mini Page"
+page 50101 "GDI Auth Mini-Page"
 {
     ApplicationArea = All;
     Caption = 'Google Drive Authorization';
@@ -21,13 +21,13 @@ page 50101 "Google Drive Auth Mini Page"
                 ApplicationArea = All;
                 ShowCaption = false;
             }
-            usercontrol(GetAuthCode; "Google Drive Auth Add-In")
+            usercontrol(GetAuthCode; "GDI Auth Add-In")
             {
                 ApplicationArea = All;
                 trigger GetAuthCode(AuthCode: Text)
                 var
-                    GoogleDriveSetup: Record "Google Drive Setup";
-                    GoogleDriveSetupMgt: Codeunit "Google Drive Setup Mgt.";
+                    GoogleDriveSetup: Record "GDI Setup";
+                    GoogleDriveSetupMgt: Codeunit "GDI Setup Mgt.";
                 begin
                     Hint := CloseTabHintTxt;
                     Status := UnknownErr;

@@ -1,14 +1,13 @@
-page 50111 "Google Drive Media Card"
+page 50111 "GDI Media Card"
 {
     ApplicationArea = All;
     DeleteAllowed = false;
-    Editable = false;
-    ModifyAllowed = false;
+    ModifyAllowed = true;
     InsertAllowed = false;
     LinksAllowed = false;
     PageType = Card;
     RefreshOnActivate = true;
-    SourceTable = "Google Drive Media";
+    SourceTable = "GDI Media";
     UsageCategory = None;
 
     layout
@@ -20,25 +19,34 @@ page 50111 "Google Drive Media Card"
                 field(FileName; Rec.FileName)
                 {
                     ApplicationArea = All;
+                    Caption = 'File Name';
+                    Tooltip = 'Name of the file.';
                 }
                 field(ID; Rec.ID)
                 {
                     ApplicationArea = All;
+                    Caption = 'ID';
+                    Editable = false;
+                    ToolTip = 'Unique identifier of the record.';
                 }
                 field(FileID; Rec.FileID)
                 {
                     ApplicationArea = All;
+                    Caption = 'File ID';
+                    Editable = false;
+                    ToolTip = 'Unique Google Drive file identifier.';
                 }
                 field("Media"; Rec.FileContent)
                 {
                     ApplicationArea = All;
+                    // Editable = false;
                     ShowCaption = false;
                 }
             }
         }
         area(FactBoxes)
         {
-            part(Image; "Google Drive Media Card Part")
+            part(Image; "GDI Media Card Part")
             {
                 ApplicationArea = All;
                 Caption = 'Image';
@@ -54,6 +62,7 @@ page 50111 "Google Drive Media Card"
             {
                 ApplicationArea = All;
                 Image = Download;
+                ToolTip = 'Download the file to your device.';
 
                 trigger OnAction()
                 begin
@@ -64,24 +73,26 @@ page 50111 "Google Drive Media Card"
             {
                 ApplicationArea = All;
                 Image = Change;
+                ToolTip = 'Replace the existing file by a new file and sync it with Google Drive.';
 
                 trigger OnAction()
                 var
-                    GoogleDriveMgt: Codeunit "Google Drive Mgt.";
+                    GDIMediaMgt: Codeunit "GDI Media Mgt.";
                 begin
-                    GoogleDriveMgt.Update(Rec.ID);
+                    GDIMediaMgt.Update(Rec.ID);
                 end;
             }
             action("Delete")
             {
                 ApplicationArea = All;
                 Image = Delete;
+                ToolTip = 'Delete the existing file from the database and Google Drive.';
 
                 trigger OnAction()
                 var
-                    GoogleDriveMgt: Codeunit "Google Drive Mgt.";
+                    GDIMediaMgt: Codeunit "GDI Media Mgt.";
                 begin
-                    GoogleDriveMgt.Delete(Rec.ID);
+                    GDIMediaMgt.Delete(Rec.ID);
                 end;
             }
         }
@@ -92,8 +103,9 @@ page 50111 "Google Drive Media Card"
                 ApplicationArea = All;
                 Caption = 'Links...';
                 Image = Links;
-                RunObject = page "Google Drive Links";
+                RunObject = page "GDI Links";
                 RunPageLink = MediaID = field(ID);
+                ToolTip = 'Open links page for the current media.';
             }
         }
         area(Promoted)

@@ -1,17 +1,17 @@
-codeunit 50111 "Google Drive Error Handler"
+codeunit 50111 "GDI Error Handler"
 {
-    procedure GetError(var Method: enum GDMethod; var Problem: enum GDProblem; var ErrorValue: Text)
+    procedure GetError(var Method: Enum "GDI Method"; var Problem: Enum "GDI Problem"; var ErrorValue: Text)
     begin
         Method := CurrentMethod;
         Problem := CurrentProblem;
         ErrorValue := CurrentErrorValue;
     end;
 
-    procedure ResponseHasError(Method: enum GDMethod; ResponseText: Text): Boolean
+    procedure ResponseHasError(Method: Enum "GDI Method"; ResponseText: Text): Boolean
     var
-        GoogleDriveJsonHelper: Codeunit "Google Drive Json Helper";
+        GDIJsonHelper: Codeunit "GDI Json Helper";
         ResponseJson: JsonObject;
-        Problem: Enum GDProblem;
+        Problem: Enum "GDI Problem";
         ErrorValue: Text;
     begin
         ClearError();
@@ -26,7 +26,7 @@ codeunit 50111 "Google Drive Error Handler"
         end;
 
 
-        if GoogleDriveJsonHelper.GetErrorValueFromJson(ErrorValue, ResponseJson) then begin
+        if GDIJsonHelper.GetErrorValueFromJson(ErrorValue, ResponseJson) then begin
             ClearLastError();
             if Method = Method::Authorize then
                 Error('%1 Error: %2', Format(Method), ErrorValue);
@@ -98,7 +98,7 @@ codeunit 50111 "Google Drive Error Handler"
         Clear(CurrentErrorValue);
     end;
 
-    local procedure LogError(Problem: enum GDProblem; Method: Enum GDMethod; ErrorValue: Text)
+    local procedure LogError(Problem: Enum "GDI Problem"; Method: Enum "GDI Method"; ErrorValue: Text)
     begin
         ClearError();
         CurrentProblem := Problem;
@@ -107,16 +107,15 @@ codeunit 50111 "Google Drive Error Handler"
     end;
 
     var
-        JsonReadErr: Label 'Cannot read file %1 as json.';
-        JsonStructureErr: Label 'Wrong json structure in %1. Please, check recent Google Drive API updates.';
-        EvaluateFailErr: Label 'Failed to evaluate %1=%2 into %3 type.';
+        JsonReadErr: Label 'Cannot read file %1 as json.', Comment = '%1 = File name';
+        JsonStructureErr: Label 'Wrong json structure in %1. Please, check recent Google Drive API updates.', Comment = '%1 = File name, http content, text variable, etc';
+        EvaluateFailErr: Label 'Failed to evaluate %1=%2 into %3 type.', Comment = '%1 = Variable/field name; %2 = Variable/field value; %3 = Target type';
         FileNameMissingErr: Label 'File name was not specified.';
         FileIDMissingErr: Label 'File ID was not specified.';
-        FileUploadErr: Label 'Cannot upload file %1 into stream.';
+        FileUploadErr: Label 'Cannot upload file %1 into stream.', Comment = '%1 = File name';
         NotImplementedErr: Label 'Not implemented.';
-        ParameterMissingErr: Label '%1 must be specified.';
-        ValueOutOfRangeErr: Label '%1 %2 is out of range [%3 .. %4]';
-        CurrentProblem: enum GDProblem;
-        CurrentMethod: enum GDMethod;
+        ValueOutOfRangeErr: Label '%1 %2 is out of range [%3 .. %4]', Comment = '%1 = Variable/field name; %2 = Variable/field value; %3 = low margin; %4 = high margin';
+        CurrentProblem: Enum "GDI Problem";
+        CurrentMethod: Enum "GDI Method";
         CurrentErrorValue: text;
 }

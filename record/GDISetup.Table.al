@@ -1,4 +1,4 @@
-table 50100 "Google Drive Setup"
+table 50100 "GDI Setup"
 {
     fields
     {
@@ -111,15 +111,15 @@ table 50100 "Google Drive Setup"
 
             trigger OnValidate()
             var
-                Fld: Record Field;
-                GoogleDriveErrorHandler: Codeunit "Google Drive Error Handler";
+                Field: Record Field;
+                GDIErrorHandler: Codeunit "GDI Error Handler";
                 ExpiresInInt: Integer;
             begin
                 if not Evaluate(ExpiresInInt, ExpiresIn) then
-                    GoogleDriveErrorHandler.ThrowEvaluateError(FieldCaption(ExpiresIn), ExpiresIn, Format(Fld.Type::Integer));
+                    GDIErrorHandler.ThrowEvaluateError(FieldCaption(ExpiresIn), ExpiresIn, Format(Field.Type::Integer));
 
                 if (LifeTime < 0) or (LifeTime > ExpiresInInt) then
-                    GoogleDriveErrorHandler.ThrowValueOutOfRange(FieldCaption(LifeTime), Format(LifeTime), '0', ExpiresIn);
+                    GDIErrorHandler.ThrowValueOutOfRange(FieldCaption(LifeTime), Format(LifeTime), '0', ExpiresIn);
             end;
 
         }
@@ -161,10 +161,10 @@ table 50100 "Google Drive Setup"
 
     trigger OnInsert()
     var
-        GoogleDriveSetup: Record "Google Drive Setup";
+        GDISetup: Record "GDI Setup";
     begin
-        GoogleDriveSetup.Reset();
-        if not GoogleDriveSetup.IsEmpty() then
+        GDISetup.Reset();
+        if not GDISetup.IsEmpty() then
             Error(RecExistsErr);
 
         ID := 0;

@@ -103,6 +103,11 @@ codeunit 50121 "GDI Tokens"
         exit('image/jpeg');
     end;
 
+    procedure Name(): Text
+    begin
+        exit('name');
+    end;
+
     procedure ProjectID(): Text
     begin
         exit('project_id');

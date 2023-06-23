@@ -1,11 +1,11 @@
-page 50115 "Google Drive Links"
+page 50115 "GDI Links"
 {
     AboutText = 'You can add, modify and delete links between Business Central entities and Google Drive files.';
     AboutTitle = 'Google Drive Media Links';
     AdditionalSearchTerms = 'Gallery, Google, Drive, Image, Media, Picture';
     ApplicationArea = All;
     Caption = 'Google Drive Media Links';
-    CardPageId = "Google Drive Link Card";
+    CardPageId = "GDI Link Card";
     DeleteAllowed = true;
     Editable = true;
     InsertAllowed = true;
@@ -13,7 +13,7 @@ page 50115 "Google Drive Links"
     MultipleNewLines = false;
     PageType = List;
     RefreshOnActivate = true;
-    SourceTable = "Google Drive Link";
+    SourceTable = "GDI Link";
     UsageCategory = Lists;
 
     layout
@@ -27,30 +27,34 @@ page 50115 "Google Drive Links"
                 field(EntityTypeID; Rec.EntityTypeID)
                 {
                     ApplicationArea = All;
+                    Tooltip = 'Identifier of the entity type. Table number by default.';
                     Width = 10;
                 }
                 field(EntityID; Rec.EntityID)
                 {
                     ApplicationArea = All;
+                    Tooltip = 'Identifier of the entity. Record code by default.';
                     Width = 40;
                 }
                 field(EntryNo; Rec.EntryNo)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Number of the current media in the collection for the current entity.';
                 }
                 field(MediaID; Rec.MediaID)
                 {
                     ApplicationArea = All;
+                    Tooltip = 'Identifier of the related media.';
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
-                        GoogleDriveMedia: Record "Google Drive Media";
-                        Gallery: Page Gallery;
+                        GDIMedia: Record "GDI Media";
+                        GDIMediaPage: Page "GDI Media";
                     begin
-                        Gallery.SetRecord(GoogleDriveMedia);
-                        Gallery.RunModal();
-                        Gallery.GetRecord(GoogleDriveMedia);
-                        Rec.MediaID := GoogleDriveMedia.ID;
+                        GDIMediaPage.SetRecord(GDIMedia);
+                        GDIMediaPage.RunModal();
+                        GDIMediaPage.GetRecord(GDIMedia);
+                        Rec.MediaID := GDIMedia.ID;
                     end;
 
                 }
@@ -58,7 +62,7 @@ page 50115 "Google Drive Links"
         }
         area(Factboxes)
         {
-            part(Picture; "Google Drive Media Card Part")
+            part(Picture; "GDI Media Card Part")
             {
                 ApplicationArea = All;
                 Caption = 'Image';

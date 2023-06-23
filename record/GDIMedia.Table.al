@@ -1,4 +1,4 @@
-table 50110 "Google Drive Media"
+table 50110 "GDI Media"
 {
     fields
     {
@@ -35,11 +35,11 @@ table 50110 "Google Drive Media"
 
     trigger OnInsert()
     var
-        GoogleDriveMedia: Record "Google Drive Media";
+        GDIMedia: Record "GDI Media";
     begin
         if ID = 0 then
-            if GoogleDriveMedia.FindLast() then
-                ID := GoogleDriveMedia.ID + 1
+            if GDIMedia.FindLast() then
+                ID := GDIMedia.ID + 1
             else
                 ID := 1;
     end;
@@ -52,10 +52,10 @@ table 50110 "Google Drive Media"
 
     trigger OnDelete()
     var
-        Link: Record "Google Drive Link";
+        GDILink: Record "GDI Link";
     begin
-        Link.SetRange(MediaID, ID);
-        Link.DeleteAll(true);
+        GDILink.SetRange(MediaID, ID);
+        GDILink.DeleteAll(true);
     end;
 
     trigger OnRename()

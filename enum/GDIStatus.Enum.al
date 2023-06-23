@@ -1,4 +1,4 @@
-enum 50102 GDQueueStatus
+enum 50102 "GDI Status"
 {
     Extensible = true;
 

@@ -1,17 +1,17 @@
-page 50110 Gallery
+page 50110 "GDI Media"
 {
     AboutText = 'You can view and edit images.';
     AboutTitle = 'Gallery';
     AdditionalSearchTerms = 'Gallery, Google, Drive, Image, Media, Picture';
     ApplicationArea = All;
     Caption = 'Gallery';
-    CardPageId = "Google Drive Media Card";
+    CardPageId = "GDI Media Card";
     DeleteAllowed = false;
     Description = 'View and edit media.';
     InsertAllowed = false;
     ModifyAllowed = false;
     PageType = List;
-    SourceTable = "Google Drive Media";
+    SourceTable = "GDI Media";
     UsageCategory = Lists;
 
     layout
@@ -30,13 +30,13 @@ page 50110 Gallery
         }
         area(FactBoxes)
         {
-            part("Selected"; "Google Drive Media Card Part")
+            part("Selected"; "GDI Media Card Part")
             {
                 ApplicationArea = All;
                 Caption = 'Image';
                 SubPageLink = ID = field(ID);
             }
-            part("Selected Links"; "Google Drive Links Part")
+            part("Selected Links"; "GDI Links Part")
             {
                 ApplicationArea = All;
                 Caption = 'Links';
@@ -52,12 +52,13 @@ page 50110 Gallery
             {
                 ApplicationArea = All;
                 Image = Add;
+                ToolTip = 'Upload a new file and sync it with Google Drive.';
 
                 trigger OnAction()
                 var
-                    GoogleDriveMgt: Codeunit "Google Drive Mgt.";
+                    GDIMediaMgt: Codeunit "GDI Media Mgt.";
                 begin
-                    GoogleDriveMgt.Create();
+                    GDIMediaMgt.Create();
                 end;
 
             }
@@ -66,24 +67,26 @@ page 50110 Gallery
             {
                 ApplicationArea = All;
                 Image = Change;
+                ToolTip = 'Replace the existing file by a new file and sync it with Google Drive.';
 
                 trigger OnAction()
                 var
-                    GoogleDriveMgt: Codeunit "Google Drive Mgt.";
+                    GDIMediaMgt: Codeunit "GDI Media Mgt.";
                 begin
-                    GoogleDriveMgt.Update(Rec.ID);
+                    GDIMediaMgt.Update(Rec.ID);
                 end;
             }
             action("Delete")
             {
                 ApplicationArea = All;
                 Image = Delete;
+                ToolTip = 'Delete the existing file from the database and Google Drive.';
 
                 trigger OnAction()
                 var
-                    GoogleDriveMgt: Codeunit "Google Drive Mgt.";
+                    GDIMediaMgt: Codeunit "GDI Media Mgt.";
                 begin
-                    GoogleDriveMgt.Delete(Rec.ID);
+                    GDIMediaMgt.Delete(Rec.ID);
                 end;
             }
 
@@ -91,6 +94,7 @@ page 50110 Gallery
             {
                 ApplicationArea = All;
                 Image = Download;
+                ToolTip = 'Download the file to your device.';
 
                 trigger OnAction()
                 begin
@@ -105,22 +109,25 @@ page 50110 Gallery
                 ApplicationArea = All;
                 Caption = 'Links...';
                 Image = Links;
-                RunObject = page "Google Drive Links";
+                RunObject = page "GDI Links";
                 RunPageLink = MediaID = field(ID);
+                ToolTip = 'Open links page for the current media.';
             }
             action("All Links")
             {
                 ApplicationArea = All;
                 Caption = 'All Links';
                 Image = Links;
-                RunObject = page "Google Drive Links";
+                RunObject = page "GDI Links";
+                ToolTip = 'Open links page to view and edit all existing links.';
             }
-            action("Problems")
+            action("Queue")
             {
                 ApplicationArea = All;
-                Caption = 'Problems';
+                Caption = 'Sync Queue';
                 Image = ErrorLog;
-                RunObject = page "Google Drive Queue";
+                RunObject = page "GDI Queue";
+                ToolTip = 'Open sync queue page to view all existing queue entries.';
             }
         }
         area(Promoted)
@@ -151,7 +158,7 @@ page 50110 Gallery
                 {
 
                 }
-                actionref(Problems_Promoted; Problems)
+                actionref(Problems_Promoted; Queue)
                 {
 
                 }

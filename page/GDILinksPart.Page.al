@@ -1,14 +1,14 @@
-page 50117 "Google Drive Links Part"
+page 50117 "GDI Links Part"
 {
     ApplicationArea = All;
-    CardPageId = "Google Drive Link Card";
+    CardPageId = "GDI Link Card";
     DeleteAllowed = false;
     Editable = false;
     InsertAllowed = false;
     ModifyAllowed = false;
     PageType = ListPart;
     RefreshOnActivate = true;
-    SourceTable = "Google Drive Link";
+    SourceTable = "GDI Link";
     UsageCategory = None;
 
     layout
@@ -21,10 +21,12 @@ page 50117 "Google Drive Links Part"
                 field(EntityTypeID; Rec.EntityTypeID)
                 {
                     ApplicationArea = All;
+                    Tooltip = 'Identifier of the entity type. Table number by default.';
                 }
                 field(EntityID; Rec.EntityID)
                 {
                     ApplicationArea = All;
+                    Tooltip = 'Identifier of the entity. Record code by default.';
                 }
             }
         }

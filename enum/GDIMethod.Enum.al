@@ -1,4 +1,4 @@
-enum 50100 GDMethod
+enum 50100 "GDI Method"
 {
     Extensible = true;
 

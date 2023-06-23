@@ -1,10 +1,10 @@
-codeunit 50120 "Google Drive Json Helper"
+codeunit 50120 "GDI Json Helper"
 {
     procedure GetErrorValueFromJson(var ErrorValue: Text; JsonObj: JsonObject): Boolean
     var
-        InnerJsonObj: JsonObject;
         GDITokens: Codeunit "GDI Tokens";
-        Problem: Enum GDProblem;
+        InnerJsonObj: JsonObject;
+        GDIProblem: Enum "GDI Problem";
     begin
         // returns true, if the error presents in Json or if Json failed to parse
         if TryGetTextValueFromJson(ErrorValue, JsonObj, GDITokens.ErrorTok()) then
@@ -17,7 +17,7 @@ codeunit 50120 "Google Drive Json Helper"
                 exit(ErrorValue <> '');
         end;
 
-        ErrorValue := Format(Problem::JsonRead);
+        ErrorValue := Format(GDIProblem::JsonRead);
         exit(true);
     end;
 

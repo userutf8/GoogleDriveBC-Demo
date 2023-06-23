@@ -1,4 +1,4 @@
-table 50120 "Google Drive Queue"
+table 50120 "GDI Queue"
 {
     Description = 'Entries for the job queue.';
     fields
@@ -9,17 +9,17 @@ table 50120 "Google Drive Queue"
         }
         field(2; MediaID; Integer)
         {
-            TableRelation = "Google Drive Media";
+            TableRelation = "GDI Media";
         }
-        field(3; Method; enum GDMethod)
+        field(3; Method; enum "GDI Method")
         {
             InitValue = Undefined;
         }
-        field(4; Problem; enum GDProblem)
+        field(4; Problem; enum "GDI Problem")
         {
             InitValue = Undefined;
         }
-        field(5; Status; enum GDQueueStatus)
+        field(5; Status; enum "GDI Status")
         {
             InitValue = New;
         }
@@ -47,11 +47,11 @@ table 50120 "Google Drive Queue"
 
     trigger OnInsert()
     var
-        GoogleDriveQueue: Record "Google Drive Queue";
+        GDIQueue: Record "GDI Queue";
     begin
         if ID = 0 then
-            if GoogleDriveQueue.FindLast() then
-                ID := GoogleDriveQueue.ID + 1
+            if GDIQueue.FindLast() then
+                ID := GDIQueue.ID + 1
             else
                 ID := 1;
     end;

@@ -1,4 +1,4 @@
-page 50116 "Google Drive Link Card"
+page 50116 "GDI Link Card"
 {
     ApplicationArea = All;
     Caption = 'Google Drive Media Link';
@@ -8,7 +8,7 @@ page 50116 "Google Drive Link Card"
     ModifyAllowed = true;
     PageType = Card;
     RefreshOnActivate = true;
-    SourceTable = "Google Drive Link";
+    SourceTable = "GDI Link";
     UsageCategory = None;
 
     layout
@@ -21,24 +21,28 @@ page 50116 "Google Drive Link Card"
                 field(EntityTypeID; Rec.EntityTypeID)
                 {
                     ApplicationArea = All;
+                    Tooltip = 'Identifier of the entity type. Table number by default.';
                 }
                 field(EntityID; Rec.EntityID)
                 {
                     ApplicationArea = All;
+                    Tooltip = 'Identifier of the entity. Record code by default.';
                 }
                 field(EntryNo; Rec.EntryNo)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Number of the current media in the collection for the current entity.';
                 }
                 field(MediaID; Rec.MediaID)
                 {
                     ApplicationArea = All;
+                    Tooltip = 'Identifier of the related media.';
                 }
             }
         }
         area(Factboxes)
         {
-            part(Picture; "Google Drive Media Card Part")
+            part(Picture; "GDI Media Card Part")
             {
                 ApplicationArea = All;
                 Caption = 'Picture';

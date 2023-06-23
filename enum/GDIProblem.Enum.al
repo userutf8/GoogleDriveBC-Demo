@@ -1,4 +1,4 @@
-enum 50101 GDProblem
+enum 50101 "GDI Problem"
 {
     Extensible = true;
 
