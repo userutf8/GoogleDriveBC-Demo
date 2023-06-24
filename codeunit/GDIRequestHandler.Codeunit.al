@@ -237,12 +237,13 @@ codeunit 50110 "GDI Request Handler"
 
     local procedure CreateUrlParamsTemplate(QtyParams: Integer): Text
     var
+        GDIErrorHandler: Codeunit "GDI Error Handler";
         TemplText: Text;
         Index: Integer;
     begin
         // Creates texts like '%1=%2&%3=%4'
         if QtyParams < 1 then
-            Error(BadParameterErr, 'CreateUrlParamsTemplate', QtyParams);
+            GDIErrorHandler.ThrowBadParameterErr('CreateUrlParamsTemplate', QtyParams);
 
         for Index := 1 to QtyParams do
             TemplText += '%' + Format(2 * Index - 1) + '=%' + Format(2 * Index) + '&';
@@ -256,7 +257,6 @@ codeunit 50110 "GDI Request Handler"
 
     var
         AuthHdrValueTok: Label '%1 %2', Comment = '%1 = token type; %2 = token value'; // bad name
-        BadParameterErr: Label '%1 says: bad parameter value %2.', Comment = '%1 = function, %2 = parameter value';
         UrlWithParamsTok: Label '%1?%2', Comment = '%1 = Url; %2 = parameters';
         UrlWithIdAndParamsTok: Label '%1/%2?%3', Comment = '%1 = Url; %2 = entity id; %3 = parameters';
         CurrentErrorText: Text;
