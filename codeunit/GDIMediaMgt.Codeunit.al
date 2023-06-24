@@ -70,7 +70,7 @@ codeunit 50101 "GDI Media Mgt."
         GDIQueueHandler.Update(QueueID, GDIStatus::New, GDIMethod::PostFile, GDIProblem::Undefined, MediaID, FileID, '');
         Commit();
 
-        ResponseText := PatchMetadata(StrSubstNo(SimpleJsonTxt, GDITokens.Name(), FileName), FileID);
+        ResponseText := PatchMetadata(GDIJsonHelper.CreateSimpleJson(GDITokens.Name(), FileName), FileID);
         if GDIErrorHandler.ResponseHasError(GDIMethod::PatchMetadata, ResponseText) then begin
             GDIErrorHandler.GetError(GDIMethod, GDIProblem, ErrorValue);
             GDIQueueHandler.Update(QueueID, GDIStatus::"To Handle", GDIMethod, GDIProblem, MediaID, FileID, ErrorValue);
@@ -208,6 +208,7 @@ codeunit 50101 "GDI Media Mgt."
         GDIRequestHandler: Codeunit "GDI Request Handler";
         GDIErrorHandler: Codeunit "GDI Error Handler";
         GDIQueueHandler: Codeunit "GDI Queue Handler";
+        GDIJsonHelper: Codeunit "GDI Json Helper";
         GDITokens: Codeunit "GDI Tokens";
         GDIMethod: Enum "GDI Method";
         GDIProblem: Enum "GDI Problem";
@@ -248,7 +249,7 @@ codeunit 50101 "GDI Media Mgt."
             exit;
         end;
 
-        ResponseText := PatchMetadata(StrSubstNo(SimpleJsonTxt, GDITokens.Name(), FileName), FileID);
+        ResponseText := PatchMetadata(GDIJsonHelper.CreateSimpleJson(GDITokens.Name(), FileName), FileID);
         if GDIErrorHandler.ResponseHasError(GDIMethod::PatchMetadata, ResponseText) then begin
             GDIErrorHandler.GetError(GDIMethod, GDIProblem, ErrorValue);
             GDIQueueHandler.Update(QueueID, GDIStatus::"To Handle", GDIMethod, GDIProblem, MediaID, FileID, ErrorValue);
@@ -347,5 +348,4 @@ codeunit 50101 "GDI Media Mgt."
     var
         DialogTitleUploadTxt: Label 'File Upload';
         DialogTitleDownloadTxt: Label 'File Download';
-        SimpleJsonTxt: Label '{"%1": "%2"}', Comment = '%1 = Token name; %2 = Value';
 }

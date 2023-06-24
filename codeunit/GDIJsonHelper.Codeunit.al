@@ -1,5 +1,11 @@
 codeunit 50120 "GDI Json Helper"
 {
+    procedure CreateSimpleJson(TokenName: Text; ValueVariant: Variant): Text
+    begin
+        // creates '{"TokenName": "ValueVariant"}' text
+        exit(StrSubstNo(SimpleJsonTxt, TokenName, Format(ValueVariant, 0, 9)));
+    end;
+
     procedure GetErrorValueFromJson(var ErrorValue: Text; JsonObj: JsonObject): Boolean
     var
         GDITokens: Codeunit "GDI Tokens";
@@ -62,5 +68,8 @@ codeunit 50120 "GDI Json Helper"
         // wraps unsafe call
         TextValue := GetObjectValueFromJson(jsonObj, tokenName);
     end;
+
+    var
+        SimpleJsonTxt: Label '{"%1": "%2"}', Comment = '%1 = Token name; %2 = Value'; // duplicate
 
 }

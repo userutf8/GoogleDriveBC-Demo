@@ -124,6 +124,7 @@ codeunit 50110 "GDI Request Handler"
     procedure PatchFile(IStream: InStream; FileID: Text): Text
     var
         GDISetup: Record "GDI Setup";
+        GDIJsonHelper: Codeunit "GDI Json Helper";
         GDITokens: Codeunit "GDI Tokens";
         Content: HttpContent;
         ContentHeaders: HttpHeaders;
@@ -149,12 +150,13 @@ codeunit 50110 "GDI Request Handler"
             Response.Content.ReadAs(ResponseText);
             exit(ResponseText);
         end;
-        exit(StrSubstNo(SimpleJsonTxt, GDITokens.ErrorTok(), Response.HttpStatusCode));
+        exit(GDIJsonHelper.CreateSimpleJson(GDITokens.ErrorTok(), Response.HttpStatusCode));
     end;
 
     procedure PatchMetadata(NewMetadata: Text; FileID: Text): Text
     var
         GDISetup: Record "GDI Setup";
+        GDIJsonHelper: Codeunit "GDI Json Helper";
         GDITokens: Codeunit "GDI Tokens";
         Content: HttpContent;
         ContentHeaders: HttpHeaders;
@@ -179,12 +181,13 @@ codeunit 50110 "GDI Request Handler"
             Response.Content.ReadAs(ResponseText);
             exit(ResponseText);
         end;
-        exit(StrSubstNo(SimpleJsonTxt, GDITokens.ErrorTok(), Response.HttpStatusCode));
+        exit(GDIJsonHelper.CreateSimpleJson(GDITokens.ErrorTok(), Response.HttpStatusCode));
     end;
 
     procedure PostFile(var IStream: InStream): Text;
     var
         GDISetup: Record "GDI Setup";
+        GDIJsonHelper: Codeunit "GDI Json Helper";
         GDITokens: Codeunit "GDI Tokens";
         Content: HttpContent;
         ContentHeaders: HttpHeaders;
@@ -206,12 +209,13 @@ codeunit 50110 "GDI Request Handler"
             Response.Content().ReadAs(ResponseText);
             exit(ResponseText);
         end;
-        exit(StrSubstNo(SimpleJsonTxt, GDITokens.ErrorTok(), Response.HttpStatusCode));
+        exit(GDIJsonHelper.CreateSimpleJson(GDITokens.ErrorTok(), Response.HttpStatusCode));
     end;
 
     procedure RequestAccessToken(RequestBody: Text): Text
     var
         GDISetup: Record "GDI Setup";
+        GDIJsonHelper: Codeunit "GDI Json Helper";
         GDITokens: Codeunit "GDI Tokens";
         Content: HttpContent;
         ContentHeaders: HttpHeaders;
@@ -228,7 +232,7 @@ codeunit 50110 "GDI Request Handler"
             Response.Content().ReadAs(ResponseText);
             exit(ResponseText);
         end;
-        exit(StrSubstNo(SimpleJsonTxt, GDITokens.ErrorTok(), Response.HttpStatusCode));
+        exit(GDIJsonHelper.CreateSimpleJson(GDITokens.ErrorTok(), Response.HttpStatusCode));
     end;
 
     local procedure CreateUrlParamsTemplate(QtyParams: Integer): Text
@@ -253,7 +257,6 @@ codeunit 50110 "GDI Request Handler"
     var
         AuthHdrValueTok: Label '%1 %2', Comment = '%1 = token type; %2 = token value'; // bad name
         BadParameterErr: Label '%1 says: bad parameter value %2.', Comment = '%1 = function, %2 = parameter value';
-        SimpleJsonTxt: Label '{"%1": "%2"}', Comment = '%1 = Token name; %2 = Value'; // duplicate
         UrlWithParamsTok: Label '%1?%2', Comment = '%1 = Url; %2 = parameters';
         UrlWithIdAndParamsTok: Label '%1/%2?%3', Comment = '%1 = Url; %2 = entity id; %3 = parameters';
         CurrentErrorText: Text;
