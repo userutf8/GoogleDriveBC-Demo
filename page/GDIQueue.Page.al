@@ -60,4 +60,31 @@ Page 50120 "GDI Queue"
             }
         }
     }
+    actions
+    {
+        area(Processing)
+        {
+            action(FixProblems)
+            {
+                ApplicationArea = All;
+                Image = Post;
+                ToolTip = 'Fix existing problems and delete handled entries.';
+
+                trigger OnAction()
+                var
+                    GDIQueueHandler: Codeunit "GDI Queue Handler";
+                begin
+                    GDIQueueHandler.FixProblems();
+                end;
+            }
+
+        }
+        area(Promoted)
+        {
+            actionref(FixProblems_promoted; FixProblems)
+            {
+
+            }
+        }
+    }
 }

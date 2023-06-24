@@ -20,6 +20,8 @@ page 50111 "GDI Media Card"
                 {
                     ApplicationArea = All;
                     Caption = 'File Name';
+                    Style = Attention;
+                    StyleExpr = Rec.FileID = '';
                     Tooltip = 'Name of the file.';
                 }
                 field(ID; Rec.ID)
@@ -65,8 +67,10 @@ page 50111 "GDI Media Card"
                 ToolTip = 'Download the file to your device.';
 
                 trigger OnAction()
+                var
+                    GDIMediaMgt: Codeunit "GDI Media Mgt.";
                 begin
-                    Message('Download');
+                    GDIMediaMgt.Download(Rec.ID);
                 end;
             }
             action("Replace")

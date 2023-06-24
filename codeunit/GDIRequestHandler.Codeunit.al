@@ -251,11 +251,10 @@ codeunit 50110 "GDI Request Handler"
     end;
 
     var
+        AuthHdrValueTok: Label '%1 %2', Comment = '%1 = token type; %2 = token value'; // bad name
         BadParameterErr: Label '%1 says: bad parameter value %2.', Comment = '%1 = function, %2 = parameter value';
-        CurrentErrorText: Text;
         SimpleJsonTxt: Label '{"%1": "%2"}', Comment = '%1 = Token name; %2 = Value'; // duplicate
         UrlWithParamsTok: Label '%1?%2', Comment = '%1 = Url; %2 = parameters';
         UrlWithIdAndParamsTok: Label '%1/%2?%3', Comment = '%1 = Url; %2 = entity id; %3 = parameters';
-        AuthHdrValueTok: Label '%1 %2', Comment = '%1 = token type; %2 = token value';
-
+        CurrentErrorText: Text;
 }

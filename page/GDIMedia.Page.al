@@ -24,6 +24,8 @@ page 50110 "GDI Media"
                 field(FileName; Rec.FileName)
                 {
                     ApplicationArea = All;
+                    Style = Attention;
+                    StyleExpr = Rec.FileID = '';
                     ShowCaption = false;
                 }
             }
@@ -97,8 +99,10 @@ page 50110 "GDI Media"
                 ToolTip = 'Download the file to your device.';
 
                 trigger OnAction()
+                var
+                    GDIMediaMgt: Codeunit "GDI Media Mgt.";
                 begin
-                    Message('Download');
+                    GDIMediaMgt.Download(Rec.ID);
                 end;
             }
         }
@@ -124,7 +128,7 @@ page 50110 "GDI Media"
             action("Queue")
             {
                 ApplicationArea = All;
-                Caption = 'Sync Queue';
+                Caption = 'Queue';
                 Image = ErrorLog;
                 RunObject = page "GDI Queue";
                 ToolTip = 'Open sync queue page to view all existing queue entries.';
