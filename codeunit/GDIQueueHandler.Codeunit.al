@@ -12,13 +12,13 @@ codeunit 50112 "GDI Queue Handler"
         if GDIQueue.IsEmpty then
             exit;
 
+        DeleteAllHandled();
+        Commit();
+
         StartDateTime := CurrentDateTime;
         MaxDuration := 100000; // 100 seconds
         ExcludeFilter := '';
         repeat
-            DeleteAllHandled();
-            Commit();
-
             GDIQueue.Reset();
             GDIQueue.SetRange(Status, GDIQueue.Status::"To Handle");
             GDIQueue.SetFilter(MediaID, ExcludeFilter); // exclude all processed once
@@ -26,10 +26,10 @@ codeunit 50112 "GDI Queue Handler"
                 break;
 
             GDIQueue.FindLast();
-            UpdateExcludeFilter(ExcludeFilter, GDIQueue.MediaID);
             GDIQueue.SetRange(MediaID, GDIQueue.MediaID);
             GDIQueue.SetRange(FileID, GDIQueue.FileID);
-            GDIQueue.DeleteAll(); // consider them handled, as a new entry will be created on request
+            GDIQueue.ModifyAll(Status, GDIQueue.Status::Handled);
+            UpdateExcludeFilter(ExcludeFilter, GDIQueue.MediaID);
             // If file was not yet uploaded to Google Drive or was deleted from Google Drive manually by user
             if (GDIQueue.FileID = '') or (GDIQueue.Problem = GDIQueue.Problem::NotFound) then begin
                 if GDIQueue.Method in [GDIQueue.Method::PatchFile, GDIQueue.Method::PatchMetadata] then
@@ -50,8 +50,8 @@ codeunit 50112 "GDI Queue Handler"
                         GDIMediaMgt.CreateOnGoogleDrive(GDIQueue.MediaID);
                 end;
             Commit();
-            GDIQueue.Reset();
-        until GDIQueue.IsEmpty() or (CurrentDateTime - StartDateTime >= MaxDuration)
+
+        until CurrentDateTime - StartDateTime >= MaxDuration;
     end;
 
     local procedure DeleteAllHandled()

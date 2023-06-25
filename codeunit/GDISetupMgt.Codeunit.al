@@ -151,8 +151,8 @@ codeunit 50100 "GDI Setup Mgt."
         APIScopeTxt: Label 'https://www.googleapis.com/drive/v3/files';
         APIUploadScopeTxt: Label 'https://www.googleapis.com/upload/drive/v3/files';
         AuthScopeTxt: Label 'https://www.googleapis.com/auth/drive';
-        DialogTitleUploadTxt: Label 'File Upload';
-        UrlWithParamsTok: Label '%1?%2', Comment = '%1 = Url; %2 = parameters'; // duplicate
+        DialogTitleUploadTxt: Label 'File Upload'; // duplicate, move
+        UrlWithParamsTok: Label '%1?%2', Comment = '%1 = Url; %2 = parameters'; // duplicate, move
         CurrentProblem: enum "GDI Problem";
         CurrentMethod: enum "GDI Method";
         CurrentErrorValue: text;

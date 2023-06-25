@@ -311,7 +311,7 @@ codeunit 50101 "GDI Media Mgt."
         GDIMedia.Init();
         GDIMedia.Validate(FileID, FileID);
         GDIMedia.Validate(FileName, FileName);
-        GDIMedia.FileContent.ImportStream(IStream, 'default', GDITokens.MimeTypeJpeg()); // TODO remove hardcode
+        GDIMedia.FileContent.ImportStream(IStream, FileName, GDITokens.MimeTypeJpeg());
         GDIMedia.Insert(true);
         exit(GDIMedia.ID);
     end;
@@ -341,11 +341,11 @@ codeunit 50101 "GDI Media Mgt."
     begin
         GDIMedia.Get(ID);
         GDIMedia.Validate(FileName, FileName);
-        GDIMedia.FileContent.ImportStream(IStream, 'default', GDITokens.MimeTypeJpeg()); // TODO remove hardcode
+        GDIMedia.FileContent.ImportStream(IStream, FileName, GDITokens.MimeTypeJpeg());
         GDIMedia.Modify(true);
     end;
 
     var
-        DialogTitleUploadTxt: Label 'File Upload';
-        DialogTitleDownloadTxt: Label 'File Download';
+        DialogTitleUploadTxt: Label 'File Upload'; // duplicate. shall it be here?
+        DialogTitleDownloadTxt: Label 'File Download'; // shall it be here?
 }

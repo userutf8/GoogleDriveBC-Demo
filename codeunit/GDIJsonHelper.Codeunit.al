@@ -70,6 +70,6 @@ codeunit 50120 "GDI Json Helper"
     end;
 
     var
-        SimpleJsonTxt: Label '{"%1": "%2"}', Comment = '%1 = Token name; %2 = Value'; // duplicate
+        SimpleJsonTxt: Label '{"%1": "%2"}', Comment = '%1 = Token name; %2 = Value';
 
 }

@@ -51,6 +51,11 @@ codeunit 50111 "GDI Error Handler"
         exit(false);
     end;
 
+    procedure ThrowBadParameterErr(FunctionName: Text; ParameterVariant: Variant)
+    begin
+        Error(BadParameterErr, FunctionName, Format(ParameterVariant, 0, 9));
+    end;
+
     procedure ThrowJsonReadErr(FileName: Text)
     begin
         Error(JsonReadErr, FileName);
@@ -107,12 +112,13 @@ codeunit 50111 "GDI Error Handler"
     end;
 
     var
-        JsonReadErr: Label 'Cannot read file %1 as json.', Comment = '%1 = File name';
-        JsonStructureErr: Label 'Wrong json structure in %1. Please, check recent Google Drive API updates.', Comment = '%1 = File name, http content, text variable, etc';
+        BadParameterErr: Label '%1 says: bad parameter value %2.', Comment = '%1 = function, %2 = parameter value';
         EvaluateFailErr: Label 'Failed to evaluate %1=%2 into %3 type.', Comment = '%1 = Variable/field name; %2 = Variable/field value; %3 = Target type';
         FileNameMissingErr: Label 'File name was not specified.';
         FileIDMissingErr: Label 'File ID was not specified.';
         FileUploadErr: Label 'Cannot upload file %1 into stream.', Comment = '%1 = File name';
+        JsonReadErr: Label 'Cannot read file %1 as json.', Comment = '%1 = File name';
+        JsonStructureErr: Label 'Wrong json structure in %1. Please, check recent Google Drive API updates.', Comment = '%1 = File name, http content, text variable, etc';
         NotImplementedErr: Label 'Not implemented.';
         ValueOutOfRangeErr: Label '%1 %2 is out of range [%3 .. %4]', Comment = '%1 = Variable/field name; %2 = Variable/field value; %3 = low margin; %4 = high margin';
         CurrentProblem: Enum "GDI Problem";
