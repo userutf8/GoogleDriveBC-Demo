@@ -60,14 +60,18 @@ codeunit 50130 "GDI Links Handler"
         GDILink.DeleteAll();
     end;
 
-    procedure MediaHasSeveralLinks(MediaID: Integer): Boolean
+    procedure MediaHasSeveralLinks(MediaID: Integer; EntityTypeID: Integer; EntityID: Text): Boolean
     var
         GDILink: Record "GDI Link";
+        AnotherEntityTypeHasLink: Boolean;
     begin
+        // A and not (B and C) = A and not A or A and not B
         GDILink.SetRange(MediaID, MediaID);
-        if GDILink.Count > 1 then
-            exit(true);
-        exit(false);
+        GDILink.SetFilter(EntityTypeID, '<>%1', EntityTypeID);
+        AnotherEntityTypeHasLink := not GDILink.IsEmpty();
+        GDILink.SetRange(EntityTypeID);
+        GDILink.SetFilter(EntityID, '<>%1', EntityID);
+        exit(AnotherEntityTypeHasLink or not GDILink.IsEmpty());
     end;
 
 }

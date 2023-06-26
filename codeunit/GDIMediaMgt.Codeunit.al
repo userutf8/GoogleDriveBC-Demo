@@ -9,7 +9,7 @@ codeunit 50101 "GDI Media Mgt."
         IStream: InStream;
         ClientFileName: Text;
     begin
-        if not File.UploadIntoStream(DialogTitleUploadTxt, '', '', ClientFileName, IStream) then
+        if not File.UploadIntoStream(DialogTitleUploadTxt, '', UploadFileFilterTxt, ClientFileName, IStream) then
             GDIErrorHandler.ThrowFileUploadErr(ClientFileName);
 
         NewMediaID := CreateGoogleDriveMedia(IStream, ClientFileName, '');
@@ -105,7 +105,7 @@ codeunit 50101 "GDI Media Mgt."
             if Confirm(MediaDeleteConfirmTxt, true) then
                 Delete(MediaID);
         end else
-            if GDILinksHandler.MediaHasSeveralLinks(MediaID) then begin
+            if GDILinksHandler.MediaHasSeveralLinks(MediaID, EntityTypeID, EntityID) then begin
                 SelectedOption := StrMenu(DeleteMenuOptionsTxt, 1, DeleteMenuLabelTxt);
                 case SelectedOption of
                     1:
@@ -385,6 +385,7 @@ codeunit 50101 "GDI Media Mgt."
 
     var
         DialogTitleUploadTxt: Label 'File Upload'; // duplicate. shall it be here?
+        UploadFileFilterTxt: Label 'JPEG|*.jpg;*.jpeg';
         DialogTitleDownloadTxt: Label 'File Download'; // shall it be here?
         MediaDeleteConfirmTxt: Label 'Do you really want to delete this media?';
         DeleteMenuOptionsTxt: Label 'Delete the link only (recommended),Delete the media and links';

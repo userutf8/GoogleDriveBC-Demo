@@ -116,7 +116,7 @@ codeunit 50111 "GDI Error Handler"
         EvaluateFailErr: Label 'Failed to evaluate %1=%2 into %3 type.', Comment = '%1 = Variable/field name; %2 = Variable/field value; %3 = Target type';
         FileNameMissingErr: Label 'File name was not specified.';
         FileIDMissingErr: Label 'File ID was not specified.';
-        FileUploadErr: Label 'Cannot upload file %1 into stream.', Comment = '%1 = File name';
+        FileUploadErr: Label 'Cannot upload file %1.', Comment = '%1 = File name';
         JsonReadErr: Label 'Cannot read file %1 as json.', Comment = '%1 = File name';
         JsonStructureErr: Label 'Wrong json structure in %1. Please, check recent Google Drive API updates.', Comment = '%1 = File name, http content, text variable, etc';
         NotImplementedErr: Label 'Not implemented.';
