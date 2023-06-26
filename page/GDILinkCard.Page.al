@@ -18,6 +18,14 @@ page 50116 "GDI Link Card"
             group(Default)
             {
                 ShowCaption = false;
+
+                field(ID; Rec.ID)
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Identifier of the record.';
+                    Editable = false;
+                }
+
                 field(EntityTypeID; Rec.EntityTypeID)
                 {
                     ApplicationArea = All;

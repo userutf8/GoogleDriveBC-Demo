@@ -7,7 +7,7 @@ table 50115 "GDI Link"
             Caption = 'ID';
             Description = 'Unique identifier.';
         }
-        field(2; EntityTypeID; Integer)
+        field(2; EntityTypeID; Enum "GDI Entity Type")
         {
             Caption = 'Entity Type';
             Description = 'Identifier of the entity type. Table number by default.';

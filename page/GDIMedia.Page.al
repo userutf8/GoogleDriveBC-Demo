@@ -59,12 +59,16 @@ page 50110 "GDI Media"
                 trigger OnAction()
                 var
                     GDIMediaMgt: Codeunit "GDI Media Mgt.";
+                    NewMediaID: Integer;
                 begin
-                    GDIMediaMgt.Create();
+                    GDIMediaMgt.CreateWithLink(NewMediaID, CurrentEntityTypeID, CurrentEntityID);
+                    UpdateFilter();
                 end;
 
             }
-
+        }
+        area(Processing)
+        {
             action("Replace")
             {
                 ApplicationArea = All;
@@ -88,7 +92,8 @@ page 50110 "GDI Media"
                 var
                     GDIMediaMgt: Codeunit "GDI Media Mgt.";
                 begin
-                    GDIMediaMgt.Delete(Rec.ID);
+                    GDIMediaMgt.Delete(Rec.ID, CurrentEntityTypeID, CurrentEntityID);
+                    UpdateFilter(); // to prevent the case when another record linked to another entity appears on page
                 end;
             }
 
@@ -105,26 +110,79 @@ page 50110 "GDI Media"
                     GDIMediaMgt.Download(Rec.ID);
                 end;
             }
-        }
-        area(Navigation)
-        {
-            action("Links")
+
+            action("Add Links")
             {
                 ApplicationArea = All;
-                Caption = 'Links...';
+                Caption = 'Add Links...';
                 Image = Links;
-                RunObject = page "GDI Links";
-                RunPageLink = MediaID = field(ID);
+                ToolTip = 'Open links page for the current entity.';
+                Visible = CurrentEntityTypeID <> 0;
+
+                trigger OnAction()
+                var
+                    GDILink: Record "GDI Link";
+                    GDILinks: Page "GDI Links";
+                begin
+                    GDILink.SetRange(EntityTypeID, CurrentEntityTypeID);
+                    GDILink.SetRange(EntityID, CurrentEntityID);
+                    GDILinks.SetEntity(CurrentEntityTypeID, CurrentEntityID);
+                    GDILinks.SetTableView(GDILink);
+                    GDILinks.Run();
+                    UpdateFilter(); // TODO: not WAI
+                end;
+            }
+
+            action("Media Links")
+            {
+                ApplicationArea = All;
+                Caption = 'Media Links';
+                Image = Links;
                 ToolTip = 'Open links page for the current media.';
+
+                trigger OnAction()
+                var
+                    GDILink: Record "GDI Link";
+                    GDILinks: Page "GDI Links";
+                begin
+                    GDILink.SetRange(MediaID, Rec.ID);
+                    GDILinks.SetEntity(CurrentEntityTypeID, CurrentEntityID);
+                    GDILinks.SetTableView(GDILink);
+                    GDILinks.Run();
+                    UpdateFilter(); // TODO: not WAI
+                end;
             }
             action("All Links")
             {
                 ApplicationArea = All;
                 Caption = 'All Links';
                 Image = Links;
-                RunObject = page "GDI Links";
                 ToolTip = 'Open links page to view and edit all existing links.';
+
+                trigger OnAction()
+                var
+                    GDILinks: Page "GDI Links";
+                begin
+                    GDILinks.SetEntity(CurrentEntityTypeID, CurrentEntityID);
+                    GDILinks.Run();
+                    UpdateFilter(); // TODO: not WAI
+                end;
             }
+            action("Refresh")
+            {
+                ApplicationArea = all;
+                Caption = 'Refresh';
+                Image = Refresh;
+                Tooltip = 'Refreshes the page. Use it when some changes are not applied.';
+
+                trigger OnAction()
+                begin
+                    UpdateFilter();
+                end;
+            }
+        }
+        area(Navigation)
+        {
             action("Queue")
             {
                 ApplicationArea = All;
@@ -142,26 +200,43 @@ page 50110 "GDI Media"
                 {
 
                 }
-                actionref(Replace_Promoted; "Replace")
+
+                actionref(AddLinks_Promoted; "Add Links")
                 {
 
                 }
+
+
                 actionref(Delete_Promoted; "Delete")
                 {
 
                 }
+
+                actionref(Refresh_Promoted; "Refresh")
+                {
+
+                }
+
+                actionref(Replace_Promoted; "Replace")
+                {
+
+                }
+
                 actionref(Download_Promoted; "Download")
                 {
 
                 }
-                actionref(Links_Promoted; "Links")
+
+                actionref(MediaLinks_Promoted; "Media Links")
                 {
 
                 }
+
                 actionref(AllLinks_Promoted; "All Links")
                 {
 
                 }
+
                 actionref(Problems_Promoted; Queue)
                 {
 
@@ -169,4 +244,25 @@ page 50110 "GDI Media"
             }
         }
     }
+
+    procedure SetEntity(EntityTypeID: Integer; EntityID: Text)
+    begin
+        // required for making new links
+        CurrentEntityTypeID := EntityTypeID;
+        CurrentEntityID := EntityID;
+    end;
+
+    local procedure UpdateFilter()
+    var
+        GDILinksHandler: Codeunit "GDI Links Handler";
+    begin
+        Rec.FilterGroup(0);
+        if CurrentEntityTypeID <> 0 then
+            Rec.SetFilter(ID, GDILinksHandler.CreateSelectionFilter(CurrentEntityTypeID, CurrentEntityID));
+    end;
+
+    var
+        // required for making new links
+        CurrentEntityTypeID: Integer;
+        CurrentEntityID: Text;
 }

@@ -2,18 +2,20 @@ codeunit 50101 "GDI Media Mgt."
 {
     Description = 'Manages Google Drive API calls and handles Google Drive Media.';
 
-    procedure Create()
+    procedure CreateWithLink(var NewMediaID: Integer; EntityTypeID: Integer; EntityID: Text)
     var
+        GDILinksHandler: Codeunit "GDI Links Handler";
         GDIErrorHandler: Codeunit "GDI Error Handler";
         IStream: InStream;
         ClientFileName: Text;
-        MediaID: Integer;
     begin
         if not File.UploadIntoStream(DialogTitleUploadTxt, '', '', ClientFileName, IStream) then
             GDIErrorHandler.ThrowFileUploadErr(ClientFileName);
 
-        MediaID := CreateGoogleDriveMedia(IStream, ClientFileName, '');
-        CreateOnGoogleDrive(IStream, ClientFileName, MediaID);
+        NewMediaID := CreateGoogleDriveMedia(IStream, ClientFileName, '');
+        if EntityTypeID <> 0 then
+            GDILinksHandler.CreateLink(NewMediaID, EntityTypeID, EntityID);
+        CreateOnGoogleDrive(IStream, ClientFileName, NewMediaID);
     end;
 
     procedure CreateOnGoogleDrive(var IStream: InStream; FileName: Text; MediaID: Integer)
@@ -92,6 +94,28 @@ codeunit 50101 "GDI Media Mgt."
         ReadFileFromMedia(TempBlob, FileName, MediaID);
         TempBlob.CreateInStream(IStream);
         CreateOnGoogleDrive(IStream, FileName, MediaID);
+    end;
+
+    procedure Delete(MediaID: Integer; EntityTypeID: Integer; EntityID: Text)
+    var
+        GDILinksHandler: Codeunit "GDI Links Handler";
+        SelectedOption: Integer;
+    begin
+        if EntityTypeID = 0 then begin
+            if Confirm(MediaDeleteConfirmTxt, true) then
+                Delete(MediaID);
+        end else
+            if GDILinksHandler.MediaHasSeveralLinks(MediaID) then begin
+                SelectedOption := StrMenu(DeleteMenuOptionsTxt, 1, DeleteMenuLabelTxt);
+                case SelectedOption of
+                    1:
+                        GDILinksHandler.DeleteLink(MediaID, EntityTypeID, EntityID);
+                    2:
+                        Delete(MediaID);
+                end;
+            end else
+                if Confirm(MediaDeleteConfirmTxt, true) then
+                    Delete(MediaID);
     end;
 
     procedure Delete(MediaID: Integer)
@@ -303,6 +327,20 @@ codeunit 50101 "GDI Media Mgt."
         GDIMedia.FileContent.ExportStream(OStream);
     end;
 
+    procedure RunMediaPage(EntityTypeID: Integer; EntityID: Text; Caption: Text)
+    var
+        GDIMedia: Record "GDI Media";
+        GDILinksHandler: Codeunit "GDI Links Handler";
+        GDIMediaPage: Page "GDI Media";
+    begin
+        GDIMedia.SetFilter(ID, GDILinksHandler.CreateSelectionFilter(EntityTypeID, EntityID)); // FilterGroup 0
+        GDIMediaPage.SetTableView(GDIMedia);
+        GDIMediaPage.SetEntity(EntityTypeID, EntityID);
+        if Caption <> '' then
+            GDIMediaPage.Caption := Caption;
+        GDIMediaPage.Run();
+    end;
+
     local procedure CreateGoogleDriveMedia(IStream: InStream; FileName: Text; FileID: Text): Integer
     var
         GDIMedia: Record "GDI Media";
@@ -348,4 +386,7 @@ codeunit 50101 "GDI Media Mgt."
     var
         DialogTitleUploadTxt: Label 'File Upload'; // duplicate. shall it be here?
         DialogTitleDownloadTxt: Label 'File Download'; // shall it be here?
+        MediaDeleteConfirmTxt: Label 'Do you really want to delete this media?';
+        DeleteMenuOptionsTxt: Label 'Delete the link only (recommended),Delete the media and links';
+        DeleteMenuLabelTxt: Label 'Warning! This media has links to other entities. Please, select an option:';
 }

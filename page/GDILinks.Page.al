@@ -24,6 +24,14 @@ page 50115 "GDI Links"
             repeater(Default)
             {
                 ShowCaption = false;
+
+                field(ID; Rec.ID)
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Identifier of the record.';
+                    Editable = false;
+                }
+
                 field(EntityTypeID; Rec.EntityTypeID)
                 {
                     ApplicationArea = All;
@@ -71,4 +79,22 @@ page 50115 "GDI Links"
             }
         }
     }
+
+    trigger OnNewRecord(BelowxRec: Boolean)
+    begin
+        Rec.EntityTypeID := Enum::"GDI Entity Type".FromInteger(CurrentEntityTypeID);
+        Rec.EntityID := CopyStr(CurrentEntityID, 1, MaxStrLen(Rec.EntityID));
+    end;
+
+    procedure SetEntity(NewEntityTypeID: Integer; NewEntityID: Text)
+    begin
+        // required for making new links
+        CurrentEntityTypeID := NewEntityTypeID;
+        CurrentEntityID := NewEntityID;
+    end;
+
+    var
+        // required for making new links
+        CurrentEntityTypeID: Integer;
+        CurrentEntityID: Text;
 }
