@@ -23,6 +23,12 @@ table 50110 "GDI Media"
             Caption = 'File';
             Description = 'File media itself. Contains link to Tenant Media record.';
         }
+
+        field(5; FileSize; Decimal)
+        {
+            Caption = 'File Size (MB)';
+            Description = 'Specifies the file size in megabytes.';
+        }
     }
 
     keys
@@ -46,8 +52,7 @@ table 50110 "GDI Media"
 
     trigger OnModify()
     begin
-        if FileID <> xRec.FileID then
-            Error(FileIDModifyErr);
+
     end;
 
     trigger OnDelete()
@@ -65,5 +70,4 @@ table 50110 "GDI Media"
 
     var
         RenameErr: Label 'Cannot rename the record.';
-        FileIDModifyErr: Label 'Cannot modify File ID.';
 }

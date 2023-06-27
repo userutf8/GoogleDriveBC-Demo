@@ -219,7 +219,7 @@ codeunit 50101 "GDI Media Mgt."
         IStream: InStream;
         ClientFileName: Text;
     begin
-        if not File.UploadIntoStream(DialogTitleUploadTxt, '', '', ClientFileName, IStream) then
+        if not File.UploadIntoStream(DialogTitleUploadTxt, '', UploadFileFilterTxt, ClientFileName, IStream) then
             GDIErrorHandler.ThrowFileUploadErr(ClientFileName);
 
         UpdateGoogleDriveMedia(IStream, ClientFileName, MediaID);
@@ -344,13 +344,19 @@ codeunit 50101 "GDI Media Mgt."
     local procedure CreateGoogleDriveMedia(IStream: InStream; FileName: Text; FileID: Text): Integer
     var
         GDIMedia: Record "GDI Media";
+        TenantMedia: Record "Tenant Media";
         GDITokens: Codeunit "GDI Tokens";
     begin
         GDIMedia.Init();
         GDIMedia.Validate(FileID, FileID);
         GDIMedia.Validate(FileName, FileName);
         GDIMedia.FileContent.ImportStream(IStream, FileName, GDITokens.MimeTypeJpeg());
+
+        TenantMedia.Get(GDIMedia.FileContent.MediaId);
+        TenantMedia.CalcFields(Content);
+        GDIMedia.Validate(FileSize, TenantMedia.Content.Length / 1048576);
         GDIMedia.Insert(true);
+
         exit(GDIMedia.ID);
     end;
 
@@ -363,23 +369,28 @@ codeunit 50101 "GDI Media Mgt."
         exit('');
     end;
 
+    local procedure UpdateGoogleDriveMedia(IStream: InStream; FileName: Text; ID: Integer)
+    var
+        GDIMedia: Record "GDI Media";
+        TenantMedia: Record "Tenant Media";
+        GDITokens: Codeunit "GDI Tokens";
+    begin
+        GDIMedia.Get(ID);
+        GDIMedia.Validate(FileName, FileName);
+        GDIMedia.FileContent.ImportStream(IStream, FileName, GDITokens.MimeTypeJpeg());
+
+        TenantMedia.Get(GDIMedia.FileContent.MediaId);
+        TenantMedia.CalcFields(Content);
+        GDIMedia.Validate(FileSize, TenantMedia.Content.Length / 1048576);
+        GDIMedia.Modify(true);
+    end;
+
     local procedure UpdateGoogleDriveMediaFileID(MediaID: Integer; FileID: Text)
     var
         GDIMedia: Record "GDI Media";
     begin
         GDIMedia.Get(MediaID);
         GDIMedia.Validate(FileID, FileID);
-        GDIMedia.Modify(true);
-    end;
-
-    local procedure UpdateGoogleDriveMedia(IStream: InStream; FileName: Text; ID: Integer)
-    var
-        GDIMedia: Record "GDI Media";
-        GDITokens: Codeunit "GDI Tokens";
-    begin
-        GDIMedia.Get(ID);
-        GDIMedia.Validate(FileName, FileName);
-        GDIMedia.FileContent.ImportStream(IStream, FileName, GDITokens.MimeTypeJpeg());
         GDIMedia.Modify(true);
     end;
 

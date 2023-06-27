@@ -16,6 +16,13 @@ page 50111 "GDI Media Card"
         {
             group("Details")
             {
+                field(ID; Rec.ID)
+                {
+                    ApplicationArea = All;
+                    Caption = 'ID';
+                    Editable = false;
+                    ToolTip = 'Unique identifier of the record.';
+                }
                 field(FileName; Rec.FileName)
                 {
                     ApplicationArea = All;
@@ -24,13 +31,6 @@ page 50111 "GDI Media Card"
                     StyleExpr = Rec.FileID = '';
                     Tooltip = 'Name of the file.';
                 }
-                field(ID; Rec.ID)
-                {
-                    ApplicationArea = All;
-                    Caption = 'ID';
-                    Editable = false;
-                    ToolTip = 'Unique identifier of the record.';
-                }
                 field(FileID; Rec.FileID)
                 {
                     ApplicationArea = All;
@@ -38,11 +38,12 @@ page 50111 "GDI Media Card"
                     Editable = false;
                     ToolTip = 'Unique Google Drive file identifier.';
                 }
-                field("Media"; Rec.FileContent)
+                field(FileSize; Rec.FileSize)
                 {
                     ApplicationArea = All;
-                    // Editable = false;
-                    ShowCaption = false;
+                    Caption = 'File Size (MB)';
+                    Editable = false;
+                    ToolTip = 'File size in megabytes.';
                 }
             }
         }
