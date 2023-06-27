@@ -1,1 +1,1 @@
-﻿{"Added":[],"Modified":[],"Removed":[]}
+﻿{"Added":[{"Id":50102,"Kind":11,"Name":"GDI Cache Mgt.","PackagePath":"/src/Codeunit/GDICacheMgt.Codeunit.al"}],"Modified":[{"Id":50149,"Kind":12,"Name":"Test Feature UI","PackagePath":"/src/testing/TestFeatureUI.Page.al"}],"Removed":[]}
