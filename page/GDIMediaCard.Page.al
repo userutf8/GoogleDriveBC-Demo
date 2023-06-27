@@ -42,6 +42,7 @@ page 50111 "GDI Media Card"
                 {
                     ApplicationArea = All;
                     Caption = 'File Size (MB)';
+                    DecimalPlaces = 0 : 5;
                     Editable = false;
                     ToolTip = 'File size in megabytes.';
                 }
