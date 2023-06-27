@@ -52,13 +52,13 @@ table 50110 "GDI Media"
     trigger OnDelete()
     var
         GDILink: Record "GDI Link";
-        GDIMediaStat: Record "GDI Media Stat";
+        GDIMediaInfo: Record "GDI Media Info";
     begin
         GDILink.SetRange(MediaID, ID);
         GDILink.DeleteAll();
 
-        GDIMediaStat.SetRange(MediaID, ID);
-        GDIMediaStat.DeleteAll();
+        GDIMediaInfo.SetRange(MediaID, ID);
+        GDIMediaInfo.DeleteAll();
     end;
 
     trigger OnRename()

@@ -2,7 +2,7 @@ page 50113 "GDI Media Stat Card Part"
 {
     ApplicationArea = All;
     PageType = CardPart;
-    SourceTable = "GDI Media Stat";
+    SourceTable = "GDI Media Info";
     UsageCategory = None;
 
     layout
