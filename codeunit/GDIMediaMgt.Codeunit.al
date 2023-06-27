@@ -344,6 +344,7 @@ codeunit 50101 "GDI Media Mgt."
     local procedure CreateGoogleDriveMedia(IStream: InStream; FileName: Text; FileID: Text): Integer
     var
         GDIMedia: Record "GDI Media";
+        GDIMediaStat: Record "GDI Media Stat";
         TenantMedia: Record "Tenant Media";
         GDITokens: Codeunit "GDI Tokens";
     begin
@@ -351,11 +352,14 @@ codeunit 50101 "GDI Media Mgt."
         GDIMedia.Validate(FileID, FileID);
         GDIMedia.Validate(FileName, FileName);
         GDIMedia.FileContent.ImportStream(IStream, FileName, GDITokens.MimeTypeJpeg());
+        GDIMedia.Insert(true);
 
         TenantMedia.Get(GDIMedia.FileContent.MediaId);
         TenantMedia.CalcFields(Content);
-        GDIMedia.Validate(FileSize, TenantMedia.Content.Length / 1048576);
-        GDIMedia.Insert(true);
+        GDIMediaStat.Init();
+        GDIMediaStat.Validate(MediaID, GDIMedia.ID);
+        GDIMediaStat.Validate(FileSize, TenantMedia.Content.Length / 1048576);
+        GDIMediaStat.Insert(true);
 
         exit(GDIMedia.ID);
     end;
@@ -372,17 +376,22 @@ codeunit 50101 "GDI Media Mgt."
     local procedure UpdateGoogleDriveMedia(IStream: InStream; FileName: Text; ID: Integer)
     var
         GDIMedia: Record "GDI Media";
+        GDIMediaStat: Record "GDI Media Stat";
         TenantMedia: Record "Tenant Media";
         GDITokens: Codeunit "GDI Tokens";
     begin
         GDIMedia.Get(ID);
         GDIMedia.Validate(FileName, FileName);
         GDIMedia.FileContent.ImportStream(IStream, FileName, GDITokens.MimeTypeJpeg());
+        GDIMedia.Modify(true);
 
         TenantMedia.Get(GDIMedia.FileContent.MediaId);
         TenantMedia.CalcFields(Content);
-        GDIMedia.Validate(FileSize, TenantMedia.Content.Length / 1048576);
-        GDIMedia.Modify(true);
+        GDIMediaStat.Get(GDIMedia.ID);
+        GDIMediaStat.Validate(FileSize, TenantMedia.Content.Length / 1048576);
+        Clear(GDIMediaStat.ViewedByEntity);
+        Clear(GDIMediaStat.Stars);
+        GDIMediaStat.Modify(true);
     end;
 
     local procedure UpdateGoogleDriveMediaFileID(MediaID: Integer; FileID: Text)

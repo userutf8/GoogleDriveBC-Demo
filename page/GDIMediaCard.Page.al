@@ -38,14 +38,6 @@ page 50111 "GDI Media Card"
                     Editable = false;
                     ToolTip = 'Unique Google Drive file identifier.';
                 }
-                field(FileSize; Rec.FileSize)
-                {
-                    ApplicationArea = All;
-                    Caption = 'File Size (MB)';
-                    DecimalPlaces = 0 : 5;
-                    Editable = false;
-                    ToolTip = 'File size in megabytes.';
-                }
             }
         }
         area(FactBoxes)
@@ -55,6 +47,12 @@ page 50111 "GDI Media Card"
                 ApplicationArea = All;
                 Caption = 'Image';
                 SubPageLink = ID = field(ID);
+            }
+            part("Statistics"; "GDI Media Stat Card Part")
+            {
+                ApplicationArea = All;
+                Caption = 'Stats';
+                SubPageLink = MediaID = field(ID);
             }
         }
     }

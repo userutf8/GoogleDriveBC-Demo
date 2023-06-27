@@ -2,7 +2,6 @@ Page 50120 "GDI Queue"
 {
     ApplicationArea = all;
     Caption = 'Google Drive Queue Entries';
-    // CardPageId
     Editable = true;
     PageType = List;
     SourceTable = "GDI Queue";

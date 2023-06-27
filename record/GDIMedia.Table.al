@@ -23,12 +23,6 @@ table 50110 "GDI Media"
             Caption = 'File';
             Description = 'File media itself. Contains link to Tenant Media record.';
         }
-
-        field(5; FileSize; Decimal)
-        {
-            Caption = 'File Size (MB)';
-            Description = 'Specifies the file size in megabytes.';
-        }
     }
 
     keys
@@ -58,9 +52,13 @@ table 50110 "GDI Media"
     trigger OnDelete()
     var
         GDILink: Record "GDI Link";
+        GDIMediaStat: Record "GDI Media Stat";
     begin
         GDILink.SetRange(MediaID, ID);
-        GDILink.DeleteAll(true);
+        GDILink.DeleteAll();
+
+        GDIMediaStat.SetRange(MediaID, ID);
+        GDIMediaStat.DeleteAll();
     end;
 
     trigger OnRename()

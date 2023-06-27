@@ -38,6 +38,13 @@ page 50110 "GDI Media"
                 Caption = 'Image';
                 SubPageLink = ID = field(ID);
             }
+
+            part("Statistics"; "GDI Media Stat Card Part")
+            {
+                ApplicationArea = All;
+                Caption = 'Stats';
+                SubPageLink = MediaID = field(ID);
+            }
             part("Selected Links"; "GDI Links Part")
             {
                 ApplicationArea = All;

@@ -10,6 +10,7 @@ table 50120 "GDI Queue"
         field(2; MediaID; Integer)
         {
             TableRelation = "GDI Media";
+            ValidateTableRelation = false; // it can refer to MediaID which has already been deleted.
         }
         field(3; Method; enum "GDI Method")
         {
