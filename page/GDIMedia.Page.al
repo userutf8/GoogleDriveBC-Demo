@@ -259,6 +259,28 @@ page 50110 "GDI Media"
         CurrentEntityID := EntityID;
     end;
 
+    procedure UpdateViews(EntityTypeID: Integer; EntityID: Text)
+    var
+        GDILink: Record "GDI Link";
+        GDIMediaInfo: Record "GDI Media Info";
+    begin
+        if EntityTypeID = 0 then
+            exit;
+
+        GDILink.SetRange(EntityTypeID, EntityTypeID);
+        GDILink.SetRange(EntityID, EntityID);
+        if GDILink.IsEmpty() then
+            exit;
+
+        GDILink.FindSet();
+        repeat
+            if GDIMediaInfo.Get(GDILink.MediaID) then begin
+                GDIMediaInfo.ViewedByEntity += 1;
+                GDIMediaInfo.Modify();
+            end;
+        until GDILink.Next() = 0;
+    end;
+
     local procedure UpdateFilter()
     var
         GDILinksHandler: Codeunit "GDI Links Handler";

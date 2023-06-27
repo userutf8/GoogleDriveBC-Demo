@@ -336,6 +336,7 @@ codeunit 50101 "GDI Media Mgt."
         GDIMedia.SetFilter(ID, GDILinksHandler.CreateSelectionFilter(EntityTypeID, EntityID)); // FilterGroup 0
         GDIMediaPage.SetTableView(GDIMedia);
         GDIMediaPage.SetEntity(EntityTypeID, EntityID);
+        GDIMediaPage.UpdateViews(EntityTypeID, EntityID);
         if Caption <> '' then
             GDIMediaPage.Caption := Caption;
         GDIMediaPage.Run();
