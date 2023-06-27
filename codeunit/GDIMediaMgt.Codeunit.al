@@ -102,7 +102,7 @@ codeunit 50101 "GDI Media Mgt."
         SelectedOption: Integer;
     begin
         if EntityTypeID = 0 then begin
-            if Confirm(MediaDeleteConfirmTxt, true) then
+            if Confirm(DeleteConfirmTxt, true) then
                 Delete(MediaID);
         end else
             if GDILinksHandler.MediaHasSeveralLinks(MediaID, EntityTypeID, EntityID) then begin
@@ -114,7 +114,7 @@ codeunit 50101 "GDI Media Mgt."
                         Delete(MediaID);
                 end;
             end else
-                if Confirm(MediaDeleteConfirmTxt, true) then
+                if Confirm(DeleteConfirmTxt, true) then
                     Delete(MediaID);
     end;
 
@@ -179,6 +179,32 @@ codeunit 50101 "GDI Media Mgt."
         ReadFileFromMedia(TempBlob, FileName, MediaID);
         TempBlob.CreateInStream(IStream);
         File.DownloadFromStream(IStream, DialogTitleDownloadTxt, '', '', FileName);
+    end;
+
+    procedure Get(var GDIMedia: Record "GDI Media")
+    var
+        GDIMediaInfo: Record "GDI Media Info";
+        TenantMedia: Record "Tenant Media";
+        Tokens: Codeunit "GDI Tokens";
+        IStream: InStream;
+        ErrorText: Text;
+    begin
+        if GDIMedia.FileContent.HasValue() then
+            if not Confirm(GetConfirmTxt, false) then
+                exit;
+
+        Get(IStream, ErrorText, GDIMedia.FileID);
+        if ErrorText = '' then begin
+            GDIMedia.FileContent.ImportStream(IStream, GDIMedia.FileName, Tokens.MimeTypeJpeg());
+            GDIMedia.Modify(true);
+            if GDIMediaInfo.Get(GDIMedia.ID) then begin
+                TenantMedia.Get(GDIMedia.FileContent.MediaId);
+                TenantMedia.CalcFields(Content);
+                GDIMediaInfo.Validate(FileSize, TenantMedia.Content.Length / 1048576);
+                GDIMediaInfo.Modify(true);
+            end;
+        end else
+            Error(ErrorText); // TODO parse error and use error handler
     end;
 
     procedure Get(var IStream: InStream; var ErrorText: Text; FileID: Text)
@@ -406,9 +432,10 @@ codeunit 50101 "GDI Media Mgt."
 
     var
         DialogTitleUploadTxt: Label 'File Upload'; // duplicate. shall it be here?
-        UploadFileFilterTxt: Label 'JPEG|*.jpg;*.jpeg';
         DialogTitleDownloadTxt: Label 'File Download'; // shall it be here?
-        MediaDeleteConfirmTxt: Label 'Do you really want to delete this media?';
+        DeleteConfirmTxt: Label 'Do you really want to delete this media?';
         DeleteMenuOptionsTxt: Label 'Delete the link only (recommended),Delete the media and links';
         DeleteMenuLabelTxt: Label 'Warning! This media has links to other entities. Please, select an option:';
+        GetConfirmTxt: Label 'The image is already in the database. Do you want to pull the last version from Google Drive?';
+        UploadFileFilterTxt: Label 'JPEG|*.jpg;*.jpeg';
 }

@@ -25,6 +25,14 @@ page 50113 "GDI Media Info Card Part"
                     Editable = false;
                     ToolTip = 'Specifies how many times the media was viewed for an entity.';
                 }
+                field(LastViewed; Rec.SystemModifiedAt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Last viewed (by entity)';
+                    Editable = false;
+                    ToolTip = 'Specifies when the media was last time viewed for an entity.';
+                }
+
                 field(Stars; Rec.Stars)
                 {
                     ApplicationArea = All;

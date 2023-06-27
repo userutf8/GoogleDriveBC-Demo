@@ -45,12 +45,12 @@ page 50110 "GDI Media"
                 Caption = 'Stats';
                 SubPageLink = MediaID = field(ID);
             }
-            // part("Selected Links"; "GDI Links Part")
-            // {
-            //     ApplicationArea = All;
-            //     Caption = 'Links';
-            //     SubPageLink = MediaID = field(ID);
-            // }
+            part("Selected Links"; "GDI Links Part")
+            {
+                ApplicationArea = All;
+                Caption = 'Entity Links';
+                SubPageLink = MediaID = field(ID);
+            }
         }
     }
     actions
@@ -80,7 +80,7 @@ page 50110 "GDI Media"
             {
                 ApplicationArea = All;
                 Image = Change;
-                ToolTip = 'Replace the existing file by a new file and sync it with Google Drive.';
+                ToolTip = 'Replace the file by a new file and sync it with Google Drive.';
 
                 trigger OnAction()
                 var
@@ -93,7 +93,7 @@ page 50110 "GDI Media"
             {
                 ApplicationArea = All;
                 Image = Delete;
-                ToolTip = 'Delete the existing file from the database and Google Drive.';
+                ToolTip = 'Delete the file from the database and Google Drive.';
 
                 trigger OnAction()
                 var
@@ -123,7 +123,7 @@ page 50110 "GDI Media"
                 ApplicationArea = All;
                 Caption = 'Add Links...';
                 Image = Links;
-                ToolTip = 'Open links page for the current entity.';
+                ToolTip = 'Open links page for the entity.';
                 Visible = CurrentEntityTypeID <> 0;
 
                 trigger OnAction()
@@ -145,7 +145,7 @@ page 50110 "GDI Media"
                 ApplicationArea = All;
                 Caption = 'Media Links';
                 Image = Links;
-                ToolTip = 'Open links page for the current media.';
+                ToolTip = 'Open links page for the file.';
 
                 trigger OnAction()
                 var
@@ -164,7 +164,7 @@ page 50110 "GDI Media"
                 ApplicationArea = All;
                 Caption = 'All Links';
                 Image = Links;
-                ToolTip = 'Open links page to view and edit all existing links.';
+                ToolTip = 'Open links page to view and edit all links.';
 
                 trigger OnAction()
                 var
@@ -180,11 +180,26 @@ page 50110 "GDI Media"
                 ApplicationArea = all;
                 Caption = 'Refresh';
                 Image = Refresh;
-                Tooltip = 'Refreshes the page. Use it when some changes are not applied.';
+                Tooltip = 'Refresh the page if some changes are not applied.';
 
                 trigger OnAction()
                 begin
                     UpdateFilter();
+                end;
+            }
+
+            action("Pull")
+            {
+                ApplicationArea = all;
+                Caption = 'Pull';
+                Image = Refresh;
+                Tooltip = 'Pull the file from Google Drive.';
+
+                trigger OnAction()
+                var
+                    GDIMediaMgt: Codeunit "GDI Media Mgt.";
+                begin
+                    GDIMediaMgt.Get(Rec);
                 end;
             }
         }
@@ -196,7 +211,7 @@ page 50110 "GDI Media"
                 Caption = 'Queue';
                 Image = ErrorLog;
                 RunObject = page "GDI Queue";
-                ToolTip = 'Open sync queue page to view all existing queue entries.';
+                ToolTip = 'Open sync queue page to view all queue entries.';
             }
         }
         area(Promoted)
@@ -213,18 +228,23 @@ page 50110 "GDI Media"
 
                 }
 
-
-                actionref(Delete_Promoted; "Delete")
-                {
-
-                }
-
                 actionref(Refresh_Promoted; "Refresh")
                 {
 
                 }
 
+                actionref(Pull_Promoted; "Pull")
+                {
+
+                }
+
                 actionref(Replace_Promoted; "Replace")
+                {
+
+                }
+
+
+                actionref(Delete_Promoted; "Delete")
                 {
 
                 }

@@ -1,7 +1,6 @@
 page 50117 "GDI Links Part"
 {
     ApplicationArea = All;
-    CardPageId = "GDI Link Card";
     DeleteAllowed = false;
     Editable = false;
     InsertAllowed = false;
@@ -21,12 +20,16 @@ page 50117 "GDI Links Part"
                 field(EntityTypeID; Rec.EntityTypeID)
                 {
                     ApplicationArea = All;
+                    Caption = 'Type';
                     Tooltip = 'Identifier of the entity type. Table number by default.';
+                    Width = 6;
                 }
                 field(EntityID; Rec.EntityID)
                 {
                     ApplicationArea = All;
+                    Caption = 'ID';
                     Tooltip = 'Identifier of the entity. Record code by default.';
+                    Width = 10;
                 }
             }
         }

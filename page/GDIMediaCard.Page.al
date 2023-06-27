@@ -36,7 +36,7 @@ page 50111 "GDI Media Card"
                     ApplicationArea = All;
                     Caption = 'File ID';
                     Editable = false;
-                    ToolTip = 'Unique Google Drive file identifier.';
+                    ToolTip = 'Unique Google Drive identifier.';
                 }
             }
         }
@@ -77,7 +77,7 @@ page 50111 "GDI Media Card"
             {
                 ApplicationArea = All;
                 Image = Change;
-                ToolTip = 'Replace the existing file by a new file and sync it with Google Drive.';
+                ToolTip = 'Replace the file by a new file and sync it with Google Drive.';
 
                 trigger OnAction()
                 var
@@ -90,7 +90,7 @@ page 50111 "GDI Media Card"
             {
                 ApplicationArea = All;
                 Image = Delete;
-                ToolTip = 'Delete the existing file from the database and Google Drive.';
+                ToolTip = 'Delete the file from the database and Google Drive.';
 
                 trigger OnAction()
                 var

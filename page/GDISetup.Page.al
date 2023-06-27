@@ -115,6 +115,30 @@ page 50100 "GDI Setup"
                     ToolTip = 'Default token type.';
                 }
             }
+
+            group(Cache)
+            {
+                Visible = true;
+                field(CacheSize; Rec.CacheSize)
+                {
+                    ApplicationArea = all;
+                    Editable = true;
+                    ToolTip = 'Specifies the cache size limit in megabytes.';
+                }
+                field(CacheWarning; Rec.CacheWarning)
+                {
+                    ApplicationArea = all;
+                    Editable = true;
+                    ToolTip = 'Specifies the percent when the warning is displayed and affects the automatic cache cleaning.';
+
+                }
+                field(GracePeriod; Rec.GracePeriod)
+                {
+                    ApplicationArea = all;
+                    Editable = true;
+                    ToolTip = 'Specifies the period when media is considered new and affects the automatic cache cleaning.';
+                }
+            }
         }
     }
 

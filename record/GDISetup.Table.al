@@ -145,6 +145,33 @@ table 50100 "GDI Setup"
             Caption = 'Upload Scope (API)';
             Description = 'Specifies the API upload scope (URI). Required for API requests, when you send a file.';
         }
+        field(20; CacheSize; Decimal)
+        {
+            Caption = 'Cache size (MB)';
+            DecimalPlaces = 0 : 2;
+            InitValue = 1024.0; // 1 GB
+            MaxValue = 10240.0; // 10 GB
+            MinValue = 0.0;
+        }
+        field(21; CacheWarning; Integer)
+        {
+            Caption = 'Cache warning (%)';
+            InitValue = 90;
+            MaxValue = 100;
+            MinValue = 50;
+        }
+        field(22; GracePeriod; Text[128])
+        {
+            Caption = 'Grace period';
+            InitValue = '7 days';
+            trigger OnValidate()
+            var
+                TestDuration: Duration;
+            begin
+                Evaluate(TestDuration, GracePeriod)
+            end;
+        }
+
     }
 
     keys
