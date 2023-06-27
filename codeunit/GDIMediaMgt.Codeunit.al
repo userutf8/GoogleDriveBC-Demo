@@ -344,7 +344,7 @@ codeunit 50101 "GDI Media Mgt."
     local procedure CreateGoogleDriveMedia(IStream: InStream; FileName: Text; FileID: Text): Integer
     var
         GDIMedia: Record "GDI Media";
-        GDIMediaStat: Record "GDI Media Stat";
+        GDIMediaInfo: Record "GDI Media Info";
         TenantMedia: Record "Tenant Media";
         GDITokens: Codeunit "GDI Tokens";
     begin
@@ -356,10 +356,10 @@ codeunit 50101 "GDI Media Mgt."
 
         TenantMedia.Get(GDIMedia.FileContent.MediaId);
         TenantMedia.CalcFields(Content);
-        GDIMediaStat.Init();
-        GDIMediaStat.Validate(MediaID, GDIMedia.ID);
-        GDIMediaStat.Validate(FileSize, TenantMedia.Content.Length / 1048576);
-        GDIMediaStat.Insert(true);
+        GDIMediaInfo.Init();
+        GDIMediaInfo.Validate(MediaID, GDIMedia.ID);
+        GDIMediaInfo.Validate(FileSize, TenantMedia.Content.Length / 1048576);
+        GDIMediaInfo.Insert(true);
 
         exit(GDIMedia.ID);
     end;
@@ -376,7 +376,7 @@ codeunit 50101 "GDI Media Mgt."
     local procedure UpdateGoogleDriveMedia(IStream: InStream; FileName: Text; ID: Integer)
     var
         GDIMedia: Record "GDI Media";
-        GDIMediaStat: Record "GDI Media Stat";
+        GDIMediaInfo: Record "GDI Media Info";
         TenantMedia: Record "Tenant Media";
         GDITokens: Codeunit "GDI Tokens";
     begin
@@ -387,11 +387,11 @@ codeunit 50101 "GDI Media Mgt."
 
         TenantMedia.Get(GDIMedia.FileContent.MediaId);
         TenantMedia.CalcFields(Content);
-        GDIMediaStat.Get(GDIMedia.ID);
-        GDIMediaStat.Validate(FileSize, TenantMedia.Content.Length / 1048576);
-        Clear(GDIMediaStat.ViewedByEntity);
-        Clear(GDIMediaStat.Stars);
-        GDIMediaStat.Modify(true);
+        GDIMediaInfo.Get(GDIMedia.ID);
+        GDIMediaInfo.Validate(FileSize, TenantMedia.Content.Length / 1048576);
+        Clear(GDIMediaInfo.ViewedByEntity);
+        Clear(GDIMediaInfo.Stars);
+        GDIMediaInfo.Modify(true);
     end;
 
     local procedure UpdateGoogleDriveMediaFileID(MediaID: Integer; FileID: Text)

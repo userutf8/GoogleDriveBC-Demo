@@ -1,6 +1,8 @@
-table 50113 "GDI Media Stat"
+table 50113 "GDI Media Info"
 {
 
+    Caption = 'Google Drive Media Info';
+    Description = 'Statistics for Google Drive Media. Required for maintaining the cache.';
     fields
     {
         field(1; MediaID; Integer)
