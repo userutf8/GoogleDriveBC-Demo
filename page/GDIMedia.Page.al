@@ -39,18 +39,18 @@ page 50110 "GDI Media"
                 SubPageLink = ID = field(ID);
             }
 
-            part("Statistics"; "GDI Media Stat Card Part")
+            part("Statistics"; "GDI Media Info Card Part")
             {
                 ApplicationArea = All;
                 Caption = 'Stats';
                 SubPageLink = MediaID = field(ID);
             }
-            part("Selected Links"; "GDI Links Part")
-            {
-                ApplicationArea = All;
-                Caption = 'Links';
-                SubPageLink = MediaID = field(ID);
-            }
+            // part("Selected Links"; "GDI Links Part")
+            // {
+            //     ApplicationArea = All;
+            //     Caption = 'Links';
+            //     SubPageLink = MediaID = field(ID);
+            // }
         }
     }
     actions

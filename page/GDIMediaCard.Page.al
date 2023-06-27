@@ -48,7 +48,7 @@ page 50111 "GDI Media Card"
                 Caption = 'Image';
                 SubPageLink = ID = field(ID);
             }
-            part("Statistics"; "GDI Media Stat Card Part")
+            part("Statistics"; "GDI Media Info Card Part")
             {
                 ApplicationArea = All;
                 Caption = 'Stats';
