@@ -1,168 +1,67 @@
 codeunit 50102 "GDI Cache Mgt."
 {
-    procedure CleanCache()
+
+    procedure RankMediaInfo()
     var
         GDISetup: Record "GDI Setup";
-        ClearedSpace: Decimal;
+        GracePeriodDuration: Duration;
+        GracePeriodStart: DateTime;
     begin
         GDISetup.Get();
-        SetCurrentSettings(GDISetup.CacheSize, GDISetup.CacheWarning, GDISetup.GracePeriod);
-        SetMaxRecursionLevel(2);
-        ClearedSpace := 0.0;
-        if not CleanCacheRecursively(ClearedSpace, 0) then
-            CleanCacheForce();
+        Evaluate(GracePeriodDuration, GDISetup.GracePeriod);
+        GracePeriodStart := CurrentDateTime - GracePeriodDuration;
+        RankMediaInfo(GracePeriodStart, 0);
+        RankMediaInfo(GracePeriodStart, 50);
     end;
 
-    procedure CleanCacheForce(): Boolean
+    local procedure RankMediaInfo(GracePeriodStart: Datetime; RankModifier: Integer)
     var
         GDIMediaInfo: Record "GDI Media Info";
-        GDIMedia: Record "GDI Media";
-        ClearedSpace: Decimal;
-        CacheSize: Decimal;
-        CacheWarning: Decimal;
-        DummyGracePeriod: Duration;
-        TotalFileSize: Decimal;
-    begin
-        if GDIMediaInfo.IsEmpty() then
-            exit(true);
-
-        GetCurrentSettings(CacheSize, CacheWarning, DummyGracePeriod);
-        GDIMediaInfo.CalcSums(FileSize);
-        TotalFileSize := GDIMediaInfo.FileSize;
-        ClearedSpace := 0.0;
-        GDIMediaInfo.SetCurrentKey(SystemModifiedAt);
-        GDIMediaInfo.FindSet();
-        repeat
-            GDIMedia.Get(GDIMediaInfo.MediaID);
-            Clear(GDIMedia.FileContent);
-            GDIMedia.Modify();
-            ClearedSpace += GDIMediaInfo.FileSize;
-            Clear(GDIMediaInfo.FileSize);
-            GDIMediaInfo.Modify();
-            if TotalFileSize - ClearedSpace < CacheSize * CacheWarning then
-                exit(true);
-        until GDIMediaInfo.Next() = 0;
-    end;
-
-    procedure CleanCacheRecursively(var ClearedSpace: Decimal; RecursionLevel: Integer): Boolean
-    var
-        GDIMediaInfo: Record "GDI Media Info";
-        GDIMedia: Record "GDI Media";
-        CacheSize: Decimal;
-        CacheWarning: Decimal;
-        GracePeriod: Duration;
-        TotalFileSize: Decimal;
-        GracePeriodStart: DateTime;
-        QtyRecWithFile: Integer;
-        AvgFileSize: Decimal;
+        GDIErrorHandler: Codeunit "GDI Error Handler";
+        AvgSize: Decimal;
         AvgViews: Integer;
+        AvgStars: Integer;
     begin
-        GetCurrentSettings(CacheSize, CacheWarning, GracePeriod);
-        if RecursionLevel > GetMaxRecursionLevel() then
-            exit(false); // we have to exit but the cache is still not clean 
-
         GDIMediaInfo.SetFilter(FileSize, '>%1', 0.0);
         if GDIMediaInfo.IsEmpty() then
-            exit(true); // cache is clean as has no files at all
+            exit;
 
-        GDIMediaInfo.CalcSums(FileSize);
-        TotalFileSize := GDIMediaInfo.FileSize;
-        if TotalFileSize < CacheSize * CacheWarning then
-            exit(true); // cache is not yet at warning capacity
-
-        GDIMediaInfo.Reset();
-        GracePeriodStart := CurrentDateTime - GracePeriod;
-
-        // Firstly, clean files with zero views which have been modified before the Grace Period start
-        if RecursionLevel = 0 then begin
-            GDIMediaInfo.SetRange(ViewedByEntity, 0);
-            GDIMediaInfo.SetFilter(SystemModifiedAt, '<%1', GracePeriodStart);
-            if GDIMediaInfo.FindSet(true) then // locks table
-                repeat
-                    GDIMedia.Get(GDIMediaInfo.MediaID);
-                    Clear(GDIMedia.FileContent);
-                    GDIMedia.Modify();
-                    ClearedSpace += GDIMediaInfo.FileSize;
-                    Clear(GDIMediaInfo.FileSize);
-                    GDIMediaInfo.Modify();
-                until GDIMediaInfo.Next() = 0;
-
-            if TotalFileSize - ClearedSpace < CacheSize * CacheWarning then
-                exit(true); // cache is not yet at warning capacity
+        case RankModifier of
+            0:
+                GDIMediaInfo.SetFilter(LastViewedByEntity, '<%1', GracePeriodStart);
+            50:
+                GDIMediaInfo.SetFilter(LastViewedByEntity, '>=%1', GracePeriodStart);
+            else
+                GDIErrorHandler.ThrowNotImplementedErr();
         end;
+        // Group 1: Rank 1 or 51: Zero views
+        GDIMediaInfo.SetRange(ViewedByEntity, 0);
+        GDIMediaInfo.ModifyAll(Rank, RankModifier + 1);
 
-        // Count qty of media that still have content
-        GDIMediaInfo.Reset();
-        GDIMediaInfo.SetFilter(FileSize, '>%1', 0.0);
-        if GDIMediaInfo.IsEmpty() then
-            exit(true); // cache is clean as has no files at all
+        // Group 2: Non-zero views (calculations required)
+        GDIMediaInfo.SetFilter(ViewedByEntity, '>%1', 0);
+        if GDIMediaInfo.IsEmpty then
+            exit;
 
-        QtyRecWithFile := GDIMediaInfo.Count(); // slow
-        if QtyRecWithFile = 0 then // safety check
-            exit(true); // cache is clean as has no files at all
-
-        // Calc average file size and average views (round up)
-        GDIMediaInfo.CalcSums(FileSize, ViewedByEntity); // faster
-        TotalFileSize := GDIMediaInfo.FileSize;
-        AvgFileSize := TotalFileSize / QtyRecWithFile;
-        AvgViews := Round(GDIMediaInfo.ViewedByEntity / QtyRecWithFile, 1, '>');
-
-        // Clean bigger than average files modified not recently and viewed below average
-        // or at least clean bigger than average files viewed below average
-        // or at least clean bigger than average files
-        GDIMediaInfo.Reset();
-        GDIMediaInfo.SetCurrentKey(SystemModifiedAt); // sort by modified at
-        GDIMediaInfo.SetFilter(FileSize, '>=%1', AvgFileSize);
-        GDIMediaInfo.SetFilter(SystemModifiedAt, '<%1', GracePeriodStart);
-        GDIMediaInfo.SetFilter(ViewedByEntity, '<%1', AvgViews);
-        if GDIMediaInfo.IsEmpty() then begin
-            GDIMediaInfo.SetRange(SystemModifiedAt);
-            if GDIMediaInfo.IsEmpty() then
-                GDIMediaInfo.SetRange(ViewedByEntity);
-        end;
-        if GDIMediaInfo.FindSet(true) then // locks table
-            repeat
-                GDIMedia.Get(GDIMediaInfo.MediaID);
-                Clear(GDIMedia.FileContent);
-                GDIMedia.Modify();
-                ClearedSpace += GDIMediaInfo.FileSize;
-                Clear(GDIMediaInfo.FileSize);
-                GDIMediaInfo.Modify();
-                if TotalFileSize - ClearedSpace < CacheSize * CacheWarning then
-                    exit(true);
-            until GDIMediaInfo.Next() = 0;
-
-        // If all above was not enough, then call the next level
-        exit(CleanCacheRecursively(ClearedSpace, RecursionLevel + 1));
+        GDIMediaInfo.CalcSums(FileSize, ViewedByEntity, Stars, Qty);
+        AvgSize := GDIMediaInfo.FileSize / GDIMediaInfo.Qty;
+        AvgViews := Round(GDIMediaInfo.ViewedByEntity / GDIMediaInfo.Qty, 1, '>');
+        AvgStars := Round(GDIMediaInfo.Stars / GDIMediaInfo.Qty, 1, '>');
+        // Rank 3 or 53: > avg size, <= avg views/stars
+        GDIMediaInfo.SetFilter(FileSize, '>%1', AvgSize);
+        GDIMediaInfo.SetFilter(ViewedByEntity, '>%1&<=%2', 0, AvgViews);
+        GDIMediaInfo.SetFilter(Stars, '<=%1', AvgStars);
+        GDIMediaInfo.ModifyAll(Rank, RankModifier + 3);
+        // Rank 5 or 55: <= avg size, <= avg views/stars
+        GDIMediaInfo.SetFilter(FileSize, '<=%1', AvgSize);
+        GDIMediaInfo.ModifyAll(Rank, RankModifier + 5);
+        // Rank 7 or 57: any size, <= avg views, > avg stars
+        GDIMediaInfo.SetRange(FileSize);
+        GDIMediaInfo.SetFilter(Stars, '>%1', AvgStars);
+        GDIMediaInfo.ModifyAll(Rank, RankModifier + 7);
+        // Rank 9 or 59: any size/stars, >= avg views
+        GDIMediaInfo.SetRange(Stars);
+        GDIMediaInfo.SetFilter(ViewedByEntity, '>%1', AvgViews);
+        GDIMediaInfo.ModifyAll(Rank, RankModifier + 9);
     end;
-
-    local procedure GetCurrentSettings(var CacheSize: Decimal; var CacheWarning: Decimal; var GracePeriod: Duration)
-    begin
-        CacheSize := CurrentCacheSize;
-        CacheWarning := CurrentCacheWarning;
-        GracePeriod := CurrentGracePeriod;
-    end;
-
-    local procedure GetMaxRecursionLevel(): Integer
-    begin
-        exit(CurrentMaxRecursionLevel);
-    end;
-
-    local procedure SetCurrentSettings(NewCacheSize: Decimal; NewCacheWarningPercent: Integer; NewGracePeriod: Text)
-    begin
-        CurrentCacheSize := NewCacheSize;
-        CurrentCacheWarning := NewCacheWarningPercent / 100;
-        Evaluate(CurrentGracePeriod, NewGracePeriod);
-    end;
-
-    local procedure SetMaxRecursionLevel(NewMaxRecursionLevel: Integer)
-    begin
-        CurrentMaxRecursionLevel := NewMaxRecursionLevel;
-    end;
-
-    var
-        CurrentCacheSize: Decimal;
-        CurrentCacheWarning: Decimal;
-        CurrentGracePeriod: Duration;
-        CurrentMaxRecursionLevel: Integer;
 }

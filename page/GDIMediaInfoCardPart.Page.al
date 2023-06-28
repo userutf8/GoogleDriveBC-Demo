@@ -25,10 +25,9 @@ page 50113 "GDI Media Info Card Part"
                     Editable = false;
                     ToolTip = 'Specifies how many times the media was viewed for an entity.';
                 }
-                field(LastViewed; Rec.SystemModifiedAt)
+                field(LastViewed; Rec.LastViewedByEntity)
                 {
                     ApplicationArea = All;
-                    Caption = 'Last viewed (by entity)';
                     Editable = false;
                     ToolTip = 'Specifies when the media was last time viewed for an entity.';
                 }
@@ -37,7 +36,13 @@ page 50113 "GDI Media Info Card Part"
                 {
                     ApplicationArea = All;
                     Editable = false;
-                    ToolTip = 'You can set star rank of the media.';
+                    ToolTip = 'Specifies the star rank 1..5 of the media.';
+                }
+                field(Rank; Rec.Rank)
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                    ToolTip = 'Specifies the rank assigned by automatic cache cleaning job.';
                 }
             }
         }

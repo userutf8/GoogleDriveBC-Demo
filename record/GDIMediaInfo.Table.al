@@ -15,18 +15,42 @@ table 50113 "GDI Media Info"
             Caption = 'File Size (MB)';
             Description = 'Specifies the file size in megabytes.';
             InitValue = 0.0;
+            MinValue = 0.0;
+            // MaxValue = 350.0;
         }
         field(3; ViewedByEntity; Integer)
         {
             Caption = 'Viewed (by entity)';
             Description = 'Specifies how many times the media was viewed for an entity.';
             InitValue = 0;
+            MinValue = 0;
         }
         field(4; Stars; Integer)
         {
             Caption = 'Stars';
             Description = 'User ranked rating.';
             InitValue = 0;
+            MinValue = 0;
+            MaxValue = 5;
+        }
+        field(5; Rank; Integer)
+        {
+            Caption = 'Rank';
+            Description = 'Rank for cache cleaning';
+            InitValue = 0;
+            MinValue = 0;
+            MaxValue = 100;
+        }
+        field(6; LastViewedByEntity; DateTime)
+        {
+            Caption = 'Last viewed (by entity)';
+        }
+        field(10; Qty; Integer)
+        {
+            Description = 'Field to be able to use calcsums instead of count';
+            InitValue = 1;
+            MinValue = 1;
+            MaxValue = 1;
         }
     }
 
@@ -35,6 +59,7 @@ table 50113 "GDI Media Info"
         key(PK; MediaID)
         {
             Clustered = true;
+            SumIndexFields = FileSize, ViewedByEntity, Stars, Qty;
         }
     }
 

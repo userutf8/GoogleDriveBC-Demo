@@ -374,6 +374,7 @@ codeunit 50101 "GDI Media Mgt."
     begin
         if GDIMediaInfo.Get(MediaID) then begin
             GDIMediaInfo.ViewedByEntity += 1;
+            GDIMediaInfo.LastViewedByEntity := CurrentDateTime;
             GDIMediaInfo.Modify(true);
         end;
     end;
@@ -396,6 +397,7 @@ codeunit 50101 "GDI Media Mgt."
         GDIMediaInfo.Init();
         GDIMediaInfo.Validate(MediaID, GDIMedia.ID);
         GDIMediaInfo.Validate(FileSize, TenantMedia.Content.Length / 1048576);
+        GDIMediaInfo.Validate(Rank, 100);
         GDIMediaInfo.Insert(true);
 
         exit(GDIMedia.ID);
@@ -426,6 +428,7 @@ codeunit 50101 "GDI Media Mgt."
         TenantMedia.CalcFields(Content);
         GDIMediaInfo.Get(GDIMedia.ID);
         GDIMediaInfo.Validate(FileSize, TenantMedia.Content.Length / 1048576);
+        GDIMediaInfo.Validate(Rank, 100);
         // Clear(GDIMediaInfo.ViewedByEntity);
         Clear(GDIMediaInfo.Stars);
         GDIMediaInfo.Modify(true);

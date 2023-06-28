@@ -301,6 +301,7 @@ page 50110 "GDI Media"
         repeat
             if GDIMediaInfo.Get(GDILink.MediaID) then begin
                 GDIMediaInfo.ViewedByEntity += 1;
+                GDIMediaInfo.LastViewedByEntity := CurrentDateTime;
                 GDIMediaInfo.Modify();
             end;
         until GDILink.Next() = 0;
