@@ -55,6 +55,7 @@ codeunit 50102 "GDI Cache Mgt."
         AvgSize: Decimal;
         AvgViews: Integer;
         AvgStars: Integer;
+        RecQty: Integer;
     begin
         GDIMediaInfo.SetFilter(FileSize, '>%1', 0.0);
         if GDIMediaInfo.IsEmpty() then
@@ -77,10 +78,11 @@ codeunit 50102 "GDI Cache Mgt."
         if GDIMediaInfo.IsEmpty then
             exit;
 
-        GDIMediaInfo.CalcSums(FileSize, ViewedByEntity, Stars, Qty);
-        AvgSize := GDIMediaInfo.FileSize / GDIMediaInfo.Qty;
-        AvgViews := Round(GDIMediaInfo.ViewedByEntity / GDIMediaInfo.Qty, 1, '>');
-        AvgStars := Round(GDIMediaInfo.Stars / GDIMediaInfo.Qty, 1, '>');
+        RecQty := GDIMediaInfo.Count();
+        GDIMediaInfo.CalcSums(FileSize, ViewedByEntity, Stars);
+        AvgSize := GDIMediaInfo.FileSize / RecQty;
+        AvgViews := Round(GDIMediaInfo.ViewedByEntity / RecQty, 1, '>');
+        AvgStars := Round(GDIMediaInfo.Stars / RecQty, 1, '>');
         // Rank 3 or 53: > avg size, <= avg views/stars
         GDIMediaInfo.SetFilter(FileSize, '>%1', AvgSize);
         GDIMediaInfo.SetFilter(ViewedByEntity, '>%1&<=%2', 0, AvgViews);

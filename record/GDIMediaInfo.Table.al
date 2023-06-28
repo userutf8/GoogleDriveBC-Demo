@@ -45,13 +45,6 @@ table 50113 "GDI Media Info"
         {
             Caption = 'Last viewed (by entity)';
         }
-        field(10; Qty; Integer)
-        {
-            Description = 'Field for calcsums to prevent count usage';
-            InitValue = 1;
-            MinValue = 1;
-            MaxValue = 1;
-        }
     }
 
     keys
@@ -59,7 +52,7 @@ table 50113 "GDI Media Info"
         key(PK; MediaID)
         {
             Clustered = true;
-            SumIndexFields = FileSize, ViewedByEntity, Stars, Qty;
+            SumIndexFields = FileSize, ViewedByEntity, Stars;
         }
     }
 
