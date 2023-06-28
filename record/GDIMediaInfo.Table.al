@@ -18,14 +18,14 @@ table 50113 "GDI Media Info"
             MinValue = 0.0;
             // MaxValue = 350.0;
         }
-        field(3; ViewedByEntity; Integer)
+        field(3; ViewedByEntity; BigInteger)
         {
             Caption = 'Viewed (by entity)';
             Description = 'Specifies how many times the media was viewed for an entity.';
-            InitValue = 0;
-            MinValue = 0;
+            InitValue = 0L;
+            MinValue = 0L;
         }
-        field(4; Stars; Integer)
+        field(4; Stars; BigInteger)
         {
             Caption = 'Stars';
             Description = 'User ranked rating.';
