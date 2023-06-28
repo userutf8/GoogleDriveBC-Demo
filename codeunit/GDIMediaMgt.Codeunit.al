@@ -201,6 +201,7 @@ codeunit 50101 "GDI Media Mgt."
                 TenantMedia.Get(GDIMedia.FileContent.MediaId);
                 TenantMedia.CalcFields(Content);
                 GDIMediaInfo.Validate(FileSize, TenantMedia.Content.Length / 1048576);
+                GDIMediaInfo.Validate(Rank, 100);
                 GDIMediaInfo.Modify(true);
             end;
         end else

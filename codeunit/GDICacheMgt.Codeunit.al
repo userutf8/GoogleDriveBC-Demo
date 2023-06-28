@@ -1,6 +1,40 @@
 codeunit 50102 "GDI Cache Mgt."
 {
 
+    procedure ClearCache()
+    var
+        GDIMediaInfo: Record "GDI Media Info";
+        GDIMedia: Record "GDI Media";
+        GDISetup: Record "GDI Setup";
+        CurrentRank: Integer;
+        MaxCacheSize: Decimal;
+        CurrentCacheSize: Decimal;
+    begin
+        GDISetup.Get();
+        MaxCacheSize := GDISetup.CacheSize * GDISetup.CacheWarning / 100;
+        GDIMediaInfo.SetFilter(FileSize, '>%1', 0.0);
+        GDIMediaInfo.CalcSums(FileSize);
+        CurrentCacheSize := GDIMediaInfo.FileSize;
+        if CurrentCacheSize <= MaxCacheSize then
+            exit;
+
+        GDIMediaInfo.SetCurrentKey(Rank);
+        if GDIMediaInfo.FindSet(true) then
+            repeat
+                CurrentRank := GDIMediaInfo.Rank;
+                CurrentCacheSize -= GDIMediaInfo.FileSize;
+                GDIMedia.Get(GDIMediaInfo.MediaID);
+                Clear(GDIMedia.FileContent);
+                GDIMedia.Modify();
+                Clear(GDIMediaInfo.FileSize);
+                Clear(GDIMediaInfo.Rank);
+                GDIMediaInfo.Modify();
+                if CurrentRank > 1 then
+                    if CurrentCacheSize <= MaxCacheSize then
+                        break;
+            until GDIMediaInfo.Next() = 0;
+    end;
+
     procedure RankMediaInfo()
     var
         GDISetup: Record "GDI Setup";
