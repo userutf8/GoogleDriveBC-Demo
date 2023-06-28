@@ -47,7 +47,7 @@ table 50113 "GDI Media Info"
         }
         field(10; Qty; Integer)
         {
-            Description = 'Field to be able to use calcsums instead of count';
+            Description = 'Field for calcsums to prevent count usage';
             InitValue = 1;
             MinValue = 1;
             MaxValue = 1;
