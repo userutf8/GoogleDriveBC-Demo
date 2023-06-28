@@ -185,6 +185,7 @@ codeunit 50101 "GDI Media Mgt."
     var
         GDIMediaInfo: Record "GDI Media Info";
         TenantMedia: Record "Tenant Media";
+        GDICacheMgt: Codeunit "GDI Cache Mgt.";
         Tokens: Codeunit "GDI Tokens";
         IStream: InStream;
         ErrorText: Text;
@@ -203,6 +204,7 @@ codeunit 50101 "GDI Media Mgt."
                 GDIMediaInfo.Validate(FileSize, TenantMedia.Content.Length / 1048576);
                 GDIMediaInfo.Validate(Rank, 100);
                 GDIMediaInfo.Modify(true);
+                GDICacheMgt.ClearCache(GDIMediaInfo.FileSize, GDIMediaInfo.MediaID);
             end;
         end else
             Error(ErrorText); // TODO parse error and use error handler
@@ -385,6 +387,7 @@ codeunit 50101 "GDI Media Mgt."
         GDIMedia: Record "GDI Media";
         GDIMediaInfo: Record "GDI Media Info";
         TenantMedia: Record "Tenant Media";
+        GDICacheMgt: Codeunit "GDI Cache Mgt.";
         GDITokens: Codeunit "GDI Tokens";
     begin
         GDIMedia.Init();
@@ -400,7 +403,7 @@ codeunit 50101 "GDI Media Mgt."
         GDIMediaInfo.Validate(FileSize, TenantMedia.Content.Length / 1048576);
         GDIMediaInfo.Validate(Rank, 100);
         GDIMediaInfo.Insert(true);
-
+        GDICacheMgt.ClearCache(GDIMediaInfo.FileSize, GDIMediaInfo.MediaID);
         exit(GDIMedia.ID);
     end;
 
@@ -418,7 +421,9 @@ codeunit 50101 "GDI Media Mgt."
         GDIMedia: Record "GDI Media";
         GDIMediaInfo: Record "GDI Media Info";
         TenantMedia: Record "Tenant Media";
+        GDICacheMgt: Codeunit "GDI Cache Mgt.";
         GDITokens: Codeunit "GDI Tokens";
+        OldFileSize: Decimal;
     begin
         GDIMedia.Get(ID);
         GDIMedia.Validate(FileName, FileName);
@@ -428,11 +433,13 @@ codeunit 50101 "GDI Media Mgt."
         TenantMedia.Get(GDIMedia.FileContent.MediaId);
         TenantMedia.CalcFields(Content);
         GDIMediaInfo.Get(GDIMedia.ID);
+        OldFileSize := GDIMediaInfo.FileSize;
         GDIMediaInfo.Validate(FileSize, TenantMedia.Content.Length / 1048576);
         GDIMediaInfo.Validate(Rank, 100);
-        // Clear(GDIMediaInfo.ViewedByEntity);
         Clear(GDIMediaInfo.Stars);
         GDIMediaInfo.Modify(true);
+        if OldFileSize < GDIMediaInfo.FileSize then
+            GDICacheMgt.ClearCache(GDIMediaInfo.FileSize, GDIMediaInfo.MediaID);
     end;
 
     local procedure UpdateGoogleDriveMediaFileID(MediaID: Integer; FileID: Text)
