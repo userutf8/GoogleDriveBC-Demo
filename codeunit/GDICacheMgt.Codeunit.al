@@ -29,7 +29,7 @@ codeunit 50102 "GDI Cache Mgt."
                 Clear(GDIMediaInfo.FileSize);
                 Clear(GDIMediaInfo.Rank);
                 GDIMediaInfo.Modify();
-                if CurrentRank > 1 then
+                if CurrentRank >= GDISetup.ClearAllBelowRank then
                     if CurrentCacheSize <= MaxCacheSize then
                         break;
             until GDIMediaInfo.Next() = 0;

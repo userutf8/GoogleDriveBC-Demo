@@ -129,14 +129,20 @@ page 50100 "GDI Setup"
                 {
                     ApplicationArea = all;
                     Editable = true;
-                    ToolTip = 'Specifies the percent when the warning is displayed and affects the automatic cache cleaning.';
+                    ToolTip = 'Specifies the minimum percent of the cache to stop automatic cache cleaning.';
 
                 }
                 field(GracePeriod; Rec.GracePeriod)
                 {
                     ApplicationArea = all;
                     Editable = true;
-                    ToolTip = 'Specifies the period when media is considered new and affects the automatic cache cleaning.';
+                    ToolTip = 'Specifies the period when media is considered new. Affects the automatic cache cleaning.';
+                }
+                field(ClearAllBelowRank; Rec.ClearAllBelowRank)
+                {
+                    ApplicationArea = all;
+                    Editable = true;
+                    ToolTip = 'Specifies the minimum rank for the cache cleaner to start checking the necessity of cleaning.';
                 }
             }
         }

@@ -171,6 +171,13 @@ table 50100 "GDI Setup"
                 Evaluate(TestDuration, GracePeriod)
             end;
         }
+        field(23; ClearAllBelowRank; Integer)
+        {
+            Caption = 'Clear all below rank';
+            InitValue = 3;
+            MinValue = 1;
+            MaxValue = 100;
+        }
 
     }
 
