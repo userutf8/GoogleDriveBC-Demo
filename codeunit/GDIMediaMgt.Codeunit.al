@@ -368,6 +368,16 @@ codeunit 50101 "GDI Media Mgt."
         GDIMediaPage.Run();
     end;
 
+    procedure UpdateViewedByEntity(MediaID: Integer)
+    var
+        GDIMediaInfo: Record "GDI Media Info";
+    begin
+        if GDIMediaInfo.Get(MediaID) then begin
+            GDIMediaInfo.ViewedByEntity += 1;
+            GDIMediaInfo.Modify(true);
+        end;
+    end;
+
     local procedure CreateGoogleDriveMedia(IStream: InStream; FileName: Text; FileID: Text): Integer
     var
         GDIMedia: Record "GDI Media";
@@ -416,7 +426,7 @@ codeunit 50101 "GDI Media Mgt."
         TenantMedia.CalcFields(Content);
         GDIMediaInfo.Get(GDIMedia.ID);
         GDIMediaInfo.Validate(FileSize, TenantMedia.Content.Length / 1048576);
-        Clear(GDIMediaInfo.ViewedByEntity);
+        // Clear(GDIMediaInfo.ViewedByEntity);
         Clear(GDIMediaInfo.Stars);
         GDIMediaInfo.Modify(true);
     end;

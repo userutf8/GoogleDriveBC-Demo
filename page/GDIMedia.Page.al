@@ -70,6 +70,8 @@ page 50110 "GDI Media"
                 begin
                     GDIMediaMgt.CreateWithLink(NewMediaID, CurrentEntityTypeID, CurrentEntityID);
                     UpdateFilter();
+                    if CurrentEntityTypeID <> 0 then
+                        GDIMediaMgt.UpdateViewedByEntity(NewMediaID);
                 end;
 
             }
@@ -200,6 +202,9 @@ page 50110 "GDI Media"
                     GDIMediaMgt: Codeunit "GDI Media Mgt.";
                 begin
                     GDIMediaMgt.Get(Rec);
+                    // Raise views for the image to prevent the cases when it's cleaned again soon 
+                    if CurrentEntityTypeID <> 0 then
+                        GDIMediaMgt.UpdateViewedByEntity(Rec.ID);
                 end;
             }
         }
