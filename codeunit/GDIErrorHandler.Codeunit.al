@@ -1,10 +1,10 @@
 codeunit 50111 "GDI Error Handler"
 {
-    procedure GetError(var Method: Enum "GDI Method"; var Problem: Enum "GDI Problem"; var ErrorValue: Text)
+    procedure GetError(var GDIMethod: Enum "GDI Method"; var GDIProblem: Enum "GDI Problem"; var GDIErrorValue: Text)
     begin
-        Method := CurrentMethod;
-        Problem := CurrentProblem;
-        ErrorValue := CurrentErrorValue;
+        GDIMethod := CurrentMethod;
+        GDIProblem := CurrentProblem;
+        GDIErrorValue := CurrentErrorValue;
     end;
 
     procedure HandleCurrentError(NotifyOnly: Boolean)
@@ -17,45 +17,45 @@ codeunit 50111 "GDI Error Handler"
                 ThrowCurrentError();
     end;
 
-    procedure ResponseHasError(Method: Enum "GDI Method"; ResponseText: Text): Boolean
+    procedure ResponseHasError(CallerMethod: Enum "GDI Method"; ResponseText: Text): Boolean
     var
         GDIJsonHelper: Codeunit "GDI Json Helper";
         ResponseJson: JsonObject;
-        Problem: Enum "GDI Problem";
+        GDIProblem: Enum "GDI Problem";
         ErrorValue: Text;
     begin
         ClearError();
         ClearLastError();
-        If ResponseText = '' then
-            exit(false); // no errors
+        if ResponseText = '' then
+            exit(false); // Empty response is ok 
 
         if not ResponseJson.ReadFrom(ResponseText) then begin
-            LogError(Problem::JsonRead, Method, ResponseText);
+            LogError(GDIProblem::JsonRead, CallerMethod, ResponseText);
             ClearLastError();
-            exit(true); // json parsing is an error
+            exit(true); // Json is expected, so if we cannot parse it, it's not ok
         end;
-
 
         if GDIJsonHelper.GetErrorValueFromJson(ErrorValue, ResponseJson) then begin
             ClearLastError();
-            if Method = Method::Authorize then
-                Error('%1 Error: %2', Format(Method), ErrorValue);
-
+            if CallerMethod = CallerMethod::Authorize then begin
+                LogError(GDIProblem::Auth, CallerMethod, ErrorValue);
+                ThrowCurrentError(); // Ok to throw error if Authorize was called by Authorize itself
+            end;
             case (ErrorValue) of
                 '0':
-                    Problem := Problem::Timeout;
+                    GDIProblem := GDIProblem::Timeout;
                 '404':
-                    Problem := Problem::NotFound;
-                Format(Problem::JsonRead):
-                    Problem := Problem::JsonRead;
-                Format(Problem::MissingFileID):
-                    Problem := Problem::MissingFileID;
+                    GDIProblem := GDIProblem::NotFound;
+                Format(GDIProblem::JsonRead):
+                    GDIProblem := GDIProblem::JsonRead;
+                Format(GDIProblem::MissingFileID):
+                    GDIProblem := GDIProblem::MissingFileID;
                 else
-                    Problem := Problem::Undefined;
+                    GDIProblem := GDIProblem::Undefined;
             end;
-            if Problem in [Problem::JsonRead, Problem::Undefined] then
+            if GDIProblem in [GDIProblem::JsonRead, GDIProblem::Undefined] then
                 ErrorValue := ResponseText;
-            LogError(Problem, Method, ErrorValue);
+            LogError(GDIProblem, CallerMethod, ErrorValue);
             exit(true);
         end;
         exit(false);
@@ -164,6 +164,11 @@ codeunit 50111 "GDI Error Handler"
         Error(JsonStructureErr, FileName);
     end;
 
+    procedure ThrowMediaIDMissingErr()
+    begin
+        Error(MediaIDMissingErr);
+    end;
+
     procedure ThrowNotImplementedErr()
     begin
         Error(NotImplementedErr);
@@ -197,6 +202,8 @@ codeunit 50111 "GDI Error Handler"
         CurrentProblem := Problem;
         CurrentMethod := Method;
         CurrentErrorValue := ErrorValue;
+        // TODO: logging
+        // NOTE: Logging requires extra commits
     end;
 
     var
@@ -221,6 +228,7 @@ codeunit 50111 "GDI Error Handler"
         FileUploadErr: Label 'Cannot upload file %1.', Comment = '%1 = File name';
         JsonReadErr: Label 'Cannot read file %1 as json.', Comment = '%1 = File name';
         JsonStructureErr: Label 'Wrong json structure in %1. Please, check recent Google Drive API updates.', Comment = '%1 = File name, http content, text variable, etc';
+        MediaIDMissingErr: Label 'Media ID is missing.';
         NotImplementedErr: Label 'Not implemented.';
         ValueOutOfRangeErr: Label '%1 %2 is out of range [%3 .. %4].', Comment = '%1 = Variable/field name; %2 = Variable/field value; %3 = low margin; %4 = high margin';
 

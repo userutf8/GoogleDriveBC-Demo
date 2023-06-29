@@ -191,7 +191,7 @@ page 50100 "GDI Setup"
                         if OldToken = GDISetup.AccessToken then
                             Message(OldTokenAliveTxt)
                         else
-                            Message(TokenRefreshedTxt); // TODO replace by notification?
+                            Message(TokenRefreshedTxt);
                 end;
             }
 

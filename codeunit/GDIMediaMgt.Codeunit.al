@@ -38,7 +38,9 @@ codeunit 50101 "GDI Media Mgt."
     begin
         if FileName = '' then
             GDIErrorHandler.ThrowFileNameMissingErr();
-        // todo: check mediaid
+
+        if MediaID = 0 then
+            GDIErrorHandler.ThrowMediaIDMissingErr();
 
         QueueID := GDIQueueHandler.Create(GDIMethod::PostFile, GDIProblem::Undefined, MediaID, '');
         Commit();
@@ -247,7 +249,7 @@ codeunit 50101 "GDI Media Mgt."
         GDISetupMgt.Authorize(GDIMethod::GetMetadata);
         ResponseText := GDIRequestHandler.GetMetadata(FileID);
         exit(ResponseText);
-        // TODO check ResponseText?
+        // TODO align with GET
     end;
 
     procedure Update(MediaID: Integer)
@@ -341,15 +343,16 @@ codeunit 50101 "GDI Media Mgt."
         GDIMethod: Enum "GDI Method";
         ResponseText: Text;
     begin
-        //todo: patch metadata doesn't know how to create queue yet
+        // TODO: patch metadata doesn't know how to create queue. create queue if called independently.
+        if NewMetadata = '' then
+            GDIErrorHandler.ThrowFileNameMissingErr(); // TEMP
+
         if FileID = '' then
             GDIErrorHandler.ThrowFileIDMissingErr();
 
-        // TODO check NewMetadata
         GDISetupMgt.Authorize(GDIMethod::PatchMetadata);
         ResponseText := GDIRequestHandler.PatchMetadata(NewMetadata, FileID);
         exit(ResponseText);
-        // TODO check ResponseText?
     end;
 
     procedure ReadFileFromMedia(var TempBlob: codeunit "Temp Blob"; var FileName: Text; MediaID: Integer)

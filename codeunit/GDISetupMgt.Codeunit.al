@@ -140,7 +140,6 @@ codeunit 50100 "GDI Setup Mgt."
     begin
         // Endpoint for OAuth 2.0 redirect
         // Company Name must be empty on prem, or Google will refuse to redirect to this URI (weird).
-        // TODO: check in Azure.
         exit(System.GetUrl(CurrentClientType, '', ObjectType::Page, Page::"GDI Auth Mini-Page"));
     end;
 

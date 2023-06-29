@@ -59,14 +59,14 @@ codeunit 50110 "GDI Request Handler"
         Request.Method := 'DELETE';
         Client.DefaultRequestHeaders.Add(
             GDITokens.Authorization(), StrSubstNo(AuthHdrValueTok, GDISetup.TokenType, GDISetup.AccessToken));
-        Client.Send(Request, Response);
+        Client.Send(Request, Response); // TODO wrapper for the failure
         Response.Content.ReadAs(ResponseText);
         exit(ResponseText);
     end;
 
     procedure GetErrorText(): Text
     begin
-        // TODO: to remove
+        // TODO: can it be removed?
         exit(CurrentErrorText);
     end;
 
@@ -111,7 +111,7 @@ codeunit 50110 "GDI Request Handler"
         Url: Text;
         ResponseText: Text;
     begin
-        // TODO almost duplicates GetMedia
+        // TODO wrapper for get call
         if FileID = '' then
             GDIErrorHandler.ThrowFileIDMissingErr();
 
@@ -138,7 +138,7 @@ codeunit 50110 "GDI Request Handler"
         ResponseText: Text;
     begin
         GDISetup.Get();
-        Content.WriteFrom(IStream); // TODO Check IStream
+        Content.WriteFrom(IStream);
         Content.GetHeaders(ContentHeaders);
         ContentHeaders.Clear();
         ContentHeaders.Add(GDITokens.ContentType(), GDITokens.MimeTypeJpeg());
@@ -200,7 +200,7 @@ codeunit 50110 "GDI Request Handler"
         ResponseText: Text;
     begin
         GDISetup.Get();
-        Content.WriteFrom(IStream); // TODO: will that work in Azure considering 1 mln bytes limitation? 
+        Content.WriteFrom(IStream);
         Content.GetHeaders(ContentHeaders);
         ContentHeaders.Clear();
         ContentHeaders.Add(GDITokens.ContentType(), GDITokens.MimeTypeJpeg());

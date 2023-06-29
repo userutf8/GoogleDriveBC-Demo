@@ -2,7 +2,7 @@ codeunit 50120 "GDI Json Helper"
 {
     procedure CreateSimpleJson(TokenName: Text; ValueVariant: Variant): Text
     begin
-        // creates '{"TokenName": "ValueVariant"}' text
+        // Creates text '{"TokenName": "ValueVariant"}'
         exit(StrSubstNo(SimpleJsonTxt, TokenName, Format(ValueVariant, 0, 9)));
     end;
 
@@ -12,7 +12,7 @@ codeunit 50120 "GDI Json Helper"
         InnerJsonObj: JsonObject;
         GDIProblem: Enum "GDI Problem";
     begin
-        // returns true, if the error presents in Json or if Json failed to parse
+        // Returns true, if the error presents in Json, or if Json failed to parse
         if TryGetTextValueFromJson(ErrorValue, JsonObj, GDITokens.ErrorTok()) then
             exit(ErrorValue <> '');
 
