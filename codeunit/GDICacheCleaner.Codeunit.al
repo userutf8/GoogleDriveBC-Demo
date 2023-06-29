@@ -25,17 +25,19 @@ codeunit 50114 "GDI Cache Cleaner"
         GDIMediaInfo.SetCurrentKey(Rank);
         if GDIMediaInfo.FindSet(true) then
             repeat
-                CurrentRank := GDIMediaInfo.Rank;
-                CurrentCacheSize -= GDIMediaInfo.FileSize;
                 GDIMedia.Get(GDIMediaInfo.MediaID);
-                Clear(GDIMedia.FileContent);
-                GDIMedia.Modify();
-                Clear(GDIMediaInfo.FileSize);
-                Clear(GDIMediaInfo.Rank);
-                GDIMediaInfo.Modify();
-                if CurrentRank >= GDISetup.ClearAllBelowRank then
-                    if CurrentCacheSize <= MaxCacheSize then
-                        break;
+                if GDIMedia.FileID <> '' then begin
+                    CurrentRank := GDIMediaInfo.Rank;
+                    CurrentCacheSize -= GDIMediaInfo.FileSize;
+                    Clear(GDIMedia.FileContent);
+                    GDIMedia.Modify();
+                    Clear(GDIMediaInfo.FileSize);
+                    Clear(GDIMediaInfo.Rank);
+                    GDIMediaInfo.Modify();
+                    if CurrentRank >= GDISetup.ClearAllBelowRank then
+                        if CurrentCacheSize <= MaxCacheSize then
+                            break;
+                end;
             until GDIMediaInfo.Next() = 0;
     end;
 
@@ -59,13 +61,15 @@ codeunit 50114 "GDI Cache Cleaner"
         if GDIMediaInfo.FindSet(true) then
             repeat
                 if GDIMediaInfo.MediaID <> SkipMediaID then begin
-                    CurrentCacheSize -= GDIMediaInfo.FileSize;
                     GDIMedia.Get(GDIMediaInfo.MediaID);
-                    Clear(GDIMedia.FileContent);
-                    GDIMedia.Modify();
-                    Clear(GDIMediaInfo.FileSize);
-                    Clear(GDIMediaInfo.Rank);
-                    GDIMediaInfo.Modify();
+                    if GDIMedia.FileID <> '' then begin
+                        CurrentCacheSize -= GDIMediaInfo.FileSize;
+                        Clear(GDIMedia.FileContent);
+                        GDIMedia.Modify();
+                        Clear(GDIMediaInfo.FileSize);
+                        Clear(GDIMediaInfo.Rank);
+                        GDIMediaInfo.Modify();
+                    end;
                 end;
             until (GDIMediaInfo.Next() = 0) or (CurrentCacheSize + ClearSize <= MaxCacheSize);
     end;

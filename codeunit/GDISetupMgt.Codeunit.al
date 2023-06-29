@@ -63,6 +63,11 @@ codeunit 50100 "GDI Setup Mgt."
         GDISetup.Modify(true);
     end;
 
+    procedure CheckConnection(MyNotification: Notification)
+    begin
+        System.Hyperlink('https://www.google.com/search?q=speedtest');
+    end;
+
     procedure GetError(var GDIMethod: enum "GDI Method"; var GDIProblem: enum "GDI Problem"; var ErrorValue: Text)
     begin
         GDIMethod := CurrentMethod;

@@ -73,6 +73,7 @@ codeunit 50110 "GDI Request Handler"
     procedure GetMedia(var IStream: InStream; FileID: Text)
     var
         GDISetup: Record "GDI Setup";
+        GDIJsonHelper: Codeunit "GDI Json Helper";
         GDIErrorHandler: Codeunit "GDI Error Handler";
         GDITokens: Codeunit "GDI Tokens";
         Client: HttpClient;
@@ -89,13 +90,15 @@ codeunit 50110 "GDI Request Handler"
                     GDITokens.KeyTok(), GDISetup.ClientID,
                     GDITokens.AltTok(), GDITokens.MediaTok()));
         Client.DefaultRequestHeaders.Add(GDITokens.Authorization(), StrSubstNo(AuthHdrValueTok, GDISetup.TokenType, GDISetup.AccessToken));
-        Client.Get(Url, Response);
-        if Response.IsSuccessStatusCode then
-            Response.Content.ReadAs(IStream) // TODO: will that work in Azure considering 1 mln bytes limitation? 
-        else begin
-            Response.Content.ReadAs(ErrorText);
-            SetErrorText(ErrorText);
-        end;
+        if Client.Get(Url, Response) then
+            if Response.IsSuccessStatusCode then
+                Response.Content.ReadAs(IStream) // TODO: will that work in Azure considering 1 mln bytes limitation? 
+            else begin
+                Response.Content.ReadAs(ErrorText);
+                SetErrorText(GDIJsonHelper.CreateSimpleJson(GDITokens.ErrorTok(), ErrorText));
+            end
+        else
+            SetErrorText(GDIJsonHelper.CreateSimpleJson(GDITokens.ErrorTok(), Response.HttpStatusCode));
     end;
 
     procedure GetMetadata(FileID: Text): Text

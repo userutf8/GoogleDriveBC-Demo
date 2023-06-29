@@ -1,1 +1,1 @@
-﻿{"Added":[],"Modified":[],"Removed":[]}
+﻿{"Added":[],"Modified":[{"Id":50111,"Kind":11,"Name":"GDI Error Handler","PackagePath":"/src/Codeunit/GDIErrorHandler.Codeunit.al"},{"Id":50100,"Kind":11,"Name":"GDI Setup Mgt.","PackagePath":"/src/Codeunit/GDISetupMgt.Codeunit.al"}],"Removed":[]}

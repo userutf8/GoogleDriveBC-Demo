@@ -201,7 +201,7 @@ page 50110 "GDI Media"
                 var
                     GDIMediaMgt: Codeunit "GDI Media Mgt.";
                 begin
-                    GDIMediaMgt.Get(Rec);
+                    GDIMediaMgt.Get(Rec, true);
                     // Raise views for the image to prevent the cases when it's cleaned again soon 
                     if CurrentEntityTypeID <> 0 then
                         GDIMediaMgt.UpdateViewedByEntity(Rec.ID);

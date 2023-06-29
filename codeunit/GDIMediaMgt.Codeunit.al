@@ -181,12 +181,14 @@ codeunit 50101 "GDI Media Mgt."
         File.DownloadFromStream(IStream, DialogTitleDownloadTxt, '', '', FileName);
     end;
 
-    procedure Get(var GDIMedia: Record "GDI Media")
+    procedure Get(var GDIMedia: Record "GDI Media"; NotifyOnly: Boolean)
     var
         GDIMediaInfo: Record "GDI Media Info";
         TenantMedia: Record "Tenant Media";
         GDICacheCleaner: Codeunit "GDI Cache Cleaner";
-        Tokens: Codeunit "GDI Tokens";
+        GDIErrorHandler: Codeunit "GDI Error Handler";
+        GDITokens: Codeunit "GDI Tokens";
+        GDIMethod: Enum "GDI Method";
         IStream: InStream;
         ErrorText: Text;
     begin
@@ -195,8 +197,11 @@ codeunit 50101 "GDI Media Mgt."
                 exit;
 
         Get(IStream, ErrorText, GDIMedia.FileID);
-        if ErrorText = '' then begin
-            GDIMedia.FileContent.ImportStream(IStream, GDIMedia.FileName, Tokens.MimeTypeJpeg());
+        if GDIErrorHandler.ResponseHasError(GDIMethod::GetFile, ErrorText) then begin
+            GDIErrorHandler.SetRecordID(GDIMedia.RecordId);
+            GDIErrorHandler.HandleCurrentError(NotifyOnly)
+        end else begin
+            GDIMedia.FileContent.ImportStream(IStream, GDIMedia.FileName, GDITokens.MimeTypeJpeg());
             GDIMedia.Modify(true);
             if GDIMediaInfo.Get(GDIMedia.ID) then begin
                 TenantMedia.Get(GDIMedia.FileContent.MediaId);
@@ -206,19 +211,22 @@ codeunit 50101 "GDI Media Mgt."
                 GDIMediaInfo.Modify(true);
                 GDICacheCleaner.ClearCacheOnDemand(GDIMediaInfo.FileSize, GDIMediaInfo.MediaID);
             end;
-        end else
-            Error(ErrorText); // TODO parse error and use error handler
+        end;
     end;
 
     procedure Get(var IStream: InStream; var ErrorText: Text; FileID: Text)
     var
         GDISetupMgt: Codeunit "GDI Setup Mgt.";
         GDIRequestHandler: Codeunit "GDI Request Handler";
-        GDIErrorHandler: Codeunit "GDI Error Handler";
+        GDIJsonHelper: Codeunit "GDI Json Helper";
+        GDITokens: Codeunit "GDI Tokens";
         GDIMethod: Enum "GDI Method";
+        GDIProblem: Enum "GDI Problem";
     begin
-        if FileID = '' then
-            GDIErrorHandler.ThrowFileIDMissingErr();
+        if FileID = '' then begin
+            ErrorText := GDIJsonHelper.CreateSimpleJson(GDITokens.ErrorTok(), Format(GDIProblem::MissingFileID));
+            exit;
+        end;
 
         GDISetupMgt.Authorize(GDIMethod::GetFile);
         GDIRequestHandler.GetMedia(IStream, FileID);
