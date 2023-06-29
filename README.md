@@ -3,12 +3,19 @@ Google Drive Integration with MS Dynamics Business Central (Demo)
 WIP
 
 ## What is working:
-1. OAuth 2.0 to Google Drive (Setup)
-2. GET (media/metadata), DELETE (completely), PATCH (media/metadata), POST (media)
-3. Records, some parts of UI.
+1. Google API (auth, get, delete, post, patch, patch metadata)
+2. Schema for keeping and maintaning BC cache
+3. UI parts excluding full sized images
+4. Demo for Items
+5. Procedures for problem handling and cache cleaning
 
 ## TODO:
-1. Queue with jobs
-2. Error logging
+1. More testing and bugfixing, misc improvements
+2. Jobs, testing with jobs, install code
 3. Documentation
-4. UI improvements
+
+## POSTPONED:
+1. Major UI improvements with Add-Ins.
+2. Error logging.
+3. Cleaning the cloud
+4. Reindexing
