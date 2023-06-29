@@ -63,7 +63,7 @@ Page 50120 "GDI Queue"
     {
         area(Processing)
         {
-            action(FixProblems)
+            action("Process Queue")
             {
                 ApplicationArea = All;
                 Image = Post;
@@ -73,14 +73,14 @@ Page 50120 "GDI Queue"
                 var
                     GDIQueueHandler: Codeunit "GDI Queue Handler";
                 begin
-                    GDIQueueHandler.FixProblems();
+                    GDIQueueHandler.HandleQueue();
                 end;
             }
 
         }
         area(Promoted)
         {
-            actionref(FixProblems_promoted; FixProblems)
+            actionref(FixProblems_promoted; "Process Queue")
             {
 
             }

@@ -160,16 +160,9 @@ table 50100 "GDI Setup"
             MaxValue = 100;
             MinValue = 50;
         }
-        field(22; GracePeriod; Text[128])
+        field(22; GracePeriod; Duration)
         {
             Caption = 'Grace period';
-            InitValue = '7 days';
-            trigger OnValidate()
-            var
-                TestDuration: Duration;
-            begin
-                Evaluate(TestDuration, GracePeriod)
-            end;
         }
         field(23; ClearAllBelowRank; Integer)
         {

@@ -34,7 +34,7 @@ table 50120 "GDI Queue"
         }
         field(8; FileID; Text[128])
         {
-            Description = 'File ID copied from Google Drive Media';
+
         }
     }
 

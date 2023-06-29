@@ -1,7 +1,11 @@
 codeunit 50112 "GDI Queue Handler"
 {
+    trigger OnRun()
+    begin
+        HandleQueue();
+    end;
 
-    procedure FixProblems()
+    procedure HandleQueue()
     var
         GDIQueue: Record "GDI Queue";
         GDIMediaMgt: Codeunit "GDI Media Mgt.";
