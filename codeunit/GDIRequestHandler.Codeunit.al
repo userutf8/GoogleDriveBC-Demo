@@ -46,21 +46,21 @@ codeunit 50110 "GDI Request Handler"
     var
         GDISetup: Record "GDI Setup";
         GDITokens: Codeunit "GDI Tokens";
-        Client: HttpClient;
-        Request: HttpRequestMessage;
-        Response: HttpResponseMessage;
+        MyHttpClient: HttpClient;
+        MyHttpRequestMessage: HttpRequestMessage;
+        MyHttpResponseMessage: HttpResponseMessage;
         Url: Text;
         ResponseText: Text;
     begin
         GDISetup.Get();
         Url := StrSubstNo(UrlWithIdAndParamsTok, GDISetup.APIScope, FileID, StrSubstNo(CreateUrlParamsTemplate(1),
                     GDITokens.KeyTok(), GDISetup.ClientID));
-        Request.SetRequestUri(Url);
-        Request.Method := 'DELETE';
-        Client.DefaultRequestHeaders.Add(
+        MyHttpRequestMessage.SetRequestUri(Url);
+        MyHttpRequestMessage.Method := 'DELETE';
+        MyHttpClient.DefaultRequestHeaders.Add(
             GDITokens.Authorization(), StrSubstNo(AuthHdrValueTok, GDISetup.TokenType, GDISetup.AccessToken));
-        Client.Send(Request, Response); // TODO wrapper for the failure
-        Response.Content.ReadAs(ResponseText);
+        MyHttpClient.Send(MyHttpRequestMessage, MyHttpResponseMessage); // TODO wrapper for the failure
+        MyHttpResponseMessage.Content.ReadAs(ResponseText);
         exit(ResponseText);
     end;
 
@@ -70,14 +70,14 @@ codeunit 50110 "GDI Request Handler"
         exit(CurrentErrorText);
     end;
 
-    procedure GetMedia(var IStream: InStream; FileID: Text)
+    procedure GetMedia(var MediaInStream: InStream; FileID: Text)
     var
         GDISetup: Record "GDI Setup";
         GDIJsonHelper: Codeunit "GDI Json Helper";
         GDIErrorHandler: Codeunit "GDI Error Handler";
         GDITokens: Codeunit "GDI Tokens";
-        Client: HttpClient;
-        Response: HttpResponseMessage;
+        MyHttpClient: HttpClient;
+        MyHttpResponseMessage: HttpResponseMessage;
         Url: Text;
         ErrorText: Text;
     begin
@@ -89,16 +89,17 @@ codeunit 50110 "GDI Request Handler"
         Url := StrSubstNo(UrlWithIdAndParamsTok, GDISetup.APIScope, FileID, StrSubstNo(CreateUrlParamsTemplate(2),
                     GDITokens.KeyTok(), GDISetup.ClientID,
                     GDITokens.AltTok(), GDITokens.MediaTok()));
-        Client.DefaultRequestHeaders.Add(GDITokens.Authorization(), StrSubstNo(AuthHdrValueTok, GDISetup.TokenType, GDISetup.AccessToken));
-        if Client.Get(Url, Response) then
-            if Response.IsSuccessStatusCode then
-                Response.Content.ReadAs(IStream) // TODO: will that work in Azure considering 1 mln bytes limitation? 
+        MyHttpClient.DefaultRequestHeaders.Add(
+            GDITokens.Authorization(), StrSubstNo(AuthHdrValueTok, GDISetup.TokenType, GDISetup.AccessToken));
+        if MyHttpClient.Get(Url, MyHttpResponseMessage) then
+            if MyHttpResponseMessage.IsSuccessStatusCode then
+                MyHttpResponseMessage.Content.ReadAs(MediaInStream) // TODO: will that work in Azure considering 1 mln bytes limitation? 
             else begin
-                Response.Content.ReadAs(ErrorText);
+                MyHttpResponseMessage.Content.ReadAs(ErrorText);
                 SetErrorText(GDIJsonHelper.CreateSimpleJson(GDITokens.ErrorTok(), ErrorText));
             end
         else
-            SetErrorText(GDIJsonHelper.CreateSimpleJson(GDITokens.ErrorTok(), Response.HttpStatusCode));
+            SetErrorText(GDIJsonHelper.CreateSimpleJson(GDITokens.ErrorTok(), MyHttpResponseMessage.HttpStatusCode));
     end;
 
     procedure GetMetadata(FileID: Text): Text
@@ -106,8 +107,8 @@ codeunit 50110 "GDI Request Handler"
         GDISetup: Record "GDI Setup";
         GDIErrorHandler: Codeunit "GDI Error Handler";
         GDITokens: Codeunit "GDI Tokens";
-        Client: HttpClient;
-        Response: HttpResponseMessage;
+        MyHttpClient: HttpClient;
+        MyHttpResponseMessage: HttpResponseMessage;
         Url: Text;
         ResponseText: Text;
     begin
@@ -118,42 +119,44 @@ codeunit 50110 "GDI Request Handler"
         GDISetup.Get();
         Url := StrSubstNo(UrlWithIdAndParamsTok, GDISetup.APIScope, FileID, StrSubstNo(CreateUrlParamsTemplate(1),
                     GDITokens.KeyTok(), GDISetup.ClientID));
-        Client.DefaultRequestHeaders.Add(GDITokens.Authorization(), StrSubstNo(AuthHdrValueTok, GDISetup.TokenType, GDISetup.AccessToken));
-        Client.Get(Url, Response);
-        Response.Content.ReadAs(ResponseText);
+        MyHttpClient.DefaultRequestHeaders.Add(
+            GDITokens.Authorization(), StrSubstNo(AuthHdrValueTok, GDISetup.TokenType, GDISetup.AccessToken));
+        MyHttpClient.Get(Url, MyHttpResponseMessage);
+        MyHttpResponseMessage.Content.ReadAs(ResponseText);
         exit(ResponseText);
     end;
 
-    procedure PatchFile(IStream: InStream; FileID: Text): Text
+    procedure PatchFile(MediaInStream: InStream; FileID: Text): Text
     var
         GDISetup: Record "GDI Setup";
         GDIJsonHelper: Codeunit "GDI Json Helper";
         GDITokens: Codeunit "GDI Tokens";
-        Content: HttpContent;
+        MyHttpContent: HttpContent;
         ContentHeaders: HttpHeaders;
-        Request: HttpRequestMessage;
-        Client: HttpClient;
-        Response: HttpResponseMessage;
+        MyHttpRequestMessage: HttpRequestMessage;
+        MyHttpClient: HttpClient;
+        MyHttpResponseMessage: HttpResponseMessage;
         Url: Text;
         ResponseText: Text;
     begin
         GDISetup.Get();
-        Content.WriteFrom(IStream);
-        Content.GetHeaders(ContentHeaders);
+        MyHttpContent.WriteFrom(MediaInStream);
+        MyHttpContent.GetHeaders(ContentHeaders);
         ContentHeaders.Clear();
         ContentHeaders.Add(GDITokens.ContentType(), GDITokens.MimeTypeJpeg());
-        Request.Content := Content;
+        MyHttpRequestMessage.Content := MyHttpContent;
         Url := StrSubstNo(UrlWithIdAndParamsTok, GDISetup.APIUploadScope, FileID, StrSubstNo(CreateUrlParamsTemplate(2),
                     GDITokens.KeyTok(), GDISetup.ClientID,
                     GDITokens.UploadType(), GDITokens.MediaTok()));
-        Request.SetRequestUri(Url);
-        Request.Method := 'PATCH';
-        Client.DefaultRequestHeaders.Add(GDITokens.Authorization(), StrSubstNo(AuthHdrValueTok, GDISetup.TokenType, GDISetup.AccessToken));
-        if Client.Send(Request, Response) then begin
-            Response.Content.ReadAs(ResponseText);
+        MyHttpRequestMessage.SetRequestUri(Url);
+        MyHttpRequestMessage.Method := 'PATCH';
+        MyHttpClient.DefaultRequestHeaders.Add(
+            GDITokens.Authorization(), StrSubstNo(AuthHdrValueTok, GDISetup.TokenType, GDISetup.AccessToken));
+        if MyHttpClient.Send(MyHttpRequestMessage, MyHttpResponseMessage) then begin
+            MyHttpResponseMessage.Content.ReadAs(ResponseText);
             exit(ResponseText);
         end;
-        exit(GDIJsonHelper.CreateSimpleJson(GDITokens.ErrorTok(), Response.HttpStatusCode));
+        exit(GDIJsonHelper.CreateSimpleJson(GDITokens.ErrorTok(), MyHttpResponseMessage.HttpStatusCode));
     end;
 
     procedure PatchMetadata(NewMetadata: Text; FileID: Text): Text
@@ -161,58 +164,60 @@ codeunit 50110 "GDI Request Handler"
         GDISetup: Record "GDI Setup";
         GDIJsonHelper: Codeunit "GDI Json Helper";
         GDITokens: Codeunit "GDI Tokens";
-        Content: HttpContent;
+        MyHttpContent: HttpContent;
         ContentHeaders: HttpHeaders;
-        Request: HttpRequestMessage;
-        Client: HttpClient;
-        Response: HttpResponseMessage;
+        MyHttpRequestMessage: HttpRequestMessage;
+        MyHttpClient: HttpClient;
+        MyHttpResponseMessage: HttpResponseMessage;
         Url: Text;
         ResponseText: Text;
     begin
         GDISetup.Get();
-        Content.WriteFrom(NewMetadata);
-        Content.GetHeaders(ContentHeaders);
+        MyHttpContent.WriteFrom(NewMetadata);
+        MyHttpContent.GetHeaders(ContentHeaders);
         ContentHeaders.Clear();
         ContentHeaders.Add(GDITokens.ContentType(), GDITokens.MimeTypeJson());
-        Request.Content := Content;
+        MyHttpRequestMessage.Content := MyHttpContent;
         Url := StrSubstNo(UrlWithIdAndParamsTok, GDISetup.APIScope, FileID, StrSubstNo(CreateUrlParamsTemplate(1),
                     GDITokens.KeyTok(), GDISetup.ClientID));
-        Request.SetRequestUri(Url);
-        Request.Method := 'PATCH';
-        Client.DefaultRequestHeaders.Add(GDITokens.Authorization(), StrSubstNo(AuthHdrValueTok, GDISetup.TokenType, GDISetup.AccessToken));
-        if Client.Send(Request, Response) then begin
-            Response.Content.ReadAs(ResponseText);
+        MyHttpRequestMessage.SetRequestUri(Url);
+        MyHttpRequestMessage.Method := 'PATCH';
+        MyHttpClient.DefaultRequestHeaders.Add(
+            GDITokens.Authorization(), StrSubstNo(AuthHdrValueTok, GDISetup.TokenType, GDISetup.AccessToken));
+        if MyHttpClient.Send(MyHttpRequestMessage, MyHttpResponseMessage) then begin
+            MyHttpResponseMessage.Content.ReadAs(ResponseText);
             exit(ResponseText);
         end;
-        exit(GDIJsonHelper.CreateSimpleJson(GDITokens.ErrorTok(), Response.HttpStatusCode));
+        exit(GDIJsonHelper.CreateSimpleJson(GDITokens.ErrorTok(), MyHttpResponseMessage.HttpStatusCode));
     end;
 
-    procedure PostFile(var IStream: InStream): Text;
+    procedure PostFile(var MediaInStream: InStream): Text;
     var
         GDISetup: Record "GDI Setup";
         GDIJsonHelper: Codeunit "GDI Json Helper";
         GDITokens: Codeunit "GDI Tokens";
-        Content: HttpContent;
+        MyHttpContent: HttpContent;
         ContentHeaders: HttpHeaders;
-        Client: HttpClient;
-        Response: HttpResponseMessage;
+        MyHttpClient: HttpClient;
+        MyHttpResponseMessage: HttpResponseMessage;
         Url: Text;
         ResponseText: Text;
     begin
         GDISetup.Get();
-        Content.WriteFrom(IStream);
-        Content.GetHeaders(ContentHeaders);
+        MyHttpContent.WriteFrom(MediaInStream);
+        MyHttpContent.GetHeaders(ContentHeaders);
         ContentHeaders.Clear();
         ContentHeaders.Add(GDITokens.ContentType(), GDITokens.MimeTypeJpeg());
         Url := StrSubstNo(UrlWithParamsTok, GDISetup.APIUploadScope, StrSubstNo(CreateUrlParamsTemplate(2),
                     GDITokens.KeyTok(), GDISetup.ClientID,
                     GDITokens.UploadType(), GDITokens.MediaTok()));
-        Client.DefaultRequestHeaders.Add(GDITokens.Authorization(), StrSubstNo(AuthHdrValueTok, GDISetup.TokenType, GDISetup.AccessToken));
-        if Client.Post(Url, Content, Response) then begin
-            Response.Content().ReadAs(ResponseText);
+        MyHttpClient.DefaultRequestHeaders.Add(
+            GDITokens.Authorization(), StrSubstNo(AuthHdrValueTok, GDISetup.TokenType, GDISetup.AccessToken));
+        if MyHttpClient.Post(Url, MyHttpContent, MyHttpResponseMessage) then begin
+            MyHttpResponseMessage.Content().ReadAs(ResponseText);
             exit(ResponseText);
         end;
-        exit(GDIJsonHelper.CreateSimpleJson(GDITokens.ErrorTok(), Response.HttpStatusCode));
+        exit(GDIJsonHelper.CreateSimpleJson(GDITokens.ErrorTok(), MyHttpResponseMessage.HttpStatusCode));
     end;
 
     procedure RequestAccessToken(RequestBody: Text): Text
@@ -220,22 +225,22 @@ codeunit 50110 "GDI Request Handler"
         GDISetup: Record "GDI Setup";
         GDIJsonHelper: Codeunit "GDI Json Helper";
         GDITokens: Codeunit "GDI Tokens";
-        Content: HttpContent;
+        MyHttpContent: HttpContent;
         ContentHeaders: HttpHeaders;
-        Client: HttpClient;
-        Response: HttpResponseMessage;
+        MyHttpClient: HttpClient;
+        MyHttpResponseMessage: HttpResponseMessage;
         ResponseText: Text;
     begin
         GDISetup.Get();
-        Content.WriteFrom(RequestBody);
-        Content.GetHeaders(ContentHeaders);
+        MyHttpContent.WriteFrom(RequestBody);
+        MyHttpContent.GetHeaders(ContentHeaders);
         ContentHeaders.Clear();
         ContentHeaders.Add(GDITokens.ContentType(), GDITokens.MimeTypeFormUrlEncoded());
-        if Client.Post(GDISetup.TokenURI, Content, Response) then begin
-            Response.Content().ReadAs(ResponseText);
+        if MyHttpClient.Post(GDISetup.TokenURI, MyHttpContent, MyHttpResponseMessage) then begin
+            MyHttpResponseMessage.Content().ReadAs(ResponseText);
             exit(ResponseText);
         end;
-        exit(GDIJsonHelper.CreateSimpleJson(GDITokens.ErrorTok(), Response.HttpStatusCode));
+        exit(GDIJsonHelper.CreateSimpleJson(GDITokens.ErrorTok(), MyHttpResponseMessage.HttpStatusCode));
     end;
 
     local procedure CreateUrlParamsTemplate(QtyParams: Integer): Text

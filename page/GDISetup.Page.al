@@ -195,17 +195,6 @@ page 50100 "GDI Setup"
                 end;
             }
 
-            action("Clear Auth Code")
-            {
-                ApplicationArea = All;
-                ToolTip = 'Clear authorization code manually.';
-
-                trigger OnAction()
-                begin
-                    Clear(Rec.AuthCode);
-                end;
-            }
-
         }
         area(Promoted)
         {

@@ -6,19 +6,19 @@ codeunit 50101 "GDI Media Mgt."
     var
         GDILinksHandler: Codeunit "GDI Links Handler";
         GDIErrorHandler: Codeunit "GDI Error Handler";
-        IStream: InStream;
+        MediaInStream: InStream;
         ClientFileName: Text;
     begin
-        if not File.UploadIntoStream(DialogTitleUploadTxt, '', UploadFileFilterTxt, ClientFileName, IStream) then
+        if not File.UploadIntoStream(DialogTitleUploadTxt, '', UploadFileFilterTxt, ClientFileName, MediaInStream) then
             GDIErrorHandler.ThrowFileUploadErr(ClientFileName);
 
-        NewMediaID := CreateGoogleDriveMedia(IStream, ClientFileName, '');
+        NewMediaID := CreateGoogleDriveMedia(MediaInStream, ClientFileName, '');
         if EntityTypeID <> 0 then
             GDILinksHandler.CreateLink(NewMediaID, EntityTypeID, EntityID);
-        CreateOnGoogleDrive(IStream, ClientFileName, NewMediaID);
+        CreateOnGoogleDrive(MediaInStream, ClientFileName, NewMediaID);
     end;
 
-    procedure CreateOnGoogleDrive(var IStream: InStream; FileName: Text; MediaID: Integer)
+    procedure CreateOnGoogleDrive(var MediaInStream: InStream; FileName: Text; MediaID: Integer)
     var
         GDISetupMgt: Codeunit "GDI Setup Mgt.";
         GDIRequestHandler: Codeunit "GDI Request Handler";
@@ -53,7 +53,7 @@ codeunit 50101 "GDI Media Mgt."
             exit;
         end;
 
-        ResponseText := GDIRequestHandler.PostFile(IStream);
+        ResponseText := GDIRequestHandler.PostFile(MediaInStream);
         if GDIErrorHandler.ResponseHasError(GDIMethod::PostFile, ResponseText) then begin
             GDIErrorHandler.GetError(GDIMethod, GDIProblem, ErrorValue);
             GDIQueueHandler.Update(QueueID, GDIStatus::"To Handle", GDIMethod, GDIProblem, MediaID, '', ErrorValue);
@@ -90,12 +90,12 @@ codeunit 50101 "GDI Media Mgt."
     procedure CreateOnGoogleDrive(MediaID: Integer)
     var
         TempBlob: Codeunit "Temp Blob";
-        IStream: InStream;
+        MediaInStream: InStream;
         FileName: Text;
     begin
         ReadFileFromMedia(TempBlob, FileName, MediaID);
-        TempBlob.CreateInStream(IStream);
-        CreateOnGoogleDrive(IStream, FileName, MediaID);
+        TempBlob.CreateInStream(MediaInStream);
+        CreateOnGoogleDrive(MediaInStream, FileName, MediaID);
     end;
 
     procedure Delete(MediaID: Integer; EntityTypeID: Integer; EntityID: Text)
@@ -175,12 +175,12 @@ codeunit 50101 "GDI Media Mgt."
     procedure Download(MediaID: Integer)
     var
         TempBlob: Codeunit "Temp Blob";
-        IStream: InStream;
+        MediaInStream: InStream;
         FileName: Text;
     begin
         ReadFileFromMedia(TempBlob, FileName, MediaID);
-        TempBlob.CreateInStream(IStream);
-        File.DownloadFromStream(IStream, DialogTitleDownloadTxt, '', '', FileName);
+        TempBlob.CreateInStream(MediaInStream);
+        File.DownloadFromStream(MediaInStream, DialogTitleDownloadTxt, '', '', FileName);
     end;
 
     procedure Get(var GDIMedia: Record "GDI Media"; NotifyOnly: Boolean)
@@ -191,19 +191,19 @@ codeunit 50101 "GDI Media Mgt."
         GDIErrorHandler: Codeunit "GDI Error Handler";
         GDITokens: Codeunit "GDI Tokens";
         GDIMethod: Enum "GDI Method";
-        IStream: InStream;
+        MediaInStream: InStream;
         ErrorText: Text;
     begin
         if GDIMedia.FileContent.HasValue() then
             if not Confirm(GetConfirmTxt, false) then
                 exit;
 
-        Get(IStream, ErrorText, GDIMedia.FileID);
+        Get(MediaInStream, ErrorText, GDIMedia.FileID);
         if GDIErrorHandler.ResponseHasError(GDIMethod::GetFile, ErrorText) then begin
             GDIErrorHandler.SetRecordID(GDIMedia.RecordId);
             GDIErrorHandler.HandleCurrentError(NotifyOnly)
         end else begin
-            GDIMedia.FileContent.ImportStream(IStream, GDIMedia.FileName, GDITokens.MimeTypeJpeg());
+            GDIMedia.FileContent.ImportStream(MediaInStream, GDIMedia.FileName, GDITokens.MimeTypeJpeg());
             GDIMedia.Modify(true);
             if GDIMediaInfo.Get(GDIMedia.ID) then begin
                 TenantMedia.Get(GDIMedia.FileContent.MediaId);
@@ -216,7 +216,7 @@ codeunit 50101 "GDI Media Mgt."
         end;
     end;
 
-    procedure Get(var IStream: InStream; var ErrorText: Text; FileID: Text)
+    procedure Get(var MediaInStream: InStream; var ErrorText: Text; FileID: Text)
     var
         GDISetupMgt: Codeunit "GDI Setup Mgt.";
         GDIRequestHandler: Codeunit "GDI Request Handler";
@@ -231,7 +231,7 @@ codeunit 50101 "GDI Media Mgt."
         end;
 
         GDISetupMgt.Authorize(GDIMethod::GetFile);
-        GDIRequestHandler.GetMedia(IStream, FileID);
+        GDIRequestHandler.GetMedia(MediaInStream, FileID);
         ErrorText := GDIRequestHandler.GetErrorText();
     end;
 
@@ -255,17 +255,17 @@ codeunit 50101 "GDI Media Mgt."
     procedure Update(MediaID: Integer)
     var
         GDIErrorHandler: Codeunit "GDI Error Handler";
-        IStream: InStream;
+        MediaInStream: InStream;
         ClientFileName: Text;
     begin
-        if not File.UploadIntoStream(DialogTitleUploadTxt, '', UploadFileFilterTxt, ClientFileName, IStream) then
+        if not File.UploadIntoStream(DialogTitleUploadTxt, '', UploadFileFilterTxt, ClientFileName, MediaInStream) then
             GDIErrorHandler.ThrowFileUploadErr(ClientFileName);
 
-        UpdateGoogleDriveMedia(IStream, ClientFileName, MediaID);
-        UpdateOnGoogleDrive(IStream, ClientFileName, MediaID);
+        UpdateGoogleDriveMedia(MediaInStream, ClientFileName, MediaID);
+        UpdateOnGoogleDrive(MediaInStream, ClientFileName, MediaID);
     end;
 
-    procedure UpdateOnGoogleDrive(var IStream: InStream; FileName: Text; MediaID: Integer)
+    procedure UpdateOnGoogleDrive(var MediaInStream: InStream; FileName: Text; MediaID: Integer)
     var
         GDISetupMgt: Codeunit "GDI Setup Mgt.";
         GDIRequestHandler: Codeunit "GDI Request Handler";
@@ -304,7 +304,7 @@ codeunit 50101 "GDI Media Mgt."
             exit;
         end;
 
-        ResponseText := GDIRequestHandler.PatchFile(IStream, FileID);
+        ResponseText := GDIRequestHandler.PatchFile(MediaInStream, FileID);
         if GDIErrorHandler.ResponseHasError(GDIMethod::PatchFile, ResponseText) then begin
             GDIErrorHandler.GetError(GDIMethod, GDIProblem, ErrorValue);
             GDIQueueHandler.Update(QueueID, GDIStatus::"To Handle", GDIMethod, GDIProblem, MediaID, FileID, ErrorValue);
@@ -327,12 +327,12 @@ codeunit 50101 "GDI Media Mgt."
     procedure UpdateOnGoogleDrive(MediaID: Integer)
     var
         TempBlob: Codeunit "Temp Blob";
-        IStream: InStream;
+        MediaInStream: InStream;
         FileName: Text;
     begin
         ReadFileFromMedia(TempBlob, FileName, MediaID);
-        TempBlob.CreateInStream(IStream);
-        UpdateOnGoogleDrive(IStream, FileName, MediaID);
+        TempBlob.CreateInStream(MediaInStream);
+        UpdateOnGoogleDrive(MediaInStream, FileName, MediaID);
     end;
 
     procedure PatchMetadata(NewMetadata: Text; FileID: Text): Text
@@ -358,13 +358,13 @@ codeunit 50101 "GDI Media Mgt."
     procedure ReadFileFromMedia(var TempBlob: codeunit "Temp Blob"; var FileName: Text; MediaID: Integer)
     var
         GDIMedia: Record "GDI Media";
-        OStream: OutStream;
+        MediaOutStream: OutStream;
     begin
         Clear(TempBlob); // clears reference only
         GDIMedia.Get(MediaID);
         FileName := GDIMedia.FileName;
-        TempBlob.CreateOutStream(OStream);
-        GDIMedia.FileContent.ExportStream(OStream);
+        TempBlob.CreateOutStream(MediaOutStream);
+        GDIMedia.FileContent.ExportStream(MediaOutStream);
     end;
 
     procedure RunMediaPage(EntityTypeID: Integer; EntityID: Text; Caption: Text)
@@ -393,7 +393,7 @@ codeunit 50101 "GDI Media Mgt."
         end;
     end;
 
-    local procedure CreateGoogleDriveMedia(IStream: InStream; FileName: Text; FileID: Text): Integer
+    local procedure CreateGoogleDriveMedia(MediaInStream: InStream; FileName: Text; FileID: Text): Integer
     var
         GDIMedia: Record "GDI Media";
         GDIMediaInfo: Record "GDI Media Info";
@@ -404,7 +404,7 @@ codeunit 50101 "GDI Media Mgt."
         GDIMedia.Init();
         GDIMedia.Validate(FileID, FileID);
         GDIMedia.Validate(FileName, FileName);
-        GDIMedia.FileContent.ImportStream(IStream, FileName, GDITokens.MimeTypeJpeg());
+        GDIMedia.FileContent.ImportStream(MediaInStream, FileName, GDITokens.MimeTypeJpeg());
         GDIMedia.Insert(true);
 
         TenantMedia.Get(GDIMedia.FileContent.MediaId);
@@ -427,7 +427,7 @@ codeunit 50101 "GDI Media Mgt."
         exit('');
     end;
 
-    local procedure UpdateGoogleDriveMedia(IStream: InStream; FileName: Text; ID: Integer)
+    local procedure UpdateGoogleDriveMedia(MediaInStream: InStream; FileName: Text; ID: Integer)
     var
         GDIMedia: Record "GDI Media";
         GDIMediaInfo: Record "GDI Media Info";
@@ -438,7 +438,7 @@ codeunit 50101 "GDI Media Mgt."
     begin
         GDIMedia.Get(ID);
         GDIMedia.Validate(FileName, FileName);
-        GDIMedia.FileContent.ImportStream(IStream, FileName, GDITokens.MimeTypeJpeg());
+        GDIMedia.FileContent.ImportStream(MediaInStream, FileName, GDITokens.MimeTypeJpeg());
         GDIMedia.Modify(true);
 
         TenantMedia.Get(GDIMedia.FileContent.MediaId);

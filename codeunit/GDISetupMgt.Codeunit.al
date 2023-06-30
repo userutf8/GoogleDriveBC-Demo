@@ -81,15 +81,15 @@ codeunit 50100 "GDI Setup Mgt."
         GDIJsonHelper: Codeunit "GDI Json Helper";
         GDIErrorHandler: Codeunit "GDI Error Handler";
         GDITokens: Codeunit "GDI Tokens";
-        IStream: InStream;
+        MediaInStream: InStream;
         ClientFileName: Text;
         JsonText: Text;
         JsonObj: JsonObject;
     begin
-        if not File.UploadIntoStream(DialogTitleUploadTxt, '', '', ClientFileName, IStream) then
+        if not File.UploadIntoStream(DialogTitleUploadTxt, '', '', ClientFileName, MediaInStream) then
             GDIErrorHandler.ThrowFileUploadErr(ClientFileName);
 
-        if not JsonObj.ReadFrom(IStream) then
+        if not JsonObj.ReadFrom(MediaInStream) then
             GDIErrorHandler.ThrowJsonReadErr(ClientFileName);
 
         if not JsonObj.Contains(GDITokens.Installed()) then
