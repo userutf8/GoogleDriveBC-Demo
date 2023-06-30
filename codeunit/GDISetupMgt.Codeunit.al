@@ -112,6 +112,7 @@ codeunit 50100 "GDI Setup Mgt."
         GDISetup.Validate(AuthScope, AuthScopeTxt);
         GDISetup.Validate(APIScope, APIScopeTxt);
         GDISetup.Validate(APIUploadScope, APIUploadScopeTxt);
+        GDISetup.Validate(GracePeriod, 604800000); // 7 days
         GDISetup.TestMandatoryAuthFields();
         GDISetup.Insert();
     end;

@@ -97,11 +97,6 @@ table 50100 "GDI Setup"
             ExtendedDatatype = URL;
             Caption = 'Scope (authorization)';
             Description = 'Specifies the authorization scope URI. Required to authorize an app to access Google Drive API.';
-            trigger OnValidate()
-            begin
-                if AuthScope <> xRec.AuthScope then
-                    ClearTokens();
-            end;
         }
         field(15; LifeTime; Integer)
         {

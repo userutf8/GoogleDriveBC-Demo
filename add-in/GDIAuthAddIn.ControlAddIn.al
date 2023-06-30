@@ -1,16 +1,16 @@
 controladdin "GDI Auth Add-In"
 {
-    RequestedHeight = 1;
-    MinimumHeight = 1;
-    MaximumHeight = 1;
-    RequestedWidth = 1;
-    MinimumWidth = 1;
-    MaximumWidth = 1;
-    VerticalStretch = true;
-    VerticalShrink = true;
-    HorizontalStretch = true;
     HorizontalShrink = true;
+    HorizontalStretch = true;
+    MaximumHeight = 1;
+    MaximumWidth = 1;
+    MinimumHeight = 1;
+    MinimumWidth = 1;
+    RequestedHeight = 1;
+    RequestedWidth = 1;
     StartupScript = 'add-in/startup.js';
+    VerticalShrink = true;
+    VerticalStretch = true;
 
     event GetAuthCode(AuthCode: Text)
 

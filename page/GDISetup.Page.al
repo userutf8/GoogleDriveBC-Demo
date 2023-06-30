@@ -5,12 +5,10 @@ page 50100 "GDI Setup"
     AdditionalSearchTerms = 'Gallery, Google, Drive, Setup';
     ApplicationArea = All;
     Caption = 'Google Drive Setup';
-    DeleteAllowed = true;
-    Editable = true;
+    DeleteAllowed = false;
     InsertAllowed = false;
-    ModifyAllowed = true;
+    LinksAllowed = false;
     PageType = Card;
-    RefreshOnActivate = true; // TODO: check, it has issues
     SourceTable = "GDI Setup";
     UsageCategory = Administration;
 
@@ -22,7 +20,7 @@ page 50100 "GDI Setup"
             {
                 ApplicationArea = All;
                 Editable = true;
-                ToolTip = 'Specifies that record is active.';
+                ToolTip = 'Specifies that the setup is active.';
             }
             group(Client)
             {
@@ -30,13 +28,13 @@ page 50100 "GDI Setup"
                 {
                     ApplicationArea = All;
                     Editable = true;
-                    ToolTip = 'Client ID received from the client secret file.';
+                    ToolTip = 'Client ID loaded from client secret file.';
                 }
                 field("Client Secret"; Rec.ClientSecret)
                 {
                     ApplicationArea = All;
                     Editable = true;
-                    ToolTip = 'Client secret received from the client secret file.';
+                    ToolTip = 'Client secret loaded from client secret file.';
                 }
                 field("Redirect URI"; Rec.RedirectURI)
                 {
@@ -63,7 +61,7 @@ page 50100 "GDI Setup"
                 {
                     ApplicationArea = All;
                     Editable = true;
-                    ToolTip = 'Google OAuth 2.0 endpoint required to exchange the authorization code for token.';
+                    ToolTip = 'Google OAuth 2.0 endpoint required to exchange the authorization code for the access token.';
                 }
                 field("Auth Scope"; Rec.AuthScope)
                 {
@@ -91,13 +89,13 @@ page 50100 "GDI Setup"
                 {
                     ApplicationArea = All;
                     Editable = false;
-                    ToolTip = 'Access Token required for all Google Drive API requests.';
+                    ToolTip = 'Access Token is required for all Google Drive API requests.';
                 }
                 field("Refresh Token"; Rec.RefreshToken)
                 {
                     ApplicationArea = All;
                     Editable = false;
-                    ToolTip = 'Refresh Token required to request a fresh Access Token.';
+                    ToolTip = 'Refresh Token is required to request a fresh Access Token.';
                 }
                 field("Expires in"; Rec.ExpiresIn)
                 {
@@ -120,25 +118,25 @@ page 50100 "GDI Setup"
                 {
                     ApplicationArea = all;
                     Editable = true;
-                    ToolTip = 'Specifies the cache size limit in megabytes.';
+                    ToolTip = 'Cache size limit in megabytes.';
                 }
                 field(CacheWarning; Rec.CacheWarning)
                 {
                     ApplicationArea = all;
                     Editable = true;
-                    ToolTip = 'Specifies the minimum percent of the cache to stop automatic cache cleaning.';
+                    ToolTip = 'Specifies the minimum volume percent of the Cache for the automatic cleaner to stop cleaning.';
                 }
                 field(GracePeriod; Rec.GracePeriod)
                 {
                     ApplicationArea = all;
                     Editable = true;
-                    ToolTip = 'Specifies the period when media is considered new. Affects the automatic cache cleaning.';
+                    ToolTip = 'Specifies the period when media is considered ''new''. New media is less likely to be cleaned than the older one.';
                 }
                 field(ClearAllBelowRank; Rec.ClearAllBelowRank)
                 {
                     ApplicationArea = all;
                     Editable = true;
-                    ToolTip = 'Specifies the minimum rank for the cache cleaner to start checking the necessity of cleaning.';
+                    ToolTip = 'Specifies the minimum rank for the cache cleaner to stop bulk cleaning and start checking remaining size to clean.';
                 }
             }
         }
@@ -159,7 +157,8 @@ page 50100 "GDI Setup"
                 var
                     GDISetupMgt: Codeunit "GDI Setup Mgt.";
                 begin
-                    GDISetupMgt.InitSetup();
+                    if Confirm(InitWarningTxt, true) then
+                        GDISetupMgt.InitSetup();
                 end;
             }
             action("Activate Setup")
@@ -168,7 +167,7 @@ page 50100 "GDI Setup"
                 Caption = 'Activate';
                 Image = Apply;
                 ToolTip = 'Open Google Drive authorization screen and authorize Business Central to work with Google Drive.';
-                // TODO: bad design, shan't be here
+                // TODO: bad design, it shouldn't be here
                 // TODO: move it to Active.OnValidate?
                 trigger OnAction()
                 var
@@ -201,6 +200,7 @@ page 50100 "GDI Setup"
         }
     }
     var
+        InitWarningTxt: Label 'Warning! This action will clear all settings. Do you want to proceed?';
         OldTokenAliveTxt: Label 'The existing access token is still valid. No need to refresh.';
         TokenRefreshedTxt: Label 'Access token was successfully refreshed!';
 }
