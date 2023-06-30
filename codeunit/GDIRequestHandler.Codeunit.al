@@ -93,7 +93,7 @@ codeunit 50110 "GDI Request Handler"
             GDITokens.Authorization(), StrSubstNo(AuthHdrValueTok, GDISetup.TokenType, GDISetup.AccessToken));
         if MyHttpClient.Get(Url, MyHttpResponseMessage) then
             if MyHttpResponseMessage.IsSuccessStatusCode then
-                MyHttpResponseMessage.Content.ReadAs(MediaInStream) // TODO: will that work in Azure considering 1 mln bytes limitation? 
+                MyHttpResponseMessage.Content.ReadAs(MediaInStream) // TODO: will that work in Azure considering 1 mln bytes limitation?
             else begin
                 MyHttpResponseMessage.Content.ReadAs(ErrorText);
                 SetErrorText(GDIJsonHelper.CreateSimpleJson(GDITokens.ErrorTok(), ErrorText));

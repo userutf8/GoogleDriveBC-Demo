@@ -81,7 +81,6 @@ codeunit 50112 "GDI Queue Handler"
                         GDIMediaMgt.CreateOnGoogleDrive(GDIQueue.MediaID);
                 end;
             Commit();
-
         until CurrentDateTime - StartDateTime >= MaxDuration;
     end;
 
@@ -117,5 +116,4 @@ codeunit 50112 "GDI Queue Handler"
             ExcludeFilter += '&<>';
         ExcludeFilter += Format(MediaID);
     end;
-
 }

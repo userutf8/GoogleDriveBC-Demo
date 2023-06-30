@@ -1,5 +1,6 @@
 table 50110 "GDI Media"
 {
+    DataClassification = CustomerContent;
     fields
     {
         field(1; ID; Integer)
@@ -17,7 +18,6 @@ table 50110 "GDI Media"
             Caption = 'File Name';
             Description = 'Name of the file uploaded to BC from user device.';
         }
-
         field(4; FileContent; Media)
         {
             Caption = 'File';
@@ -46,7 +46,6 @@ table 50110 "GDI Media"
 
     trigger OnModify()
     begin
-
     end;
 
     trigger OnDelete()

@@ -73,5 +73,4 @@ codeunit 50114 "GDI Cache Cleaner"
                 end;
             until (GDIMediaInfo.Next() = 0) or (CurrentCacheSize + ClearSize <= MaxCacheSize);
     end;
-
 }

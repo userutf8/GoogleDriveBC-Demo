@@ -1,5 +1,6 @@
 table 50115 "GDI Link"
 {
+    DataClassification = CustomerContent;
     fields
     {
         field(1; ID; Integer)
@@ -55,17 +56,13 @@ table 50115 "GDI Link"
 
     trigger OnModify()
     begin
-
     end;
 
     trigger OnDelete()
     begin
-
     end;
 
     trigger OnRename()
     begin
-
     end;
-
 }

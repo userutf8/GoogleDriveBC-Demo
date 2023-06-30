@@ -1,8 +1,8 @@
 table 50113 "GDI Media Info"
 {
-
     Caption = 'Google Drive Media Info';
     Description = 'Statistics for Google Drive Media. Required for maintaining the cache.';
+    DataClassification = CustomerContent;
     fields
     {
         field(1; MediaID; Integer)
@@ -58,22 +58,17 @@ table 50113 "GDI Media Info"
 
     trigger OnInsert()
     begin
-
     end;
 
     trigger OnModify()
     begin
-
     end;
 
     trigger OnDelete()
     begin
-
     end;
 
     trigger OnRename()
     begin
-
     end;
-
 }

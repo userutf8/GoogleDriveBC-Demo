@@ -18,7 +18,6 @@ page 50115 "GDI Links"
 
     layout
     {
-
         area(Content)
         {
             repeater(Default)
@@ -31,7 +30,6 @@ page 50115 "GDI Links"
                     ToolTip = 'Identifier of the record.';
                     Editable = false;
                 }
-
                 field(EntityTypeID; Rec.EntityTypeID)
                 {
                     ApplicationArea = All;
@@ -64,7 +62,6 @@ page 50115 "GDI Links"
                         GDIMediaPage.GetRecord(GDIMedia);
                         Rec.MediaID := GDIMedia.ID;
                     end;
-
                 }
             }
         }

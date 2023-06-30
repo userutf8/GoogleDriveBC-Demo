@@ -18,7 +18,6 @@ page 50110 "GDI Media"
     {
         area(Content)
         {
-
             repeater("Images")
             {
                 field(FileName; Rec.FileName)
@@ -73,7 +72,6 @@ page 50110 "GDI Media"
                     if CurrentEntityTypeID <> 0 then
                         GDIMediaMgt.UpdateViewedByEntity(NewMediaID);
                 end;
-
             }
         }
         area(Processing)
@@ -202,7 +200,7 @@ page 50110 "GDI Media"
                     GDIMediaMgt: Codeunit "GDI Media Mgt.";
                 begin
                     GDIMediaMgt.Get(Rec, true);
-                    // Raise views for the image to prevent the cases when it's cleaned again soon 
+                    // Raise views for the image to prevent the cases when it's cleaned again soon
                     if CurrentEntityTypeID <> 0 then
                         GDIMediaMgt.UpdateViewedByEntity(Rec.ID);
                 end;
@@ -225,53 +223,33 @@ page 50110 "GDI Media"
             {
                 actionref(Add_Promoted; "Add")
                 {
-
                 }
-
                 actionref(AddLinks_Promoted; "Add Links")
                 {
-
                 }
-
                 actionref(Refresh_Promoted; "Refresh")
                 {
-
                 }
-
                 actionref(Pull_Promoted; "Pull")
                 {
-
                 }
-
                 actionref(Replace_Promoted; "Replace")
                 {
-
                 }
-
-
                 actionref(Delete_Promoted; "Delete")
                 {
-
                 }
-
                 actionref(Download_Promoted; "Download")
                 {
-
                 }
-
                 actionref(MediaLinks_Promoted; "Media Links")
                 {
-
                 }
-
                 actionref(AllLinks_Promoted; "All Links")
                 {
-
                 }
-
                 actionref(Problems_Promoted; Queue)
                 {
-
                 }
             }
         }

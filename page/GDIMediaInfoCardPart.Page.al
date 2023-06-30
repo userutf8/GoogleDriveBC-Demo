@@ -31,7 +31,6 @@ page 50113 "GDI Media Info Card Part"
                     Editable = false;
                     ToolTip = 'Specifies when the media was last time viewed for an entity.';
                 }
-
                 field(Stars; Rec.Stars)
                 {
                     ApplicationArea = All;
@@ -69,7 +68,6 @@ page 50113 "GDI Media Info Card Part"
                     end;
                 end;
             }
-
         }
     }
     var

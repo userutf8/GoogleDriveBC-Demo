@@ -27,7 +27,7 @@ codeunit 50111 "GDI Error Handler"
         ClearError();
         ClearLastError();
         if ResponseText = '' then
-            exit(false); // Empty response is ok 
+            exit(false); // Empty response is ok
 
         if not ResponseJson.ReadFrom(ResponseText) then begin
             LogError(GDIProblem::JsonRead, CallerMethod, ResponseText);
@@ -231,5 +231,4 @@ codeunit 50111 "GDI Error Handler"
         MediaIDMissingErr: Label 'Media ID is missing.';
         NotImplementedErr: Label 'Not implemented.';
         ValueOutOfRangeErr: Label '%1 %2 is out of range [%3 .. %4].', Comment = '%1 = Variable/field name; %2 = Variable/field value; %3 = low margin; %4 = high margin';
-
 }

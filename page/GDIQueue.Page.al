@@ -31,7 +31,6 @@ Page 50120 "GDI Queue"
                     Editable = false;
                     ToolTip = 'Unique Google Drive file identifier. Empty value means that the file was not synced with Google Drive.';
                 }
-
                 field(Method; Rec.Method)
                 {
                     ApplicationArea = all;
@@ -76,13 +75,11 @@ Page 50120 "GDI Queue"
                     GDIQueueHandler.HandleQueue();
                 end;
             }
-
         }
         area(Promoted)
         {
             actionref(FixProblems_promoted; "Process Queue")
             {
-
             }
         }
     }

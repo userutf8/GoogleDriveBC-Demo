@@ -1,11 +1,11 @@
 table 50120 "GDI Queue"
 {
     Description = 'Entries for the job queue.';
+    DataClassification = CustomerContent;
     fields
     {
         field(1; ID; Integer)
         {
-
         }
         field(2; MediaID; Integer)
         {
@@ -34,7 +34,6 @@ table 50120 "GDI Queue"
         }
         field(8; FileID; Text[128])
         {
-
         }
     }
 
@@ -59,17 +58,13 @@ table 50120 "GDI Queue"
 
     trigger OnModify()
     begin
-
     end;
 
     trigger OnDelete()
     begin
-
     end;
 
     trigger OnRename()
     begin
-
     end;
-
 }

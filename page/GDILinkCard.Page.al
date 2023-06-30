@@ -25,7 +25,6 @@ page 50116 "GDI Link Card"
                     ToolTip = 'Identifier of the record.';
                     Editable = false;
                 }
-
                 field(EntityTypeID; Rec.EntityTypeID)
                 {
                     ApplicationArea = All;

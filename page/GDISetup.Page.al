@@ -26,7 +26,6 @@ page 50100 "GDI Setup"
             }
             group(Client)
             {
-
                 field("Client ID"; Rec.ClientID)
                 {
                     ApplicationArea = All;
@@ -54,7 +53,6 @@ page 50100 "GDI Setup"
                     Editable = true;
                     ToolTip = 'Specifies the refresh time of the Access Token in seconds.';
                 }
-
                 field("Auth URI"; Rec.AuthUri)
                 {
                     ApplicationArea = All;
@@ -79,7 +77,6 @@ page 50100 "GDI Setup"
                     Editable = true;
                     ToolTip = 'Google Drive API endpoint for metadata and download.';
                 }
-
                 field("API Upload Scope"; Rec.APIUploadScope)
                 {
                     ApplicationArea = All;
@@ -130,7 +127,6 @@ page 50100 "GDI Setup"
                     ApplicationArea = all;
                     Editable = true;
                     ToolTip = 'Specifies the minimum percent of the cache to stop automatic cache cleaning.';
-
                 }
                 field(GracePeriod; Rec.GracePeriod)
                 {
@@ -152,7 +148,6 @@ page 50100 "GDI Setup"
     {
         area(Processing)
         {
-
             action("Init Setup")
             {
                 ApplicationArea = All;
@@ -194,20 +189,16 @@ page 50100 "GDI Setup"
                             Message(TokenRefreshedTxt);
                 end;
             }
-
         }
         area(Promoted)
         {
             actionref(Init_Ref; "Init Setup")
             {
-
             }
             actionref(Activate_Ref; "Activate Setup")
             {
-
             }
         }
-
     }
     var
         OldTokenAliveTxt: Label 'The existing access token is still valid. No need to refresh.';

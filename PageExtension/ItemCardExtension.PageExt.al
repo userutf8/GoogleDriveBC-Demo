@@ -16,14 +16,12 @@ pageextension 50100 "Item Card Extension" extends "Item Card"
                 begin
                     GDIMediaMgt.RunMediaPage(Database::Item, Rec."No.", Rec.TableCaption + ' ' + Rec."No.");
                 end;
-
             }
         }
         addlast(Category_Process)
         {
             actionref(Gallery_ref; Gallery)
             {
-
             }
         }
     }

@@ -118,19 +118,15 @@ page 50111 "GDI Media Card"
             {
                 actionref(Replace_Promoted; "Replace")
                 {
-
                 }
                 actionref(Delete_Promoted; "Delete")
                 {
-
                 }
                 actionref(Download_Promoted; "Download")
                 {
-
                 }
                 actionref(Links_Promoted; Links)
                 {
-
                 }
             }
         }

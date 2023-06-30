@@ -1,6 +1,5 @@
 codeunit 50130 "GDI Links Handler"
 {
-
     procedure CreateLink(MediaID: Integer; EntityTypeID: Integer; EntityID: Text)
     var
         GDILink: Record "GDI Link";
@@ -73,5 +72,4 @@ codeunit 50130 "GDI Links Handler"
         GDILink.SetFilter(EntityID, '<>%1', EntityID);
         exit(AnotherEntityTypeHasLink or not GDILink.IsEmpty());
     end;
-
 }

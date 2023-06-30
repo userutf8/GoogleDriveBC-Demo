@@ -71,5 +71,4 @@ codeunit 50120 "GDI Json Helper"
 
     var
         SimpleJsonTxt: Label '{"%1": "%2"}', Comment = '%1 = Token name; %2 = Value';
-
 }

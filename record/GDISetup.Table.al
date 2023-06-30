@@ -1,5 +1,6 @@
 table 50100 "GDI Setup"
 {
+    DataClassification = CustomerContent;
     fields
     {
         field(1; ID; Integer)
@@ -27,7 +28,6 @@ table 50100 "GDI Setup"
                     if xRec.Active = true then
                         ClearTokens();
             end;
-
         }
         field(3; ClientID; Text[1024])
         {
@@ -121,7 +121,6 @@ table 50100 "GDI Setup"
                 if (LifeTime < 0) or (LifeTime > ExpiresInInt) then
                     GDIErrorHandler.ThrowValueOutOfRange(FieldCaption(LifeTime), Format(LifeTime), '0', ExpiresIn);
             end;
-
         }
         field(16; IssuedUtc; DateTime)
         {
@@ -171,7 +170,6 @@ table 50100 "GDI Setup"
             MinValue = 1;
             MaxValue = 100;
         }
-
     }
 
     keys
@@ -199,12 +197,10 @@ table 50100 "GDI Setup"
 
     trigger OnModify()
     begin
-
     end;
 
     trigger OnDelete()
     begin
-
     end;
 
     trigger OnRename()

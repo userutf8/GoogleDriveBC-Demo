@@ -147,5 +147,4 @@ codeunit 50121 "GDI Tokens"
     begin
         exit('uploadType');
     end;
-
 }
