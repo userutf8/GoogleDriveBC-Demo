@@ -15,7 +15,7 @@ codeunit 50114 "GDI Cache Cleaner"
         CurrentCacheSize: Decimal;
     begin
         GDISetup.Get();
-        MaxCacheSize := GDISetup.CacheSize * GDISetup.CacheWarning / 100;
+        MaxCacheSize := GDISetup.CacheSize * GDISetup.CacheVolume / 100;
         GDIMediaInfo.SetFilter(FileSize, '>%1', 0.0);
         GDIMediaInfo.CalcSums(FileSize);
         CurrentCacheSize := GDIMediaInfo.FileSize;

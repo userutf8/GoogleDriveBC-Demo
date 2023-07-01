@@ -147,9 +147,9 @@ table 50100 "GDI Setup"
             MaxValue = 10240.0; // 10 GB
             MinValue = 0.0;
         }
-        field(21; CacheWarning; Integer)
+        field(21; CacheVolume; Integer)
         {
-            Caption = 'Cache warning (%)';
+            Caption = 'Cache volume (%)';
             InitValue = 90;
             MaxValue = 100;
             MinValue = 50;

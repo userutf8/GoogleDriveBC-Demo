@@ -120,7 +120,7 @@ page 50100 "GDI Setup"
                     Editable = true;
                     ToolTip = 'Cache size limit in megabytes.';
                 }
-                field(CacheWarning; Rec.CacheWarning)
+                field(CacheVolume; Rec.CacheVolume)
                 {
                     ApplicationArea = all;
                     Editable = true;
