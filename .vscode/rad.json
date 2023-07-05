@@ -1,1 +1,1 @@
-﻿{"Added":[],"Modified":[],"Removed":[]}
+﻿{"Added":[],"Modified":[{"Id":50111,"Kind":12,"Name":"GDI Media Card","PackagePath":"/src/Page/GDIMediaCard.Page.al"},{"Id":50101,"Kind":11,"Name":"GDI Media Mgt.","PackagePath":"/src/Codeunit/GDIMediaMgt.Codeunit.al"}],"Removed":[]}

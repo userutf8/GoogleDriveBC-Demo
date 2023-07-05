@@ -30,6 +30,18 @@ page 50111 "GDI Media Card"
                     Style = Attention;
                     StyleExpr = Rec.FileID = '';
                     Tooltip = 'Name of the file.';
+
+                    trigger OnValidate()
+                    var
+                        GDIMediaMgt: Codeunit "GDI Media Mgt.";
+                        GDIErrorHandler: Codeunit "GDI Error Handler";
+                    begin
+                        if Rec.FileName = '' then
+                            GDIErrorHandler.ThrowFileNameMissingErr();
+
+                        if Rec.FileName <> xRec.FileName then
+                            GDIMediaMgt.UpdateFileName(Rec.FileName, Rec.ID);
+                    end;
                 }
                 field(FileID; Rec.FileID)
                 {

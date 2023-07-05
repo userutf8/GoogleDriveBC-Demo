@@ -74,7 +74,7 @@ codeunit 50112 "GDI Queue Handler"
                     GDIQueue.Method::DeleteFile:
                         GDIMediaMgt.DeleteFromGoogleDrive(GDIQueue.MediaID, GDIQueue.FileID);
                     GDIQueue.Method::PatchMetadata:
-                        GDIMediaMgt.PatchMetadata('TODO', GDIQueue.FileID); //todo: patch metadata doesn't know how to create queue yet
+                        GDIMediaMgt.UpdateFileName('', GDIQueue.MediaID);
                     GDIQueue.Method::PatchFile:
                         GDIMediaMgt.UpdateOnGoogleDrive(GDIQueue.MediaID);
                     GDIQueue.Method::PostFile:

@@ -62,7 +62,7 @@ codeunit 50101 "GDI Media Mgt."
         end;
 
         ResponseJson.ReadFrom(ResponseText);
-        GDIJsonHelper.TryGetTextValueFromJson(FileID, ResponseJson, GDITokens.IdTok());
+        if GDIJsonHelper.TryGetTextValueFromJson(FileID, ResponseJson, GDITokens.IdTok()) then;
         if FileID = '' then begin
             GDIQueueHandler.Update(
                 QueueID, GDIStatus::"To Handle", GDIMethod::PostFile, GDIProblem::MissingFileID, MediaID, '', ResponseText);
@@ -71,20 +71,11 @@ codeunit 50101 "GDI Media Mgt."
         end;
 
         UpdateGoogleDriveMediaFileID(MediaID, FileID);
-        GDIQueueHandler.Update(QueueID, GDIStatus::New, GDIMethod::PostFile, GDIProblem::Undefined, MediaID, FileID, '');
-        Commit();
-
-        ResponseText := PatchMetadata(GDIJsonHelper.CreateSimpleJson(GDITokens.Name(), FileName), FileID);
-        if GDIErrorHandler.ResponseHasError(GDIMethod::PatchMetadata, ResponseText) then begin
-            GDIErrorHandler.GetError(GDIMethod, GDIProblem, ErrorValue);
-            GDIQueueHandler.Update(QueueID, GDIStatus::"To Handle", GDIMethod, GDIProblem, MediaID, FileID, ErrorValue);
-            Commit();
-            exit;
-        end;
-
         GDIQueueHandler.Update(
             QueueID, GDIStatus::Handled, GDIMethod::PostFile, GDIProblem::Undefined, MediaID, FileID, '');
         Commit();
+
+        PatchMetadata(GDIJsonHelper.CreateSimpleJson(GDITokens.Name(), FileName), FileID, MediaID);
     end;
 
     procedure CreateOnGoogleDrive(MediaID: Integer)
@@ -265,6 +256,19 @@ codeunit 50101 "GDI Media Mgt."
         UpdateOnGoogleDrive(MediaInStream, ClientFileName, MediaID);
     end;
 
+    procedure UpdateFileName(NewFileName: Text; MediaID: Integer)
+    var
+        GDIMedia: Record "GDI Media";
+        GDIJsonHelper: Codeunit "GDI Json Helper";
+        GDITokens: Codeunit "GDI Tokens";
+    begin
+        GDIMedia.Get(MediaID);
+        if NewFileName = '' then
+            NewFileName := GDIMedia.FileName;
+        PatchMetadata(
+            GDIJsonHelper.CreateSimpleJson(GDITokens.Name(), NewFileName), GDIMedia.FileID, GDIMedia.ID);
+    end;
+
     procedure UpdateOnGoogleDrive(var MediaInStream: InStream; FileName: Text; MediaID: Integer)
     var
         GDISetupMgt: Codeunit "GDI Setup Mgt.";
@@ -311,17 +315,10 @@ codeunit 50101 "GDI Media Mgt."
             Commit();
             exit;
         end;
-
-        ResponseText := PatchMetadata(GDIJsonHelper.CreateSimpleJson(GDITokens.Name(), FileName), FileID);
-        if GDIErrorHandler.ResponseHasError(GDIMethod::PatchMetadata, ResponseText) then begin
-            GDIErrorHandler.GetError(GDIMethod, GDIProblem, ErrorValue);
-            GDIQueueHandler.Update(QueueID, GDIStatus::"To Handle", GDIMethod, GDIProblem, MediaID, FileID, ErrorValue);
-            Commit();
-            exit;
-        end;
-
         GDIQueueHandler.Update(QueueID, GDIStatus::Handled, GDIMethod::PatchFile, GDIProblem::Undefined, MediaID, FileID, '');
         Commit();
+
+        PatchMetadata(GDIJsonHelper.CreateSimpleJson(GDITokens.Name(), FileName), FileID, MediaID);
     end;
 
     procedure UpdateOnGoogleDrive(MediaID: Integer)
@@ -335,24 +332,52 @@ codeunit 50101 "GDI Media Mgt."
         UpdateOnGoogleDrive(MediaInStream, FileName, MediaID);
     end;
 
-    procedure PatchMetadata(NewMetadata: Text; FileID: Text): Text
+    procedure PatchMetadata(NewMetadata: Text; FileID: Text; MediaID: Integer)
     var
         GDISetupMgt: Codeunit "GDI Setup Mgt.";
         GDIRequestHandler: Codeunit "GDI Request Handler";
+        GDIQueueHandler: Codeunit "GDI Queue Handler";
         GDIErrorHandler: Codeunit "GDI Error Handler";
         GDIMethod: Enum "GDI Method";
+        GDIProblem: Enum "GDI Problem";
+        GDIStatus: Enum "GDI Status";
         ResponseText: Text;
+        ErrorValue: Text;
+        QueueID: Integer;
     begin
-        // TODO: patch metadata doesn't know how to create queue. create queue if called independently.
         if NewMetadata = '' then
             GDIErrorHandler.ThrowFileNameMissingErr(); // TEMP
 
-        if FileID = '' then
-            GDIErrorHandler.ThrowFileIDMissingErr();
+        if MediaID = 0 then
+            GDIErrorHandler.ThrowMediaIDMissingErr();
+
+        if FileID = '' then begin
+            GDIQueueHandler.Create(GDIStatus::"To Handle", GDIMethod::PatchMetadata, GDIProblem::MissingFileID, MediaID, '');
+            Commit();
+            exit;
+        end;
+        QueueID := GDIQueueHandler.Create(GDIMethod::PatchMetadata, GDIProblem::Undefined, MediaID, FileID);
+        Commit();
 
         GDISetupMgt.Authorize(GDIMethod::PatchMetadata);
+        GDISetupMgt.GetError(GDIMethod, GDIProblem, ErrorValue);
+        if ErrorValue <> '' then begin
+            GDIQueueHandler.Update(QueueID, GDIStatus::"To Handle", GDIMethod, GDIProblem, MediaID, FileID, ErrorValue);
+            Commit();
+            exit;
+        end;
+
         ResponseText := GDIRequestHandler.PatchMetadata(NewMetadata, FileID);
-        exit(ResponseText);
+        if GDIErrorHandler.ResponseHasError(GDIMethod::PatchMetadata, ResponseText) then begin
+            GDIErrorHandler.GetError(GDIMethod, GDIProblem, ErrorValue);
+            GDIQueueHandler.Update(QueueID, GDIStatus::"To Handle", GDIMethod, GDIProblem, MediaID, FileID, ErrorValue);
+            Commit();
+            exit;
+        end;
+
+        GDIQueueHandler.Update(QueueID, GDIStatus::Handled, GDIMethod::PatchMetadata, GDIProblem::Undefined, MediaID, FileID, '');
+        Commit();
+        exit;
     end;
 
     procedure ReadFileFromMedia(var TempBlob: codeunit "Temp Blob"; var FileName: Text; MediaID: Integer)
