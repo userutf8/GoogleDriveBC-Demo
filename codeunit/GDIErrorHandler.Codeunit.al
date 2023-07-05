@@ -243,8 +243,8 @@ codeunit 50111 "GDI Error Handler"
         CurrentProblem := Problem;
         CurrentMethod := Method;
         CurrentErrorValue := ErrorValue;
-        // TODO: logging
-        // NOTE: Logging requires extra commits
+        // INFO: Error logging will be added later
+        // requires a table
     end;
 
     var

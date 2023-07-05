@@ -136,7 +136,7 @@ page 50110 "GDI Media"
                     GDILinks.SetEntity(CurrentEntityTypeID, CurrentEntityID);
                     GDILinks.SetTableView(GDILink);
                     GDILinks.Run();
-                    UpdateFilter(); // TODO: not WAI
+                    UpdateFilter();
                 end;
             }
 
@@ -156,7 +156,7 @@ page 50110 "GDI Media"
                     GDILinks.SetEntity(CurrentEntityTypeID, CurrentEntityID);
                     GDILinks.SetTableView(GDILink);
                     GDILinks.Run();
-                    UpdateFilter(); // TODO: not WAI
+                    UpdateFilter();
                 end;
             }
             action("All Links")
@@ -172,7 +172,7 @@ page 50110 "GDI Media"
                 begin
                     GDILinks.SetEntity(CurrentEntityTypeID, CurrentEntityID);
                     GDILinks.Run();
-                    UpdateFilter(); // TODO: not WAI
+                    UpdateFilter();
                 end;
             }
             action("Refresh")

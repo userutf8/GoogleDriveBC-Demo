@@ -226,23 +226,6 @@ codeunit 50101 "GDI Media Mgt."
         ErrorText := GDIRequestHandler.GetErrorText();
     end;
 
-    procedure GetMetadata(FileID: Text): Text
-    var
-        GDISetupMgt: Codeunit "GDI Setup Mgt.";
-        GDIRequestHandler: Codeunit "GDI Request Handler";
-        GDIErrorHandler: Codeunit "GDI Error Handler";
-        GDIMethod: Enum "GDI Method";
-        ResponseText: Text;
-    begin
-        if FileID = '' then
-            GDIErrorHandler.ThrowFileIDMissingErr();
-
-        GDISetupMgt.Authorize(GDIMethod::GetMetadata);
-        ResponseText := GDIRequestHandler.GetMetadata(FileID);
-        exit(ResponseText);
-        // TODO align with GET
-    end;
-
     procedure Update(MediaID: Integer)
     var
         GDIErrorHandler: Codeunit "GDI Error Handler";
@@ -485,6 +468,24 @@ codeunit 50101 "GDI Media Mgt."
         GDIMedia.Get(MediaID);
         GDIMedia.Validate(FileID, FileID);
         GDIMedia.Modify(true);
+    end;
+
+    procedure Deprecated_GetMetadata(FileID: Text): Text
+    var
+        GDISetupMgt: Codeunit "GDI Setup Mgt.";
+        GDIRequestHandler: Codeunit "GDI Request Handler";
+        GDIErrorHandler: Codeunit "GDI Error Handler";
+        GDIMethod: Enum "GDI Method";
+        ResponseText: Text;
+    begin
+        // INFO: we don't need this function at the moment
+        // when the function is added it should be aligned with Get.
+        if FileID = '' then
+            GDIErrorHandler.ThrowFileIDMissingErr();
+
+        GDISetupMgt.Authorize(GDIMethod::GetMetadata);
+        ResponseText := GDIRequestHandler.Deprecated_GetMetadata(FileID);
+        exit(ResponseText);
     end;
 
     var

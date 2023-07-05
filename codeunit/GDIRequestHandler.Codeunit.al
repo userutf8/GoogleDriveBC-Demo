@@ -45,6 +45,7 @@ codeunit 50110 "GDI Request Handler"
     procedure DeleteFile(FileID: Text): Text
     var
         GDISetup: Record "GDI Setup";
+        GDIJsonHelper: Codeunit "GDI Json Helper";
         GDITokens: Codeunit "GDI Tokens";
         MyHttpClient: HttpClient;
         MyHttpRequestMessage: HttpRequestMessage;
@@ -59,14 +60,16 @@ codeunit 50110 "GDI Request Handler"
         MyHttpRequestMessage.Method := 'DELETE';
         MyHttpClient.DefaultRequestHeaders.Add(
             GDITokens.Authorization(), StrSubstNo(AuthHdrValueTok, GDISetup.TokenType, GDISetup.AccessToken));
-        MyHttpClient.Send(MyHttpRequestMessage, MyHttpResponseMessage); // TODO wrapper for the failure
-        MyHttpResponseMessage.Content.ReadAs(ResponseText);
-        exit(ResponseText);
+        if MyHttpClient.Send(MyHttpRequestMessage, MyHttpResponseMessage) then begin
+            MyHttpResponseMessage.Content.ReadAs(ResponseText);
+            exit(ResponseText);
+        end;
+        exit(GDIJsonHelper.CreateSimpleJson(GDITokens.ErrorTok(), MyHttpResponseMessage.HttpStatusCode));
     end;
 
     procedure GetErrorText(): Text
     begin
-        // TODO: can it be removed?
+        // INFO: This function is used for Get only, in future it may be removed
         exit(CurrentErrorText);
     end;
 
@@ -93,37 +96,13 @@ codeunit 50110 "GDI Request Handler"
             GDITokens.Authorization(), StrSubstNo(AuthHdrValueTok, GDISetup.TokenType, GDISetup.AccessToken));
         if MyHttpClient.Get(Url, MyHttpResponseMessage) then
             if MyHttpResponseMessage.IsSuccessStatusCode then
-                MyHttpResponseMessage.Content.ReadAs(MediaInStream) // TODO: will that work in Azure considering 1 mln bytes limitation?
+                MyHttpResponseMessage.Content.ReadAs(MediaInStream)
             else begin
                 MyHttpResponseMessage.Content.ReadAs(ErrorText);
                 SetErrorText(GDIJsonHelper.CreateSimpleJson(GDITokens.ErrorTok(), ErrorText));
             end
         else
             SetErrorText(GDIJsonHelper.CreateSimpleJson(GDITokens.ErrorTok(), MyHttpResponseMessage.HttpStatusCode));
-    end;
-
-    procedure GetMetadata(FileID: Text): Text
-    var
-        GDISetup: Record "GDI Setup";
-        GDIErrorHandler: Codeunit "GDI Error Handler";
-        GDITokens: Codeunit "GDI Tokens";
-        MyHttpClient: HttpClient;
-        MyHttpResponseMessage: HttpResponseMessage;
-        Url: Text;
-        ResponseText: Text;
-    begin
-        // TODO wrapper for get call
-        if FileID = '' then
-            GDIErrorHandler.ThrowFileIDMissingErr();
-
-        GDISetup.Get();
-        Url := StrSubstNo(UrlWithIdAndParamsTok, GDISetup.APIScope, FileID, StrSubstNo(CreateUrlParamsTemplate(1),
-                    GDITokens.KeyTok(), GDISetup.ClientID));
-        MyHttpClient.DefaultRequestHeaders.Add(
-            GDITokens.Authorization(), StrSubstNo(AuthHdrValueTok, GDISetup.TokenType, GDISetup.AccessToken));
-        MyHttpClient.Get(Url, MyHttpResponseMessage);
-        MyHttpResponseMessage.Content.ReadAs(ResponseText);
-        exit(ResponseText);
     end;
 
     procedure PatchFile(MediaInStream: InStream; FileID: Text): Text
@@ -261,6 +240,31 @@ codeunit 50110 "GDI Request Handler"
     local procedure SetErrorText(NewErrorText: Text)
     begin
         CurrentErrorText := NewErrorText;
+    end;
+
+    procedure Deprecated_GetMetadata(FileID: Text): Text
+    var
+        GDISetup: Record "GDI Setup";
+        GDIErrorHandler: Codeunit "GDI Error Handler";
+        GDITokens: Codeunit "GDI Tokens";
+        MyHttpClient: HttpClient;
+        MyHttpResponseMessage: HttpResponseMessage;
+        Url: Text;
+        ResponseText: Text;
+    begin
+        // INFO: this function is not used at the moment
+        // when it's added it should be aligned with Get
+        if FileID = '' then
+            GDIErrorHandler.ThrowFileIDMissingErr();
+
+        GDISetup.Get();
+        Url := StrSubstNo(UrlWithIdAndParamsTok, GDISetup.APIScope, FileID, StrSubstNo(CreateUrlParamsTemplate(1),
+                    GDITokens.KeyTok(), GDISetup.ClientID));
+        MyHttpClient.DefaultRequestHeaders.Add(
+            GDITokens.Authorization(), StrSubstNo(AuthHdrValueTok, GDISetup.TokenType, GDISetup.AccessToken));
+        MyHttpClient.Get(Url, MyHttpResponseMessage);
+        MyHttpResponseMessage.Content.ReadAs(ResponseText);
+        exit(ResponseText);
     end;
 
     var

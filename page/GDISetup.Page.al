@@ -167,8 +167,7 @@ page 50100 "GDI Setup"
                 Caption = 'Activate';
                 Image = Apply;
                 ToolTip = 'Open Google Drive authorization screen and authorize Business Central to work with Google Drive.';
-                // TODO: bad design, it shouldn't be here
-                // TODO: move it to Active.OnValidate?
+                // INFO: this will be moved to Active.OnValidate
                 trigger OnAction()
                 var
                     GDISetup: Record "GDI Setup";
