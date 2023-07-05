@@ -68,6 +68,39 @@ codeunit 50100 "GDI Setup Mgt."
         System.Hyperlink('https://www.google.com/search?q=speedtest');
     end;
 
+    procedure CreateJobQueues()
+    begin
+        CreateJobQueue(Codeunit::"GDI Queue Handler", 1);
+        CreateJobQueue(Codeunit::"GDI Cache Ranking", 1);
+        CreateJobQueue(Codeunit::"GDI Cache Cleaner", 5);
+    end;
+
+    local procedure CreateJobQueue(CodeunitID: Integer; MinutesBetweenRuns: Integer)
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+        JobQueueManagement: Codeunit "Job Queue Management";
+        JobTimeout: Duration;
+    begin
+        JobQueueManagement.DeleteJobQueueEntries(JobQueueObjectType::Codeunit, CodeunitID);
+
+        JobQueueEntry.Init();
+        JobQueueEntry."No. of Minutes between Runs" := MinutesBetweenRuns;
+        JobQueueEntry."Earliest Start Date/Time" := CurrentDateTime;
+        JobQueueEntry."Object Type to Run" := JobQueueObjectType::Codeunit;
+        JobQueueEntry."Object ID to Run" := CodeunitID;
+        JobQueueManagement.CreateJobQueueEntry(JobQueueEntry);
+
+        JobQueueEntry.Validate("Maximum No. of Attempts to Run", 10);
+        JobQueueEntry.Validate("Rerun Delay (sec.)", 10);
+        JobQueueEntry.Validate("Inactivity Timeout Period", 5);
+        Evaluate(JobTimeout, '12 hours');
+        JobQueueEntry.Validate("Job Timeout", JobTimeout);
+        JobQueueEntry.Validate(Status, JobQueueEntry.Status::Ready);
+        JobQueueEntry.Modify(true);
+
+        CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
+    end;
+
     procedure GetError(var GDIMethod: enum "GDI Method"; var GDIProblem: enum "GDI Problem"; var ErrorValue: Text)
     begin
         GDIMethod := CurrentMethod;
@@ -117,6 +150,11 @@ codeunit 50100 "GDI Setup Mgt."
         GDISetup.Insert();
     end;
 
+    procedure ViewJobQueueEntries(JobQueueEntriesNotification: Notification)
+    begin
+        Page.Run(Page::"Job Queue Entries");
+    end;
+
     local procedure CalcLifeTime(ExpiresIn: Text; OldLifeTime: Integer): Integer
     var
         ExpiresInInt: Integer;
@@ -161,4 +199,5 @@ codeunit 50100 "GDI Setup Mgt."
         CurrentProblem: enum "GDI Problem";
         CurrentMethod: enum "GDI Method";
         CurrentErrorValue: text;
+        JobQueueObjectType: Option ,,,"Report",,"Codeunit";
 }

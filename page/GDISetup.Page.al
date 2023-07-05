@@ -187,6 +187,25 @@ page 50100 "GDI Setup"
                             Message(TokenRefreshedTxt);
                 end;
             }
+
+            action("Create Jobs")
+            {
+                ApplicationArea = all;
+                Caption = 'Create Jobs';
+                Image = Job;
+                ToolTip = 'Create Job Queue entries for Queue and Cache handling';
+                trigger OnAction()
+                var
+                    GDISetupMgt: Codeunit "GDI Setup Mgt.";
+                    JobsCreatedNotification: Notification;
+                begin
+                    GDISetupMgt.CreateJobQueues();
+                    JobsCreatedNotification.Scope := JobsCreatedNotification.Scope::LocalScope;
+                    JobsCreatedNotification.Message(JobQueueEntriesCreatedTxt);
+                    JobsCreatedNotification.AddAction(ViewTok, Codeunit::"GDI Setup Mgt.", 'ViewJobQueueEntries');
+                    JobsCreatedNotification.Send();
+                end;
+            }
         }
         area(Promoted)
         {
@@ -196,10 +215,15 @@ page 50100 "GDI Setup"
             actionref(Activate_Ref; "Activate Setup")
             {
             }
+            actionref(CreateJobs_Ref; "Create Jobs")
+            {
+            }
         }
     }
     var
         InitWarningTxt: Label 'Warning! This action will clear all settings. Do you want to proceed?';
         OldTokenAliveTxt: Label 'The existing access token is still valid. No need to refresh.';
         TokenRefreshedTxt: Label 'Access token was successfully refreshed!';
+        JobQueueEntriesCreatedTxt: Label 'Job Queue Entries are created.';
+        ViewTok: Label 'View';
 }
