@@ -1,6 +1,9 @@
 # GoogleDriveBC-Demo
-Google Drive Integration with MS Dynamics Business Central (Demo)
-WIP
+Google Drive Integration with MS Dynamics Business Central (Demo) WIP
+Description:
+https://github.com/userutf8/GoogleDriveBC-Demo
+Video:
+https://youtu.be/NOB87TS-oUA
 
 ## What is working:
 1. Google API (auth, get, delete, post, patch, patch metadata)
@@ -9,7 +12,7 @@ WIP
 4. Demo for Items (links)
 
 ## TODO:
-1. UI improvements with Add-Ins.
+1. UI improvements with Add-Ins
 2. Error logging
 3. Cleaning the cloud
 4. Reindexing (?)
