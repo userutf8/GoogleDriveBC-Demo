@@ -161,6 +161,7 @@ page 50100 "GDI Setup"
                         GDISetupMgt.InitSetup();
                 end;
             }
+
             action("Activate Setup")
             {
                 ApplicationArea = All;
@@ -206,6 +207,31 @@ page 50100 "GDI Setup"
                     JobsCreatedNotification.Send();
                 end;
             }
+
+            action("Clear Cache")
+            {
+                ApplicationArea = all;
+                Caption = 'Clear Cache';
+                Image = Delete;
+                ToolTip = 'Wipes all Media from Google Drive Media records.';
+                trigger OnAction()
+                var
+                    GDIMedia: Record "GDI Media";
+                    GDIMediaInfo: Record "GDI Media Info";
+                begin
+                    if not Confirm(ClearCacheQst, false) then
+                        exit;
+
+                    GDIMedia.Reset();
+                    GDIMedia.FindSet();
+                    repeat
+                        Clear(GDIMedia.FileContent);
+                        GDIMedia.Modify(true);
+                    until GDIMedia.Next() = 0;
+                    GDIMediaInfo.ModifyAll(FileSize, 0.0);
+                end;
+            }
+
         }
         area(Promoted)
         {
@@ -225,5 +251,6 @@ page 50100 "GDI Setup"
         OldTokenAliveTxt: Label 'The existing access token is still valid. No need to refresh.';
         TokenRefreshedTxt: Label 'Access token was successfully refreshed!';
         JobQueueEntriesCreatedTxt: Label 'Job Queue Entries are created.';
+        ClearCacheQst: Label 'Warning: this action clears all media from Google Drive Media records.\Do you want to procceed?';
         ViewTok: Label 'View';
 }
